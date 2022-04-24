@@ -73,6 +73,7 @@ public class GameInstance : IGameInstanceChannelPipeline
         // Setup GameInstanceUpdateChannel
         GameObject UpdateChannelPrefab = Resources.Load<GameObject>("GameInstanceUpdateChannelPrefab");
         GameObject UpdateChannelGameObject = GameObject.Instantiate(UpdateChannelPrefab);
+        UpdateChannelGameObject.name = "GameInstanceUpdateChannel";
         UpdateChannel = UpdateChannelGameObject.GetComponent<GameInstanceChannel>();
         UpdateChannel.Pipeline = this;
         GameObject.DontDestroyOnLoad(UpdateChannel);
@@ -81,14 +82,16 @@ public class GameInstance : IGameInstanceChannelPipeline
         // Create Player
         GameObject PlayerPrefab = Resources.Load<GameObject>("PlayerPrefab");
         GameObject PlayerGameObject = GameObject.Instantiate(PlayerPrefab);
+        PlayerGameObject.name = "LocalPlayer";
         Player player = PlayerGameObject.GetComponent<Player>();
         GameObject.DontDestroyOnLoad(PlayerGameObject);
-        Debug.Log("GAMEINSTANCE: Created Player");
+        Debug.Log("GAMEINSTANCE: Created LocalPlayer");
 
         // Create Character
         GameObject CharacterPrefab = Resources.Load<GameObject>("Manny");
-        GameObject CharacterGameObject = GameObject.Instantiate(CharacterPrefab);
+        GameObject CharacterGameObject = GameObject.Instantiate(CharacterPrefab, new Vector3(0, 1, 9), Quaternion.identity);
         Character character = CharacterGameObject.GetComponent<Character>();
+        CharacterGameObject.name = "Manny";
         Debug.Log("GAMEINSTANCE: Created Character");
 
         // Player Possess Character

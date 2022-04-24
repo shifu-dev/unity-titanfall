@@ -83,6 +83,37 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &3038999913484937973
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8004812138627112400}
+  m_Layer: 0
+  m_Name: FirstPersonCameraSource
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8004812138627112400
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3038999913484937973}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.75600004, z: 0.23899984}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6081539459817332691}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6526974782931169490
 GameObject:
   m_ObjectHideFlags: 0
@@ -93,6 +124,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6081539459817332691}
   - component: {fileID: 1561319467078266631}
+  - component: {fileID: 8863942587269995025}
   - component: {fileID: 3335872080112416175}
   - component: {fileID: 7993160800140144679}
   - component: {fileID: 1873485337021413729}
@@ -101,6 +133,7 @@ GameObject:
   - component: {fileID: 1210957656046409178}
   - component: {fileID: 1118222636024983680}
   - component: {fileID: 2017536350101832689}
+  - component: {fileID: 5119420455498182715}
   m_Layer: 0
   m_Name: Manny
   m_TagString: Untagged
@@ -121,6 +154,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5130046698628662828}
+  - {fileID: 8004812138627112400}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -136,6 +170,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52bd1b64252dfb244975e478bec0a6c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &8863942587269995025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6526974782931169490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6fe7157e1080ee48a8a2c9b6d09ed47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &3335872080112416175
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -148,11 +194,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7262304a2f5a754bb05b7e89d850f58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MovementState:
+    State: 0
   IsOnGround: 0
   CurrentMoveSpeed: 0
   GroundCheckDepth: 0
   GroundStandWalkSpeed: 0
-  GroundStandRunSpeed: 0
+  GroundStandRunSpeed: 20
   GroundStandSprintSpeed: 0
   GroundStandSprintLeftAngleMax: 0
   GroundStandSprintRightAngleMax: 0
@@ -205,6 +253,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e39345ad2e49968428c4f2a55373ec64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Camera: {fileID: 0}
+  FirstPersonCameraSource: {fileID: 3038999913484937973}
+  FirstPersonMaxRotationY: 89.9
+  FirstPersonMinRotationY: -89.9
 --- !u!114 &115547698234889312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -226,7 +278,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6526974782931169490}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc999cf35cb009847b4b317e4f2b60be, type: 3}
+  m_Script: {fileID: 11500000, guid: 831f204c9079215498cffd4800284640, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!136 &1118222636024983680
@@ -263,3 +315,19 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!54 &5119420455498182715
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6526974782931169490}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0

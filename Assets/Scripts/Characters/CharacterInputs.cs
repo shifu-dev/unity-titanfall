@@ -1,16 +1,30 @@
 ﻿using System;
 using UnityEngine;
 
-public struct CharacterInputs : IMovementInputs
+public class CharacterInputs : MonoBehaviour, IMovementInputs
 {
-    public IMovementInputs InputChannel;
+    public Character Character { get => _Character; }
+    public PlayerInputs PlayerInputs { get => _PlayerInputs; set => _PlayerInputs = value; }
 
-	public bool IsValid { get => true; }
-    public Vector3 MoveInputVector { get => InputChannel == default ? default : InputChannel.MoveInputVector; }
-    public float MoveInputAngle { get => InputChannel == default ? default : InputChannel.MoveInputAngle; }
-    public bool WantsToWalk { get => InputChannel == default ? default : InputChannel.WantsToWalk; }
-    public bool WantsToSprint { get => InputChannel == default ? default : InputChannel.WantsToSprint; }
-    public bool WantsToJump { get => InputChannel == default ? default : InputChannel.WantsToJump; }
-    public bool WantsToCrouch { get => InputChannel == default ? default : InputChannel.WantsToCrouch; }
-    public bool WantsToProne { get => InputChannel == default ? default : InputChannel.WantsToProne; }
+    [NonSerialized] protected Character _Character;
+    [NonSerialized] protected PlayerInputs _PlayerInputs;
+
+    public bool IsValid { get => true; }
+    public bool IsGettingInputs { get => _PlayerInputs; }
+    public float MoveInputAngle { get => _PlayerInputs ? _PlayerInputs.MoveInputAngle : default; }
+    public Vector3 MoveInputVector { get => _PlayerInputs ? _PlayerInputs.MoveInputVector : default; }
+    public Vector3 LookInputVector { get => _PlayerInputs ? _PlayerInputs.LookInputVector : default; }
+    public bool WantsToWalk { get => _PlayerInputs ? _PlayerInputs.WantsToWalk : default; }
+    public bool WantsToSprint { get => _PlayerInputs ? _PlayerInputs.WantsToSprint : default; }
+    public bool WantsToJump { get => _PlayerInputs ? _PlayerInputs.WantsToJump : default; }
+    public bool WantsToCrouch { get => _PlayerInputs ? _PlayerInputs.WantsToCrouch : default; }
+    public bool WantsToProne { get => _PlayerInputs ? _PlayerInputs.WantsToProne : default; }
+
+    public void Init(Character character)
+    {
+    }
+
+    public void UpdateImpl()
+    {
+    }
 }

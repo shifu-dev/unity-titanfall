@@ -11,12 +11,13 @@ public class Player : MonoBehaviour
     public PlayerState PlayerState { get => _PlayerState; }
     public PlayerCamera PlayerCamera { get => _PlayerCamera; }
     public PlayerHUD PlayerHUD { get => _PlayerHUD; }
+    public Character Chararcter { get => _Character; }
 
     [NonSerialized] protected PlayerInputs _PlayerInputs;
     [NonSerialized] protected PlayerState _PlayerState;
     [NonSerialized] protected PlayerCamera _PlayerCamera;
     [NonSerialized] protected PlayerHUD _PlayerHUD;
-    [NonSerialized] protected Character _Chararcter;
+    [NonSerialized] protected Character _Character;
 
     void Awake()
     {
@@ -45,10 +46,11 @@ public class Player : MonoBehaviour
 
     public virtual void Possess(Character character)
     {
-        _Chararcter = character;
-        _Chararcter.OnPossessed(this);
+        _Character = character;
+        _Character.OnPossessed(this);
 
-        OnPossessed(_Chararcter);
+        this.OnPossessed(_Character);
+        _PlayerCamera.OnPossessed(character);
     }
 
     protected virtual void OnPossessed(Character character)
@@ -57,10 +59,10 @@ public class Player : MonoBehaviour
 
     public virtual void Unpossess()
     {
-        if (_Chararcter)
+        if (_Character)
         {
-            _Chararcter.OnUnPossessed();
-            OnUnpossessed(_Chararcter);
+            _Character.OnUnPossessed();
+            OnUnpossessed(_Character);
         }
     }
 

@@ -45,7 +45,21 @@ public struct CharacterMovementState
     }
 
     public bool IsCustom() => false;
-    public bool IsGrounded() => true;
+    public bool IsGrounded()
+    {
+        return State == Enum.GROUND_STAND_JUMP ||
+               State == Enum.GROUND_STAND_IDLE ||
+               State == Enum.GROUND_STAND_WALK ||
+               State == Enum.GROUND_STAND_RUN ||
+               State == Enum.GROUND_STAND_SPRINT ||
+               State == Enum.GROUND_CROUCH_JUMP ||
+               State == Enum.GROUND_CROUCH_IDLE ||
+               State == Enum.GROUND_CROUCH_WALK ||
+               State == Enum.GROUND_CROUCH_RUN ||
+               State == Enum.GROUND_PRONE_IDLE ||
+               State == Enum.GROUND_PRONE_MOVE ||
+               State == Enum.GROUND_PRONE_ROLL;
+    }
     public bool IsGroundStanding() => false;
     public bool IsGroundCrouching() => false;
     public bool IsGroundProne() => false;
