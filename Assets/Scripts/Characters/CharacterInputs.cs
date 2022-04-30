@@ -39,7 +39,7 @@ public class CharacterInputsEditor : Editor
 #endif
 
 [DisallowMultipleComponent]
-public class CharacterInputs : MonoBehaviour, IMovementInputs
+public class CharacterInputs : MonoBehaviour
 {
     public Character Character { get => _Character; }
     public PlayerInputs PlayerInputs { get => _PlayerInputs; set => _PlayerInputs = value; }

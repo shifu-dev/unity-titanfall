@@ -1,18 +1,6 @@
 ﻿using System;
 using UnityEngine;
-
-public interface IMovementInputs
-{
-    bool IsValid { get; }
-    float MoveInputAngle { get; }
-    Vector3 MoveInputVector { get; }
-    Vector3 LookInputVector { get; }
-    bool WantsToWalk { get; }
-    bool WantsToSprint { get; }
-    bool WantsToJump { get; }
-    bool WantsToCrouch { get; }
-    bool WantsToProne { get; }
-}
+using System.Collections.Generic;
 
 [DisallowMultipleComponent]
 public class CharacterMovement : MonoBehaviour
@@ -20,8 +8,6 @@ public class CharacterMovement : MonoBehaviour
     public Character Character { get; protected set; }
     public CharacterCapsule CharacterCapsule { get => Character.CharacterCapsule; }
     public CharacterInputs CharacterInputs { get => Character.CharacterInputs; }
-
-    public IMovementInputs MovementInputs;
 
     public CharacterMovementState MovementState;
     public bool IsOnGround;
@@ -53,7 +39,6 @@ public class CharacterMovement : MonoBehaviour
     public void Init(Character character)
     {
         Character = character;
-        MovementInputs = Character.CharacterInputs;
     }
 
     public void UpdateImpl()
@@ -77,24 +62,24 @@ public class CharacterMovement : MonoBehaviour
     {
         if (PhysIsOnGround)
         {
-            if (MovementInputs.WantsToCrouch)
+            if (CharacterInputs.WantsToCrouch)
             {
             }
-            else if (MovementInputs.WantsToProne)
+            else if (CharacterInputs.WantsToProne)
             {
             }
             else	// Standing
             {
-                if (MovementInputs.MoveInputVector.normalized.magnitude == 0)
+                if (CharacterInputs.MoveInputVector.normalized.magnitude == 0)
                 {
                     MovementState.State = CharacterMovementState.Enum.GROUND_STAND_IDLE;
                 }
-                else if (MovementInputs.WantsToWalk)
+                else if (CharacterInputs.WantsToWalk)
                 {
                     MovementState.State = CharacterMovementState.Enum.GROUND_STAND_WALK;
                 }
-                else if (MovementInputs.WantsToSprint && MovementInputs.MoveInputAngle > GroundStandSprintLeftAngleMax
-                                                      && MovementInputs.MoveInputAngle < GroundStandSprintRightAngleMax)
+                else if (CharacterInputs.WantsToSprint && CharacterInputs.MoveInputAngle > GroundStandSprintLeftAngleMax
+                                                      && CharacterInputs.MoveInputAngle < GroundStandSprintRightAngleMax)
                 {
                     MovementState.State = CharacterMovementState.Enum.GROUND_STAND_SPRINT;
                 }
@@ -119,26 +104,26 @@ public class CharacterMovement : MonoBehaviour
         // Calculate speed
         float speed = 0;
 
-        if (MovementInputs.WantsToCrouch)
+        if (CharacterInputs.WantsToCrouch)
         {
             speed = GroundCrouchRunSpeed;
         }
-        else if (MovementInputs.WantsToProne)
+        else if (CharacterInputs.WantsToProne)
         {
             speed = GroundProneMoveSpeed;
         }
         else    // Standing
         {
-            if (MovementInputs.MoveInputVector.normalized.magnitude == 0)
+            if (CharacterInputs.MoveInputVector.normalized.magnitude == 0)
             {
                 speed = 0;
             }
-            else if (MovementInputs.WantsToWalk)
+            else if (CharacterInputs.WantsToWalk)
             {
                 speed = GroundStandWalkSpeed;
             }
-            else if (MovementInputs.WantsToSprint && MovementInputs.MoveInputAngle > GroundStandSprintLeftAngleMax
-                                                  && MovementInputs.MoveInputAngle < GroundStandSprintRightAngleMax)
+            else if (CharacterInputs.WantsToSprint && CharacterInputs.MoveInputAngle > GroundStandSprintLeftAngleMax
+                                                  && CharacterInputs.MoveInputAngle < GroundStandSprintRightAngleMax)
             {
                 speed = GroundStandSprintSpeed;
             }
@@ -149,7 +134,7 @@ public class CharacterMovement : MonoBehaviour
         }
 
         // Calculate Movement
-        Vector3 moveInputVector = new Vector3(MovementInputs.MoveInputVector.x, 0, MovementInputs.MoveInputVector.y);
+        Vector3 moveInputVector = new Vector3(CharacterInputs.MoveInputVector.x, 0, CharacterInputs.MoveInputVector.y);
         Vector3 normalizedMoveInputVector = moveInputVector.normalized;
         // Vector3 directionalMoveVector = Quaternion.Euler(0, MovementInputs.LookInputVector.y, 0) * normalizedMoveInputVector;
         Vector3 directionalMoveVector = Quaternion.Euler(0, 0, 0) * normalizedMoveInputVector;
@@ -175,7 +160,7 @@ public class CharacterMovement : MonoBehaviour
 
         while (iterations > 0 && nextDeltaMove.magnitude >= moveThreshold)
         {
-            RaycastHit hit = charCapsule.SweepMove(nextDeltaMove);
+            RaycastHit hit = charCapsule.CapsuleMove(nextDeltaMove);
             totalDistMoved += hit.distance;
 
             // no collision occurred, so we made the complete move
@@ -217,7 +202,7 @@ public class CharacterMovement : MonoBehaviour
             if (obstacleHeight <= maxStepUpHeight)
             {
                 Debug.LogWarning("StepUp: " + obstacleHeight);
-                RaycastHit stepUpHitInfo = charCapsule.SweepMoveIfNoHit(charCapsule.GetWorldUpVector * (float)obstacleHeight);
+                RaycastHit stepUpHitInfo = charCapsule.CapsuleMoveNoHit(charCapsule.GetWorldUpVector * (float)obstacleHeight);
                 if (stepUpHitInfo.collider)
                 {
                     // We will perform the rest of the move in the next move
@@ -249,7 +234,7 @@ public class CharacterMovement : MonoBehaviour
             return 0;
         }
 
-        hitInfo = CharacterCapsule.SweepMove(slideDeltaMove);
+        hitInfo = CharacterCapsule.CapsuleMove(slideDeltaMove);
         return hitInfo.distance;
     }
 
@@ -266,7 +251,7 @@ public class CharacterMovement : MonoBehaviour
         // check if we can step up the obstacle
         if (obstacleHeight <= stepUpHeight)
         {
-            RaycastHit stepUpHitInfo = charCapsule.SweepMove(charCapsule.GetWorldUpVector * (float)obstacleHeight);
+            RaycastHit stepUpHitInfo = charCapsule.CapsuleMove(charCapsule.GetWorldUpVector * (float)obstacleHeight);
             return stepUpHitInfo.distance;
         }
 

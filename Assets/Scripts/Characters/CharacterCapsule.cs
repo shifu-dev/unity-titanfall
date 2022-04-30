@@ -3,8 +3,29 @@ using UnityEngine;
 
 public class CharacterCapsule : MonoBehaviour
 {
+    public const int DefaultRaycastLayerMask = Physics.DefaultRaycastLayers;
+    public const QueryTriggerInteraction DefaultQueryTriggerInteraction = QueryTriggerInteraction.Ignore;
+    public const float DefaultMoveThreshold = 0.001f;
+    public const float DefaultSkinWidth = 0f;
+
     public CapsuleCollider CapsuleCollider { get => _CapsuleCollider; }
     [SerializeField] protected CapsuleCollider _CapsuleCollider;
+
+    //////////////////////////////////////////////////////////////////
+    /// UpdateLoop
+    //////////////////////////////////////////////////////////////////
+
+    public void Init(Character character)
+    {
+    }
+
+    public void UpdateImpl()
+    {
+    }
+
+    //////////////////////////////////////////////////////////////////
+    /// Geometry
+    //////////////////////////////////////////////////////////////////
 
     public bool IsSphereShaped
     {
@@ -93,7 +114,7 @@ public class CharacterCapsule : MonoBehaviour
         }
     }
 
-    public Vector3 GetWorldStartSpherePosition
+    public Vector3 GetWorldTopSpherePosition
     {
         get
         {
@@ -101,7 +122,7 @@ public class CharacterCapsule : MonoBehaviour
         }
     }
 
-    public Vector3 GetWorldEndSpherePosition
+    public Vector3 GetWorldBaseSpherePosition
     {
         get
         {
@@ -150,48 +171,6 @@ public class CharacterCapsule : MonoBehaviour
         }
     }
 
-    //////////////////////////////////////////////////////////////////
-    /// UpdateLoop
-    //////////////////////////////////////////////////////////////////
-
-    public void Init(Character character)
-    {
-    }
-
-    public void UpdateImpl()
-    {
-    }
-
-    public void OnMoved()
-    {
-    }
-
-    public void OnRotated()
-    {
-    }
-
-    public void OnResized()
-    {
-    }
-
-    public void OnScaled()
-    {
-    }
-
-    //////////////////////////////////////////////////////////////////
-    /// Others
-    //////////////////////////////////////////////////////////////////
-
-    public void MoveToPosition(Vector3 pos)
-    {
-        _CapsuleCollider.transform.position = pos;
-    }
-
-    public void MovePosition(Vector3 pos)
-    {
-        _CapsuleCollider.transform.position += pos;
-    }
-
     public void CalculateWorldGeometryValues(out Vector3 startSphere, out Vector3 endSphere, out float radius)
     {
         Vector3 worldCenter = _CapsuleCollider.transform.position + _CapsuleCollider.center;
@@ -206,62 +185,130 @@ public class CharacterCapsule : MonoBehaviour
         radius = _CapsuleCollider.radius;
     }
 
-    public RaycastHit SweepTest(Vector3 deltaMove)
+    //////////////////////////////////////////////////////////////////
+    /// Physics
+    //////////////////////////////////////////////////////////////////
+    
+    public Vector3 CapsulePosition
     {
-        CalculateWorldGeometryValues(out Vector3 point1, out Vector3 point2, out float radius);
-        Physics.CapsuleCast(point1, point2, radius, deltaMove.normalized, out RaycastHit rayhit, deltaMove.magnitude, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
-        return rayhit;
+        get
+        {
+            return _CapsuleCollider.transform.position;
+        }
+
+        set
+        {
+            _CapsuleCollider.transform.position = value;
+        }
     }
 
-    public RaycastHit[] SweepTestAll(Vector3 deltaMove)
+    public void MoveToPosition(Vector3 pos)
     {
-        CalculateWorldGeometryValues(out Vector3 point1, out Vector3 point2, out float radius);
-        return Physics.CapsuleCastAll(point1, point2, radius, deltaMove.normalized, deltaMove.magnitude, Physics.DefaultRaycastLayers);
+        _CapsuleCollider.transform.position = pos;
     }
 
-    public RaycastHit SweepMove(Vector3 deltaMove, float moveThreshold = 0.0001f)
+    public void MovePosition(Vector3 pos)
     {
-        RaycastHit hit = SweepTest(deltaMove);
+        _CapsuleCollider.transform.position += pos;
+    }
+
+    public Collider[] CapsuleOverlap(Vector3 move, float skinWidth = DefaultSkinWidth, int layerMask = DefaultRaycastLayerMask, QueryTriggerInteraction queryTriggerInteraction = DefaultQueryTriggerInteraction)
+    {
+        CalculateWorldGeometryValues(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
+        return Physics.OverlapCapsule(topSphere, baseSphere, radius + skinWidth, layerMask, queryTriggerInteraction);
+    }
+
+    public RaycastHit CapsuleCast(Vector3 move, float skinWidth = DefaultSkinWidth, int layerMask = DefaultRaycastLayerMask, QueryTriggerInteraction queryTriggerInteraction = DefaultQueryTriggerInteraction)
+    {
+        CalculateWorldGeometryValues(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
+        Physics.CapsuleCast(topSphere, baseSphere, radius + skinWidth, move.normalized, out RaycastHit hit, move.magnitude, layerMask, queryTriggerInteraction);
+        return hit;
+    }
+
+    public RaycastHit[] CapsuleCastAll(Vector3 move, float skinWidth = DefaultSkinWidth, int layerMask = DefaultRaycastLayerMask, QueryTriggerInteraction queryTriggerInteraction = DefaultQueryTriggerInteraction)
+    {
+        CalculateWorldGeometryValues(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
+        return Physics.CapsuleCastAll(topSphere, baseSphere, radius + skinWidth, move.normalized, move.magnitude, layerMask, queryTriggerInteraction);
+    }
+
+    public Collider[] TopSphereOverlap(Vector3 move, float skinWidth = DefaultSkinWidth, int layerMask = DefaultRaycastLayerMask, QueryTriggerInteraction queryTriggerInteraction = DefaultQueryTriggerInteraction)
+    {
+        CalculateWorldGeometryValues(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
+        return Physics.OverlapSphere(topSphere, radius + skinWidth, layerMask, queryTriggerInteraction);
+    }
+
+    public RaycastHit TopSphereCast(Vector3 move, float skinWidth = DefaultSkinWidth, int layerMask = DefaultRaycastLayerMask, QueryTriggerInteraction queryTriggerInteraction = DefaultQueryTriggerInteraction)
+    {
+        CalculateWorldGeometryValues(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
+        Physics.SphereCast(topSphere, radius + skinWidth, move.normalized, out RaycastHit hit, move.magnitude, layerMask, queryTriggerInteraction);
+        return hit;
+    }
+
+    public RaycastHit[] TopSphereCastAll(Vector3 move, float skinWidth = DefaultSkinWidth, int layerMask = DefaultRaycastLayerMask, QueryTriggerInteraction queryTriggerInteraction = DefaultQueryTriggerInteraction)
+    {
+        CalculateWorldGeometryValues(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
+        return Physics.SphereCastAll(topSphere, radius + skinWidth, move.normalized, move.magnitude, layerMask, queryTriggerInteraction);
+    }
+
+    public Collider[] BaseSphereOverlap(Vector3 move, float skinWidth = DefaultSkinWidth, int layerMask = DefaultRaycastLayerMask, QueryTriggerInteraction queryTriggerInteraction = DefaultQueryTriggerInteraction)
+    {
+        CalculateWorldGeometryValues(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
+        return Physics.OverlapSphere(baseSphere, radius + skinWidth, layerMask, queryTriggerInteraction);
+    }
+
+    public RaycastHit BaseSphereCast(Vector3 move, float skinWidth = DefaultSkinWidth, int layerMask = DefaultRaycastLayerMask, QueryTriggerInteraction queryTriggerInteraction = DefaultQueryTriggerInteraction)
+    {
+        CalculateWorldGeometryValues(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
+        Physics.SphereCast(baseSphere, radius + skinWidth, move.normalized, out RaycastHit hit, move.magnitude, layerMask, queryTriggerInteraction);
+        return hit;
+    }
+
+    public RaycastHit[] BaseSphereCastAll(Vector3 move, float skinWidth = DefaultSkinWidth, int layerMask = DefaultRaycastLayerMask, QueryTriggerInteraction queryTriggerInteraction = DefaultQueryTriggerInteraction)
+    {
+        CalculateWorldGeometryValues(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
+        return Physics.SphereCastAll(baseSphere, radius + skinWidth, move.normalized, move.magnitude, layerMask, queryTriggerInteraction);
+    }
+
+    public RaycastHit CapsuleMove(Vector3 move, float skinWidth = DefaultSkinWidth, float moveThreshold = DefaultMoveThreshold, int layerMask = DefaultRaycastLayerMask, QueryTriggerInteraction queryTriggerInteraction = DefaultQueryTriggerInteraction)
+    {
+        RaycastHit hit = CapsuleCast(move);
         if (hit.collider == null)
         {
             // no collision occurred, so we made the complete move
-            Debug.DrawLine(GetWorldCenter, GetWorldCenter + deltaMove.normalized * 10, Color.red);
-            MovePosition(deltaMove);
+            MovePosition(move);
             return hit;
         }
 
         // move to the hit position
-        // Vector3 deltaMoved = deltaMove.normalized * hit.distance;
-        // Vector3 moveDir = Vector3.ProjectOnPlane((hit.point - deltaMove), GetWorldUpVector).normalized;
-        Vector3 moveDir = deltaMove.normalized;
-        Debug.DrawLine(GetWorldCenter, GetWorldCenter + moveDir * 10, Color.red);
-        Vector3 deltaMoved = moveDir * hit.distance;
-        // Debug.Log("HitPoint : " + hit.point + " | Distance: " + hit.distance + " | DeltaMove : " + deltaMoved + " (" + deltaMoved.magnitude + ")");
-
-        if (deltaMoved.magnitude < moveThreshold)
+        Vector3 moveDir = move.normalized;
+        if (hit.distance < moveThreshold)
         {
             return hit;
         }
 
-        MovePosition(deltaMoved);
+        MovePosition(moveDir * hit.distance);
         return hit;
     }
 
-    public RaycastHit SweepMoveIfNoHit(Vector3 deltaMove)
+    public RaycastHit CapsuleMoveNoHit(Vector3 move, float skinWidth = DefaultSkinWidth, float moveThreshold = DefaultMoveThreshold, int layerMask = DefaultRaycastLayerMask, QueryTriggerInteraction queryTriggerInteraction = DefaultQueryTriggerInteraction)
     {
-        RaycastHit rayhit = SweepTest(deltaMove);
-        if (rayhit.collider == null)
+        RaycastHit hit = CapsuleCast(move);
+        if (hit.collider == null)
         {
             // no collision occurred, so we made the complete move
-            MovePosition(deltaMove);
+            MovePosition(move);
         }
 
-        return rayhit;
+        return hit;
     }
+
+    //////////////////////////////////////////////////////////////////
+    /// Gizmos
+    //////////////////////////////////////////////////////////////////
 
     void OnDrawGizmosSelected()
     {
-        Gizmos.DrawWireSphere(GetWorldStartSpherePosition, GetWorldRadius);
-        Gizmos.DrawWireSphere(GetWorldEndSpherePosition, GetWorldRadius);
+        Gizmos.DrawWireSphere(GetWorldTopSpherePosition, GetWorldRadius);
+        Gizmos.DrawWireSphere(GetWorldBaseSpherePosition, GetWorldRadius);
     }
 }

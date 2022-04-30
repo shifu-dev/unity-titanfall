@@ -30,9 +30,9 @@ public class CharacterCapsuleEditor : Editor
         EditorGUILayout.Separator();
         GUILayout.Label("Positions (WorldSpace)");
         EditorGUILayout.Vector3Field("Top", target.GetWorldTopPosition);
-        EditorGUILayout.Vector3Field("Start Sphere", target.GetWorldStartSpherePosition);
+        EditorGUILayout.Vector3Field("Start Sphere", target.GetWorldTopSpherePosition);
         EditorGUILayout.Vector3Field("Center", target.GetWorldCenter);
-        EditorGUILayout.Vector3Field("End Sphere", target.GetWorldEndSpherePosition);
+        EditorGUILayout.Vector3Field("End Sphere", target.GetWorldBaseSpherePosition);
         EditorGUILayout.Vector3Field("Base", target.GetWorldBasePosition);
 
         EditorGUILayout.Separator();
