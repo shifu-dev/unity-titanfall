@@ -36,7 +36,7 @@ public class PlayerInputs : MonoBehaviour
         _MoveInputAngle = Vector3.SignedAngle(_MoveInputVector, new Vector3(0, 1, 0), new Vector3(0, 0, 1));
 
         _LookInputVector.x = Input.GetAxis("look x");
-        _LookInputVector.y = Input.GetAxis("look y");
+        _LookInputVector.y = -Input.GetAxis("look y");
         _LookInputVector.z = 0;
     }
 }

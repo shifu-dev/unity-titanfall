@@ -7,29 +7,27 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerHUD))]
 public class Player : MonoBehaviour
 {
-    public PlayerInputs PlayerInputs { get => _PlayerInputs; }
-    public PlayerState PlayerState { get => _PlayerState; }
-    public PlayerCamera PlayerCamera { get => _PlayerCamera; }
-    public PlayerHUD PlayerHUD { get => _PlayerHUD; }
-    public Character Chararcter { get => _Character; }
+    public PlayerInputs PlayerInputs { get; protected set; }
+    public PlayerState PlayerState { get; protected set; }
+    public PlayerCamera PlayerCamera { get; protected set; }
+    public PlayerHUD PlayerHUD { get; protected set; }
+    public Character Chararcter { get; protected set; }
 
-    [NonSerialized] protected PlayerInputs _PlayerInputs;
-    [NonSerialized] protected PlayerState _PlayerState;
-    [NonSerialized] protected PlayerCamera _PlayerCamera;
-    [NonSerialized] protected PlayerHUD _PlayerHUD;
-    [NonSerialized] protected Character _Character;
+    [ReadOnly]
+    [SerializeField]
+    protected Character _Character;
 
     void Awake()
     {
-        _PlayerInputs = GetComponent<PlayerInputs>();
-        _PlayerCamera = GetComponent<PlayerCamera>();
-        _PlayerState = GetComponent<PlayerState>();
-        _PlayerHUD = GetComponent<PlayerHUD>();
+        PlayerInputs = GetComponent<PlayerInputs>();
+        PlayerCamera = GetComponent<PlayerCamera>();
+        PlayerState = GetComponent<PlayerState>();
+        PlayerHUD = GetComponent<PlayerHUD>();
 
-        _PlayerInputs.Init(this);
-        _PlayerCamera.Init(this);
-        _PlayerState.Init(this);
-        _PlayerHUD.Init(this);
+        PlayerInputs.Init(this);
+        PlayerCamera.Init(this);
+        PlayerState.Init(this);
+        PlayerHUD.Init(this);
     }
 
     void Start()
@@ -38,10 +36,10 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        _PlayerInputs.UpdateImpl();
-        _PlayerCamera.UpdateImpl();
-        _PlayerState.UpdateImpl();
-        _PlayerHUD.UpdateImpl();
+        PlayerInputs.UpdateImpl();
+        PlayerCamera.UpdateImpl();
+        PlayerState.UpdateImpl();
+        PlayerHUD.UpdateImpl();
     }
 
     public virtual void Possess(Character character)
@@ -50,7 +48,7 @@ public class Player : MonoBehaviour
         _Character.OnPossessed(this);
 
         this.OnPossessed(_Character);
-        _PlayerCamera.OnPossessed(character);
+        PlayerCamera.OnPossessed(character);
     }
 
     protected virtual void OnPossessed(Character character)

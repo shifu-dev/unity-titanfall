@@ -14,12 +14,12 @@ public interface IMovementInputs
     bool WantsToProne { get; }
 }
 
-[RequireComponent(typeof(CharacterCollision))]
+[DisallowMultipleComponent]
 public class CharacterMovement : MonoBehaviour
 {
-    public Character Character { get => _Character; }
-
-    [NonSerialized] protected Character _Character;
+    public Character Character { get; protected set; }
+    public CharacterCapsule CharacterCapsule { get => Character.CharacterCapsule; }
+    public CharacterInputs CharacterInputs { get => Character.CharacterInputs; }
 
     public IMovementInputs MovementInputs;
 
@@ -52,15 +52,20 @@ public class CharacterMovement : MonoBehaviour
 
     public void Init(Character character)
     {
-        _Character = character;
-        MovementInputs = _Character.CharacterInputs;
+        Character = character;
+        MovementInputs = Character.CharacterInputs;
     }
 
     public void UpdateImpl()
     {
+        // Debug.Log("CharacterMovement| Frame: " + Time.frameCount);
         UpdatePhysicsData();
         UpdateMovementState();
         UpdatePhysicsState();
+    }
+
+    public void FixedUpdateImpl()
+    {
     }
 
     protected virtual void UpdatePhysicsData()
@@ -146,44 +151,125 @@ public class CharacterMovement : MonoBehaviour
         // Calculate Movement
         Vector3 moveInputVector = new Vector3(MovementInputs.MoveInputVector.x, 0, MovementInputs.MoveInputVector.y);
         Vector3 normalizedMoveInputVector = moveInputVector.normalized;
-        Vector3 directionalMoveVector = Quaternion.Euler(0, MovementInputs.LookInputVector.y, 0) * normalizedMoveInputVector;
+        // Vector3 directionalMoveVector = Quaternion.Euler(0, MovementInputs.LookInputVector.y, 0) * normalizedMoveInputVector;
+        Vector3 directionalMoveVector = Quaternion.Euler(0, 0, 0) * normalizedMoveInputVector;
         Vector3 deltaMove = directionalMoveVector * speed * Time.deltaTime;
 
-        // Perform Collision checks
-        var rb = Character.CharacterCollision.Rigidbody;
-        LastPosition = rb.position;
+        // Perform move
 
-        MoveAlongSurface(rb, deltaMove, 10);
+        GroundMove(deltaMove, 10);
 
-        Velocity = LastPosition - rb.position;
+        Velocity = LastPosition - CharacterCapsule.GetWorldCenter;
+        Velocity = Velocity / Time.deltaTime;
     }
 
     // returns total distance moved
-    float MoveAlongSurface(Rigidbody rb, Vector3 deltaMove, uint iterations)
+    float GroundMove(Vector3 deltaMove, uint iterations, float moveThreshold = 0.01f)
     {
-        // if (iterations == 0 || rb == null || deltaMove.magnitude < 0.01f)
-        if (iterations == 0 || rb == null)
-            return 0;
+        CharacterCapsule charCapsule = CharacterCapsule;
+        Vector3 nextDeltaMove = deltaMove;
+        float totalDistMoved = 0;
+        float maxSlopeAngle = GroundStandWalkableAngleZ;
+        float maxStepUpHeight = GroundStandStepUpHeight;
+        bool mantainVelocityOnSlopes = true;
 
-        bool hit = rb.SweepTest(deltaMove.normalized, out RaycastHit hitInfo, deltaMove.magnitude, QueryTriggerInteraction.Ignore);
-        if (hit)
+        while (iterations > 0 && nextDeltaMove.magnitude >= moveThreshold)
         {
-            // move to the hit position
-            Vector3 movedDelta = deltaMove * hitInfo.distance;
-            Vector3 remainingDeltaMove = deltaMove - deltaMove * hitInfo.distance;
+            RaycastHit hit = charCapsule.SweepMove(nextDeltaMove);
+            totalDistMoved += hit.distance;
 
-            // check if can step up
+            // no collision occurred, so we made the complete move
+            if (hit.IsHit() == false)
+            {
+                // Debug.Log("NoCollision");
+                break;
+            }
 
-            Debug.DrawLine(rb.position, rb.position + movedDelta, Color.green);
-            rb.MovePosition(rb.position + movedDelta);
+            // Debug.Log("Collision: " + hit.collider.name); 
+            Vector3 remainingDeltaMove = nextDeltaMove - (nextDeltaMove.normalized * totalDistMoved);
+            Debug.DrawLine(hit.point, hit.point + remainingDeltaMove * 100, Color.blue);
+
+            // check if we can climb the slope
+            // float hitAngle = Vector3.SignedAngle(charCapsule.GetWorldUpVector, hit.normal, charCapsule.GetWorldRightVector);
+            float hitAngle = Vector3.Angle(charCapsule.GetWorldUpVector, hit.normal);
+            if (hitAngle <= maxSlopeAngle)
+            {
+                Debug.LogWarning("SlopeAngle: " + hitAngle);
+                Vector3 slopeDeltaMove = Vector3.ProjectOnPlane(remainingDeltaMove, hit.normal);
+                if (mantainVelocityOnSlopes)
+                {
+                    slopeDeltaMove = slopeDeltaMove.normalized * remainingDeltaMove.magnitude;
+                }
+
+                nextDeltaMove = slopeDeltaMove;
+                iterations--;
+                continue;
+            }
+
+            double obstacleHeight = 0;
+            {   // get obstacle height relative to character base
+                Vector3 hypotenuseVector = hit.point - charCapsule.GetWorldBasePosition;
+                Vector3 baseVector = Vector3.ProjectOnPlane(hypotenuseVector, charCapsule.GetWorldUpVector);
+                obstacleHeight = Math.Sqrt(Math.Pow(hypotenuseVector.magnitude, 2) - Math.Pow(baseVector.magnitude, 2));
+            }
+
+            // check if we can step up the obstacle
+            if (obstacleHeight <= maxStepUpHeight)
+            {
+                Debug.LogWarning("StepUp: " + obstacleHeight);
+                RaycastHit stepUpHitInfo = charCapsule.SweepMoveIfNoHit(charCapsule.GetWorldUpVector * (float)obstacleHeight);
+                if (stepUpHitInfo.collider)
+                {
+                    // We will perform the rest of the move in the next move
+                    nextDeltaMove = remainingDeltaMove;
+                }
+                else
+                {
+                    nextDeltaMove = Vector3.zero;
+                }
+
+                iterations--;
+                continue;
+            }
 
             // try sliding through the surface
-            Vector3 surfaceDeltaMove = Vector3.ProjectOnPlane(remainingDeltaMove, hitInfo.normal);
-            return movedDelta.magnitude + MoveAlongSurface(rb, surfaceDeltaMove, --iterations);
+            GroundSlideAlongSurface(remainingDeltaMove, hit.normal, out RaycastHit slideHitInfo);
+            iterations = 0;
         }
 
-        // no collision occurred, so we made the complete move
-        rb.MovePosition(rb.position + deltaMove);
-        return deltaMove.magnitude;
+        return totalDistMoved;
+    }
+
+    float GroundSlideAlongSurface(Vector3 deltaMove, Vector3 surfaceNormal, out RaycastHit hitInfo, float moveThreshold = 0.01f)
+    {
+        Vector3 slideDeltaMove = Vector3.ProjectOnPlane(deltaMove, surfaceNormal);
+        if (slideDeltaMove.magnitude < moveThreshold)
+        {
+            hitInfo = new RaycastHit();
+            return 0;
+        }
+
+        hitInfo = CharacterCapsule.SweepMove(slideDeltaMove);
+        return hitInfo.distance;
+    }
+
+    float GroundStepUpFrom(float stepUpHeight, Vector3 deltaMove, Vector3 surfaceNormal, RaycastHit hitInfo, float moveThreshold = 0.01f)
+    {
+        CharacterCapsule charCapsule = CharacterCapsule;
+        // Vector3 remainingDeltaMove = deltaMove - (deltaMove.normalized * totalDistMoved);
+
+        // get obstacle height relative to character base
+        Vector3 hypotenuseVector = hitInfo.point - charCapsule.GetWorldBasePosition;
+        Vector3 baseVector = Vector3.ProjectOnPlane(hypotenuseVector, charCapsule.GetWorldUpVector);
+        double obstacleHeight = Math.Sqrt(Math.Pow(hypotenuseVector.magnitude, 2) - Math.Pow(baseVector.magnitude, 2));
+
+        // check if we can step up the obstacle
+        if (obstacleHeight <= stepUpHeight)
+        {
+            RaycastHit stepUpHitInfo = charCapsule.SweepMove(charCapsule.GetWorldUpVector * (float)obstacleHeight);
+            return stepUpHitInfo.distance;
+        }
+
+        return 0;
     }
 }

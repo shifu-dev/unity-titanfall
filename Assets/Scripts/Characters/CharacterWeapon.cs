@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 
+[DisallowMultipleComponent]
 public class CharacterWeapon : MonoBehaviour
 {
     public void Init(Character character)

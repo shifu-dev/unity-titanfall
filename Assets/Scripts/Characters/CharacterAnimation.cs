@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-[RequireComponent(typeof(Character))]
+[DisallowMultipleComponent]
 [RequireComponent(typeof(Animator))]
 public class CharacterAnimation : MonoBehaviour
 {

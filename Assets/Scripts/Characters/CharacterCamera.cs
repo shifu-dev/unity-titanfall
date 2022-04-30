@@ -12,42 +12,70 @@ public enum CharacterCameraModes
     Cinematic
 }
 
+[DisallowMultipleComponent]
 public class CharacterCamera : MonoBehaviour
 {
-    public Character Character { get => _Character; }
-    protected Character _Character;
+    public Character Character { get; protected set; }
+    public CharacterInputs CharacterInputs { get; protected set; }
+    public CharacterCapsule CharacterCapsule { get; protected set; }
 
-    public CharacterInputs CharacterInputs { get => _CharacterInputs; }
-    protected CharacterInputs _CharacterInputs;
-
+    public bool AlwaysUpdate = false;
+    public CharacterCameraModes CameraMode;
     public Camera Camera;
-
-    public CharacterCameraModes CameraMode { get => _CameraMode;  }
-    protected CharacterCameraModes _CameraMode;
-
-    public GameObject FirstPersonCameraSource;
-    public float FirstPersonMaxRotationY = 89.9f;
-    public float FirstPersonMinRotationY = -89.9f;
+    public GameObject LookAtSource;
+    public Vector3 LookAtSourceOffset;
+    public Vector3 Acceleration;
+    public Vector3 Deceleration;
+    public Vector3 MinRotation = new Vector3(-89.9f, 0, 0);
+    public Vector3 MaxRotation = new Vector3(89.9f, 0, 0);
+    public float MaxDistanceFromLookSource = 10;
+    public float MinDistanceFromLookSource = 2;
 
     public void Init(Character character)
     {
-        _Character = character;
-        _CharacterInputs = _Character.CharacterInputs;
+        Character = character;
+        CharacterInputs = Character.CharacterInputs;
+        CharacterCapsule = Character.CharacterCapsule;
 
-        _CameraMode = CharacterCameraModes.None;
+        CameraMode = CharacterCameraModes.None;
     }
 
     public void UpdateImpl()
     {
-        if (Camera && FirstPersonCameraSource)
+        Vector3 totalRawInput = CharacterInputs.TotalLookInputVector;
+        Vector3 lookVector = new Vector3(totalRawInput.y, totalRawInput.x, totalRawInput.z);
+        lookVector.x = Math.Clamp(lookVector.x, MinRotation.x, MaxRotation.x);
+        lookVector.y = Math.Clamp(lookVector.y, MinRotation.y, MaxRotation.y);
+        lookVector.z = Math.Clamp(lookVector.z, MinRotation.z, MaxRotation.z);
+
+        if (Camera && LookAtSource)
         {
-            var lookInput = _CharacterInputs.LookInputVector;
-            var camPos = FirstPersonCameraSource.transform.position;
-            var currentCamRot = Camera.transform.rotation.eulerAngles;
-            var camRotX = Math.Clamp(lookInput.x + currentCamRot.x, FirstPersonMinRotationY, FirstPersonMaxRotationY);
-            var camRotY = currentCamRot.y + lookInput.y;
-            var camRotZ = 0;
-            var camRot = Quaternion.Euler(camRotX, camRotY, camRotZ);
+            Vector3 lookAt = LookAtSource.transform.position + LookAtSourceOffset;
+            Vector3 lookDir = CharacterCapsule.GetWorldForwardVector;
+            Vector3 camPos = Camera.transform.position;
+            Quaternion camRot = Quaternion.LookRotation(lookDir, CharacterCapsule.GetWorldUpVector);
+
+            bool hit = Physics.Raycast(lookAt, lookDir * -1, out RaycastHit hitInfo, MaxDistanceFromLookSource);
+            if (hit)
+            {
+                Vector3 targetCamPos = Math.Max(hitInfo.distance, MinDistanceFromLookSource) * lookDir * -1;
+
+                Vector3 lerpSpeed = Vector3.Distance(lookAt, camPos) > Vector3.Distance(lookAt, targetCamPos) ? Deceleration : Acceleration;
+                if (lerpSpeed == Vector3.zero)
+                {
+                    lerpSpeed = Vector3.one;
+                }
+                else
+                {
+                    lerpSpeed = lerpSpeed * Time.deltaTime;
+                }
+
+                camPos.x = Mathf.Lerp(camPos.x, targetCamPos.x, lerpSpeed.x);
+                camPos.y = Mathf.Lerp(camPos.y, targetCamPos.y, lerpSpeed.y);
+                camPos.z = Mathf.Lerp(camPos.z, targetCamPos.z, lerpSpeed.z);
+            }
+
+            camPos = transform.position + new Vector3(0, 1, -2);
 
             Camera.transform.position = camPos;
             Camera.transform.rotation = camRot;

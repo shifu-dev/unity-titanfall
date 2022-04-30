@@ -1,5 +1,52 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1098455465291470478
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7830176635475978168}
+  - component: {fileID: 4855064170810617402}
+  m_Layer: 0
+  m_Name: CapsuleCollider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7830176635475978168
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1098455465291470478}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7570007302305731598}
+  m_Father: {fileID: 6081539459817332691}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &4855064170810617402
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1098455465291470478}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2685017277922627661
 GameObject:
   m_ObjectHideFlags: 0
@@ -48,7 +95,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2685017277922627661}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -83,7 +130,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!1 &3038999913484937973
+--- !u!1 &3686328428052852852
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -91,28 +138,28 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8004812138627112400}
+  - component: {fileID: 7570007302305731598}
   m_Layer: 0
-  m_Name: FirstPersonCameraSource
+  m_Name: LookAt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8004812138627112400
+--- !u!4 &7570007302305731598
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3038999913484937973}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.75600004, z: 0.23899984}
+  m_GameObject: {fileID: 3686328428052852852}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.145, y: 0.53, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 6081539459817332691}
-  m_RootOrder: 1
+  m_Father: {fileID: 7830176635475978168}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6526974782931169490
 GameObject:
@@ -131,9 +178,7 @@ GameObject:
   - component: {fileID: 6932028184359725518}
   - component: {fileID: 115547698234889312}
   - component: {fileID: 1210957656046409178}
-  - component: {fileID: 1118222636024983680}
   - component: {fileID: 2017536350101832689}
-  - component: {fileID: 5119420455498182715}
   m_Layer: 0
   m_Name: Manny
   m_TagString: Untagged
@@ -154,7 +199,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5130046698628662828}
-  - {fileID: 8004812138627112400}
+  - {fileID: 7830176635475978168}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -200,7 +245,7 @@ MonoBehaviour:
   CurrentMoveSpeed: 0
   GroundCheckDepth: 0
   GroundStandWalkSpeed: 0
-  GroundStandRunSpeed: 20
+  GroundStandRunSpeed: 5
   GroundStandSprintSpeed: 0
   GroundStandSprintLeftAngleMax: 0
   GroundStandSprintRightAngleMax: 0
@@ -253,10 +298,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e39345ad2e49968428c4f2a55373ec64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  AlwaysUpdate: 0
+  CameraMode: 0
   Camera: {fileID: 0}
-  FirstPersonCameraSource: {fileID: 3038999913484937973}
-  FirstPersonMaxRotationY: 89.9
-  FirstPersonMinRotationY: -89.9
+  LookAtSource: {fileID: 3686328428052852852}
+  LookAtSourceOffset: {x: 0, y: 0, z: 0}
+  Acceleration: {x: 0, y: 0, z: 0}
+  Deceleration: {x: 0, y: 0, z: 0}
+  MinRotation: {x: -89.9, y: 0, z: 0}
+  MaxRotation: {x: 89.9, y: 0, z: 0}
+  MaxDistanceFromLookSource: 10
+  MinDistanceFromLookSource: 2
 --- !u!114 &115547698234889312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -278,23 +330,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 6526974782931169490}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 831f204c9079215498cffd4800284640, type: 3}
+  m_Script: {fileID: 11500000, guid: 7f655a3c2231dfe4b9e6764ea9237497, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!136 &1118222636024983680
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6526974782931169490}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  _CapsuleCollider: {fileID: 4855064170810617402}
 --- !u!95 &2017536350101832689
 Animator:
   serializedVersion: 4
@@ -315,19 +354,3 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!54 &5119420455498182715
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6526974782931169490}
-  serializedVersion: 2
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_UseGravity: 0
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0

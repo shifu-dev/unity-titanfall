@@ -1,12 +1,13 @@
 ﻿using System;
 using UnityEngine;
 
+[DisallowMultipleComponent]
 [RequireComponent(typeof(CharacterInputs))]
 [RequireComponent(typeof(CharacterMovement))]
 [RequireComponent(typeof(CharacterInteraction))]
 [RequireComponent(typeof(CharacterWeapon))]
 [RequireComponent(typeof(CharacterCamera))]
-[RequireComponent(typeof(CharacterCollision))]
+[RequireComponent(typeof(CharacterCapsule))]
 [RequireComponent(typeof(CharacterAnimation))]
 public class Character : MonoBehaviour
 {
@@ -15,7 +16,7 @@ public class Character : MonoBehaviour
     public CharacterInteraction CharacterInteraction { get => _CharacterInteraction; }
     public CharacterWeapon CharacterWeapon { get => _CharacterWeapon; }
     public CharacterCamera CharacterCamera { get => _CharacterCamera; }
-    public CharacterCollision CharacterCollision { get => _CharacterCapsule; }
+    public CharacterCapsule CharacterCapsule { get => _CharacterCapsule; }
     public CharacterAnimation CharacterAnimation { get => _CharacterAnimation; }
 
     [NonSerialized] protected CharacterInputs _CharacterInputs;
@@ -23,7 +24,7 @@ public class Character : MonoBehaviour
     [NonSerialized] protected CharacterInteraction _CharacterInteraction;
     [NonSerialized] protected CharacterWeapon _CharacterWeapon;
     [NonSerialized] protected CharacterCamera _CharacterCamera;
-    [NonSerialized] protected CharacterCollision _CharacterCapsule;
+    [NonSerialized] protected CharacterCapsule _CharacterCapsule;
     [NonSerialized] protected CharacterAnimation _CharacterAnimation;
 
     void Awake()
@@ -33,15 +34,15 @@ public class Character : MonoBehaviour
         _CharacterInteraction = GetComponent<CharacterInteraction>();
         _CharacterWeapon = GetComponent<CharacterWeapon>();
         _CharacterCamera = GetComponent<CharacterCamera>();
-        _CharacterCapsule = GetComponent<CharacterCollision>();
+        _CharacterCapsule = GetComponent<CharacterCapsule>();
         _CharacterAnimation = GetComponent<CharacterAnimation>();
 
         _CharacterInputs.Init(this);
         _CharacterMovement.Init(this);
-        _CharacterInteraction.Init(this);
-        _CharacterWeapon.Init(this);
         _CharacterCamera.Init(this);
         _CharacterCapsule.Init(this);
+        _CharacterInteraction.Init(this);
+        _CharacterWeapon.Init(this);
         _CharacterAnimation.Init(this);
     }
 
@@ -53,11 +54,20 @@ public class Character : MonoBehaviour
     {
         _CharacterInputs.UpdateImpl();
         _CharacterMovement.UpdateImpl();
-        _CharacterInteraction.UpdateImpl();
-        _CharacterWeapon.UpdateImpl();
+
+        transform.position = _CharacterCapsule.CapsuleCollider.transform.position;
+        _CharacterCapsule.CapsuleCollider.transform.localPosition = Vector3.zero;
+
         _CharacterCamera.UpdateImpl();
         _CharacterCapsule.UpdateImpl();
+        _CharacterInteraction.UpdateImpl();
+        _CharacterWeapon.UpdateImpl();
         _CharacterAnimation.UpdateImpl();
+    }
+
+    void FixedUpdate()
+    {
+        _CharacterMovement.FixedUpdateImpl();
     }
 
     public void OnPossessed(Player Player)
