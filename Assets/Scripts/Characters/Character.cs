@@ -27,6 +27,13 @@ public class Character : MonoBehaviour
     [NonSerialized] protected CharacterCapsule _CharacterCapsule;
     [NonSerialized] protected CharacterAnimation _CharacterAnimation;
 
+    public Vector3 GetForward => transform.forward;
+    public Vector3 GetBack => -transform.forward;
+    public Vector3 GetRight => transform.right;
+    public Vector3 GetLeft => -transform.right;
+    public Vector3 GetUp => transform.up;
+    public Vector3 GetDown => -transform.up;
+
     void Awake()
     {
         _CharacterInputs = GetComponent<CharacterInputs>();
@@ -54,12 +61,8 @@ public class Character : MonoBehaviour
     {
         _CharacterInputs.UpdateImpl();
         _CharacterMovement.UpdateImpl();
-
-        transform.position = _CharacterCapsule.CapsuleCollider.transform.position;
-        _CharacterCapsule.CapsuleCollider.transform.localPosition = Vector3.zero;
-
-        _CharacterCamera.UpdateImpl();
         _CharacterCapsule.UpdateImpl();
+        _CharacterCamera.UpdateImpl();
         _CharacterInteraction.UpdateImpl();
         _CharacterWeapon.UpdateImpl();
         _CharacterAnimation.UpdateImpl();

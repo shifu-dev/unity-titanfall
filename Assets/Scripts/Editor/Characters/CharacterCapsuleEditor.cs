@@ -12,7 +12,7 @@ public class CharacterCapsuleEditor : Editor
         EditorGUI.BeginDisabledGroup(true);
 
         EditorGUILayout.Separator();
-        if (target.CapsuleCollider == null)
+        if (target.Capsule == null)
         {
             EditorGUILayout.TextField("No CapsuleCollider assigned!", EditorStyles.boldLabel);
             return;
@@ -23,29 +23,29 @@ public class CharacterCapsuleEditor : Editor
 
         EditorGUILayout.Separator();
         GUILayout.Label("Lengths (WorldSpace)");
-        EditorGUILayout.FloatField("Sphere Radius", target.GetWorldRadius);
-        EditorGUILayout.FloatField("Total Height", target.GetWorldHeight);
-        EditorGUILayout.FloatField("Cylinder Height", target.GetWorldCylinderHeight);
+        EditorGUILayout.FloatField("Sphere Radius", target.GetRadius);
+        EditorGUILayout.FloatField("Total Height", target.GetHeight);
+        EditorGUILayout.FloatField("Cylinder Height", target.GetCylinderHeight);
 
         EditorGUILayout.Separator();
         GUILayout.Label("Positions (WorldSpace)");
-        EditorGUILayout.Vector3Field("Top", target.GetWorldTopPosition);
-        EditorGUILayout.Vector3Field("Start Sphere", target.GetWorldTopSpherePosition);
-        EditorGUILayout.Vector3Field("Center", target.GetWorldCenter);
-        EditorGUILayout.Vector3Field("End Sphere", target.GetWorldBaseSpherePosition);
-        EditorGUILayout.Vector3Field("Base", target.GetWorldBasePosition);
+        EditorGUILayout.Vector3Field("Top", target.GetTopPosition);
+        EditorGUILayout.Vector3Field("Start Sphere", target.GetTopSpherePosition);
+        EditorGUILayout.Vector3Field("Center", target.GetCenter);
+        EditorGUILayout.Vector3Field("End Sphere", target.GetBaseSpherePosition);
+        EditorGUILayout.Vector3Field("Base", target.GetBasePosition);
 
         EditorGUILayout.Separator();
         GUILayout.Label("Directions (WorldSpace)");
-        EditorGUILayout.Vector3Field("Forward", target.GetWorldForwardVector);
-        EditorGUILayout.Vector3Field("Right", target.GetWorldRightVector);
-        EditorGUILayout.Vector3Field("Up", target.GetWorldUpVector);
+        EditorGUILayout.Vector3Field("Forward", target.GetForwardVector);
+        EditorGUILayout.Vector3Field("Right", target.GetRightVector);
+        EditorGUILayout.Vector3Field("Up", target.GetUpVector);
 
         EditorGUILayout.Separator();
         GUILayout.Label("Volumes (WorldSpace)");
-        EditorGUILayout.FloatField("Total", target.GetWorldVolume);
-        EditorGUILayout.FloatField("Sphere", target.GetWorldSphereVolume);
-        EditorGUILayout.FloatField("Cylinder", target.GetWorldCylinderVolume);
+        EditorGUILayout.FloatField("Total", target.GetVolume);
+        EditorGUILayout.FloatField("Sphere", target.GetSphereVolume);
+        EditorGUILayout.FloatField("Cylinder", target.GetCylinderVolume);
 
         EditorGUI.EndDisabledGroup();
     }

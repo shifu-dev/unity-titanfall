@@ -22,6 +22,7 @@ public class PlayerCamera : MonoBehaviour
         ThirdPersonCameraObject.name = "ThirdPersonPlayerCamera";
         FirstPersonCameraObject.name = "FirstPersonPlayerCamera";
 
+        // ThirdPersonCameraObject.SetActive(false);
         FirstPersonCameraObject.SetActive(false);
 
         ThirdPersonCamera = ThirdPersonCameraObject.GetComponent<Camera>();

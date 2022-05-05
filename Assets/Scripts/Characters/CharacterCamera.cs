@@ -51,9 +51,9 @@ public class CharacterCamera : MonoBehaviour
         if (Camera && LookAtSource)
         {
             Vector3 lookAt = LookAtSource.transform.position + LookAtSourceOffset;
-            Vector3 lookDir = CharacterCapsule.GetWorldForwardVector;
+            Vector3 lookDir = CharacterCapsule.GetForwardVector;
             Vector3 camPos = Camera.transform.position;
-            Quaternion camRot = Quaternion.LookRotation(lookDir, CharacterCapsule.GetWorldUpVector);
+            Quaternion camRot = Quaternion.LookRotation(lookDir, CharacterCapsule.GetUpVector);
 
             bool hit = Physics.Raycast(lookAt, lookDir * -1, out RaycastHit hitInfo, MaxDistanceFromLookSource);
             if (hit)

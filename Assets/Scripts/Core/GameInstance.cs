@@ -89,7 +89,7 @@ public class GameInstance : IGameInstanceChannelPipeline
 
         // Create Character
         GameObject CharacterPrefab = Resources.Load<GameObject>("Manny");
-        GameObject CharacterGameObject = GameObject.Instantiate(CharacterPrefab, new Vector3(0, 1, 9), Quaternion.identity);
+        GameObject CharacterGameObject = GameObject.Instantiate(CharacterPrefab, new Vector3(0, 1f, 8f), Quaternion.identity);
         CharacterGameObject.name = "Manny";
         Character character = CharacterGameObject.GetComponent<Character>();
         Debug.Log("GAMEINSTANCE: Created Character");

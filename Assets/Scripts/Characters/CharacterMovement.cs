@@ -5,11 +5,18 @@ using System.Collections.Generic;
 [DisallowMultipleComponent]
 public class CharacterMovement : MonoBehaviour
 {
+    public const float k_MinGroundStandStepOffsetHeightPercent = 0f;
+    public const float k_MaxGroundStandStepOffsetHeightPercent = 49f;
+    public const uint k_MaxMoveIterations = 10;
+    public const float k_GroundTestDepth = 0.01f;
+
     public Character Character { get; protected set; }
     public CharacterCapsule CharacterCapsule { get => Character.CharacterCapsule; }
     public CharacterInputs CharacterInputs { get => Character.CharacterInputs; }
 
     public CharacterMovementState MovementState;
+
+    // GroundData
     public bool IsOnGround;
     public float CurrentMoveSpeed;
     public float GroundCheckDepth;
@@ -22,6 +29,8 @@ public class CharacterMovement : MonoBehaviour
     public float GroundStandStepUpHeight;
     public float GroundStandStepDownHeight;
     public float GroundStandWalkableAngleZ;
+    public bool GroundStandMaintainVelocityOnSlopes = true;
+    public bool GroundStandMaintainVelocityOnWallSlides = true;
     public float GroundCrouchWalkSpeed;
     public float GroundCrouchRunSpeed;
     public float GroundCrouchJumpSpeed;
@@ -31,10 +40,14 @@ public class CharacterMovement : MonoBehaviour
     public bool GroundCrouchAutoRiseToStandSprint;
     public float GroundProneMoveSpeed;
     public bool GroundProneAutoRiseToStandSprint;
+    protected float m_MinMoveDistance = 0f;
 
-    protected bool PhysIsOnGround = false;
-    protected Vector3 Velocity = Vector3.zero;
-    protected Vector3 LastPosition = Vector3.zero;
+    public bool PhysIsOnGround { get; protected set; }
+
+    public CharacterMovement()
+    {
+        PhysIsOnGround = false;
+    }
 
     public void Init(Character character)
     {
@@ -136,125 +149,121 @@ public class CharacterMovement : MonoBehaviour
         // Calculate Movement
         Vector3 moveInputVector = new Vector3(CharacterInputs.MoveInputVector.x, 0, CharacterInputs.MoveInputVector.y);
         Vector3 normalizedMoveInputVector = moveInputVector.normalized;
-        // Vector3 directionalMoveVector = Quaternion.Euler(0, MovementInputs.LookInputVector.y, 0) * normalizedMoveInputVector;
         Vector3 directionalMoveVector = Quaternion.Euler(0, 0, 0) * normalizedMoveInputVector;
         Vector3 deltaMove = directionalMoveVector * speed * Time.deltaTime;
 
         // Perform move
-
-        GroundMove(deltaMove, 10);
-
-        Velocity = LastPosition - CharacterCapsule.GetWorldCenter;
-        Velocity = Velocity / Time.deltaTime;
+        GroundMove(deltaMove);
     }
 
-    // returns total distance moved
-    float GroundMove(Vector3 deltaMove, uint iterations, float moveThreshold = 0.01f)
+    protected virtual void CheckForGround()
     {
-        CharacterCapsule charCapsule = CharacterCapsule;
-        Vector3 nextDeltaMove = deltaMove;
-        float totalDistMoved = 0;
-        float maxSlopeAngle = GroundStandWalkableAngleZ;
-        float maxStepUpHeight = GroundStandStepUpHeight;
-        bool mantainVelocityOnSlopes = true;
-
-        while (iterations > 0 && nextDeltaMove.magnitude >= moveThreshold)
+        RaycastHit hit = CharacterCapsule.BaseSphereCast(-transform.up * k_GroundTestDepth);
+        if (hit.IsHit())
         {
-            RaycastHit hit = charCapsule.CapsuleMove(nextDeltaMove);
-            totalDistMoved += hit.distance;
+            IsOnGround = hit.collider.tag.Contains("Ground");
+        }
+    }
 
-            // no collision occurred, so we made the complete move
-            if (hit.IsHit() == false)
+    protected virtual void GroundMove(Vector3 originalMove)
+    {
+        Vector3 remainingMove = originalMove;
+
+        bool canRunIteration(uint it) => it < k_MaxMoveIterations ||
+            remainingMove.magnitude == 0 || remainingMove.magnitude < m_MinMoveDistance;
+
+        // Debug.Log(Time.frameCount + " | CharacterMovement | Move: " + originalMove + " | Iterations: " + k_MaxMoveIterations);
+        for (uint it = 0; canRunIteration(it); it++)
+        {
+            // Debug.Log(it + " | RemainingMove: " + remainingMove);
+            RaycastHit sweepHit = CharacterCapsule.CapsuleMove(remainingMove, 0f);
+            if (sweepHit.collider == null)
             {
-                // Debug.Log("NoCollision");
+                CharacterCapsule.ResolvePenetration();
+                remainingMove = Vector3.zero;
                 break;
             }
 
-            // Debug.Log("Collision: " + hit.collider.name); 
-            Vector3 remainingDeltaMove = nextDeltaMove - (nextDeltaMove.normalized * totalDistMoved);
-            Debug.DrawLine(hit.point, hit.point + remainingDeltaMove * 100, Color.blue);
+            // pending move vector after we collided with something
+            remainingMove = remainingMove - (originalMove.normalized * sweepHit.distance);
 
-            // check if we can climb the slope
-            // float hitAngle = Vector3.SignedAngle(charCapsule.GetWorldUpVector, hit.normal, charCapsule.GetWorldRightVector);
-            float hitAngle = Vector3.Angle(charCapsule.GetWorldUpVector, hit.normal);
-            if (hitAngle <= maxSlopeAngle)
+            // try stepup
+            if (GroundStepUp(originalMove, ref remainingMove, sweepHit))
             {
-                Debug.LogWarning("SlopeAngle: " + hitAngle);
-                Vector3 slopeDeltaMove = Vector3.ProjectOnPlane(remainingDeltaMove, hit.normal);
-                if (mantainVelocityOnSlopes)
-                {
-                    slopeDeltaMove = slopeDeltaMove.normalized * remainingDeltaMove.magnitude;
-                }
-
-                nextDeltaMove = slopeDeltaMove;
-                iterations--;
+                // Perform the rest of the move in the next loop
+                // This way we can step up again
                 continue;
             }
 
-            double obstacleHeight = 0;
-            {   // get obstacle height relative to character base
-                Vector3 hypotenuseVector = hit.point - charCapsule.GetWorldBasePosition;
-                Vector3 baseVector = Vector3.ProjectOnPlane(hypotenuseVector, charCapsule.GetWorldUpVector);
-                obstacleHeight = Math.Sqrt(Math.Pow(hypotenuseVector.magnitude, 2) - Math.Pow(baseVector.magnitude, 2));
-            }
+            GroundMoveAlongSurface(originalMove, ref remainingMove, sweepHit);
+            // Debug.Break();
+        }
+    }
 
-            // check if we can step up the obstacle
-            if (obstacleHeight <= maxStepUpHeight)
+    protected virtual bool GroundStepUp(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit)
+    {
+        if (hit.IsHit() == false || remainingMove == Vector3.zero)
+            return false;
+
+        Vector3 basePoint = CharacterCapsule.GetBasePosition;
+        Vector3 basePoint_ObstacleTop = hit.point - basePoint;
+        Vector3 obstacleHeightVector = Vector3.ProjectOnPlane(basePoint_ObstacleTop, CharacterCapsule.GetUpVector);
+        float obstacleHeight = obstacleHeightVector.magnitude;
+
+        float stepUpHeightPercent = Math.Clamp(GroundStandStepUpHeight,
+            k_MinGroundStandStepOffsetHeightPercent, k_MaxGroundStandStepOffsetHeightPercent);
+
+        float stepUpHeight = CharacterCapsule.GetHeight * (stepUpHeightPercent / 100);
+
+        if (obstacleHeight > stepUpHeight)
+            return false;
+
+        Vector3 stepUpVector = CharacterCapsule.GetUpVector * obstacleHeight;
+        RaycastHit stepUpHit = CharacterCapsule.SmallCapsuleCast(stepUpVector);
+
+        if (stepUpHit.IsHit())
+            return false;
+
+        CharacterCapsule.Move(stepUpVector);
+        Debug.Log("Ground StepUp" + " | StepUpCapacity: " + stepUpHeight + " | ObstacleHeight: "
+            + obstacleHeight + " | StepUpHeight: " + stepUpVector.y);
+
+        return true;
+    }
+
+    protected virtual void GroundMoveAlongSurface(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit)
+    {
+        Vector3 moveVectorLeft = (Quaternion.Euler(0, -90, 0) * remainingMove).normalized;
+        Vector3 obstacleForward = Vector3.ProjectOnPlane(-hit.normal, moveVectorLeft).normalized;
+        float slopeAngle = 90f - Vector3.SignedAngle(remainingMove.normalized, obstacleForward, -moveVectorLeft);
+        slopeAngle = Math.Max(slopeAngle, 0);
+
+        // Debug.Log("GameObject: " + hit.collider.name + " | SlopeAngle: " + slopeAngle);
+
+        float walkableAngle = 0f;
+        if (false && slopeAngle <= walkableAngle)
+        {
+            // walk
+            Vector3 slopeMove = Vector3.ProjectOnPlane(originalMove.normalized * remainingMove.magnitude, hit.normal);
+            bool maintainVelocityOnSlopes = GroundStandMaintainVelocityOnSlopes;
+            if (maintainVelocityOnSlopes)
             {
-                Debug.LogWarning("StepUp: " + obstacleHeight);
-                RaycastHit stepUpHitInfo = charCapsule.CapsuleMoveNoHit(charCapsule.GetWorldUpVector * (float)obstacleHeight);
-                if (stepUpHitInfo.collider)
-                {
-                    // We will perform the rest of the move in the next move
-                    nextDeltaMove = remainingDeltaMove;
-                }
-                else
-                {
-                    nextDeltaMove = Vector3.zero;
-                }
-
-                iterations--;
-                continue;
+                slopeMove = slopeMove.normalized * remainingMove.magnitude;
             }
 
-            // try sliding through the surface
-            GroundSlideAlongSurface(remainingDeltaMove, hit.normal, out RaycastHit slideHitInfo);
-            iterations = 0;
+            remainingMove = slopeMove;
+            // Debug.Log("GroundSlopeMove | RemainingMove: " + remainingMove + " | GameObject: " + hit.collider.name);
+            return;
         }
 
-        return totalDistMoved;
-    }
-
-    float GroundSlideAlongSurface(Vector3 deltaMove, Vector3 surfaceNormal, out RaycastHit hitInfo, float moveThreshold = 0.01f)
-    {
-        Vector3 slideDeltaMove = Vector3.ProjectOnPlane(deltaMove, surfaceNormal);
-        if (slideDeltaMove.magnitude < moveThreshold)
+        Vector3 slideMove = Vector3.ProjectOnPlane(originalMove.normalized * remainingMove.magnitude, hit.normal);
+        bool maintainVelocityOnWallSlides = GroundStandMaintainVelocityOnSlopes;
+        if (maintainVelocityOnWallSlides)
         {
-            hitInfo = new RaycastHit();
-            return 0;
+            slideMove = slideMove.normalized * remainingMove.magnitude;
         }
 
-        hitInfo = CharacterCapsule.CapsuleMove(slideDeltaMove);
-        return hitInfo.distance;
-    }
-
-    float GroundStepUpFrom(float stepUpHeight, Vector3 deltaMove, Vector3 surfaceNormal, RaycastHit hitInfo, float moveThreshold = 0.01f)
-    {
-        CharacterCapsule charCapsule = CharacterCapsule;
-        // Vector3 remainingDeltaMove = deltaMove - (deltaMove.normalized * totalDistMoved);
-
-        // get obstacle height relative to character base
-        Vector3 hypotenuseVector = hitInfo.point - charCapsule.GetWorldBasePosition;
-        Vector3 baseVector = Vector3.ProjectOnPlane(hypotenuseVector, charCapsule.GetWorldUpVector);
-        double obstacleHeight = Math.Sqrt(Math.Pow(hypotenuseVector.magnitude, 2) - Math.Pow(baseVector.magnitude, 2));
-
-        // check if we can step up the obstacle
-        if (obstacleHeight <= stepUpHeight)
-        {
-            RaycastHit stepUpHitInfo = charCapsule.CapsuleMove(charCapsule.GetWorldUpVector * (float)obstacleHeight);
-            return stepUpHitInfo.distance;
-        }
-
-        return 0;
+        remainingMove = slideMove;
+        // Debug.Log("GroundSlideAlong | RemainingMove: " + remainingMove + " | GameObject: " + hit.collider.name);
     }
 }
