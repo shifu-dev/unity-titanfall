@@ -1,14 +1,19 @@
 ﻿using System;
 using UnityEngine;
-using System.Collections.Generic;
 
 [DisallowMultipleComponent]
 public class CharacterMovement : MonoBehaviour
 {
-    public const float k_MinGroundStandStepOffsetHeightPercent = 0f;
-    public const float k_MaxGroundStandStepOffsetHeightPercent = 49f;
-    public const uint k_MaxMoveIterations = 10;
+    public const float k_MinGroundStandStepUpPercent = 0f;
+    public const float k_MaxGroundStandStepUpPercent = 49f;
+    public const float k_MinGroundStandStepDownPercent = 0f;
+    public const float k_MaxGroundStandStepDownPercent = 50f;
+    public const float k_MinGroundStandSlopeUpAngle = 0f;
+    public const float k_MaxGroundStandSlopeUpAngle = 89f;
+    public const float k_MinGroundStandSlopeDownAngle = 0f;
+    public const float k_MaxGroundStandSlopeDownAngle = -89f;
     public const float k_GroundTestDepth = 0.01f;
+    public const uint k_MaxMoveIterations = 10;
 
     public Character Character { get; protected set; }
     public CharacterCapsule CharacterCapsule { get => Character.CharacterCapsule; }
@@ -18,7 +23,6 @@ public class CharacterMovement : MonoBehaviour
 
     // GroundData
     public bool IsOnGround;
-    public float CurrentMoveSpeed;
     public float GroundCheckDepth;
     public float GroundStandWalkSpeed;
     public float GroundStandRunSpeed;
@@ -26,9 +30,71 @@ public class CharacterMovement : MonoBehaviour
     public float GroundStandSprintLeftAngleMax;
     public float GroundStandSprintRightAngleMax;
     public float GroundStandJumpSpeed;
-    public float GroundStandStepUpHeight;
-    public float GroundStandStepDownHeight;
-    public float GroundStandWalkableAngleZ;
+
+    // Ground Stand StepUp
+    protected float m_GroundStandStepUpPercent;
+    public float GroundStandStepUpPercent
+    {
+        get => m_GroundStandStepUpPercent;
+        set
+        {
+            m_GroundStandStepUpPercent = Math.Clamp(value,
+                k_MinGroundStandStepUpPercent, k_MaxGroundStandStepUpPercent);
+        }
+    }
+    public float GroundStandStepUpHeight
+    {
+        get => CharacterCapsule.GetHeight * (m_GroundStandStepUpPercent / 100);
+        set
+        {
+            GroundStandStepUpPercent = (value / CharacterCapsule.GetHeight) * 100;
+        }
+    }
+
+    // Ground Stand StepDown
+    protected float m_GroundStandStepDownPercent;
+    public float GroundStandStepDownPercent
+    {
+        get => m_GroundStandStepDownPercent;
+        set
+        {
+            m_GroundStandStepDownPercent = Math.Clamp(value,
+                k_MinGroundStandStepDownPercent, k_MaxGroundStandStepDownPercent);
+        }
+    }
+    public float GroundStandStepDownDepth
+    {
+        get => CharacterCapsule.GetHeight * (m_GroundStandStepDownPercent / 100);
+        set
+        {
+            GroundStandStepDownPercent = (value / CharacterCapsule.GetHeight) * 100;
+        }
+    }
+
+    // Ground Stand SlopeUp
+    protected float m_GroundStandSlopeUpAngle;
+    public float GroundStandSlopeUpAngle
+    {
+        get => m_GroundStandSlopeUpAngle;
+        set
+        {
+            m_GroundStandSlopeUpAngle = Math.Clamp(value,
+                k_MinGroundStandSlopeUpAngle, k_MaxGroundStandSlopeUpAngle);
+        }
+    }
+
+    // Ground Stand SlopeDown
+    protected float m_GroundStandSlopeDownAngle;
+    public float GroundStandSlopeDownAngle
+    {
+        get => m_GroundStandSlopeDownAngle;
+        set
+        {
+            m_GroundStandSlopeDownAngle = Math.Clamp(value,
+                k_MinGroundStandSlopeDownAngle, k_MaxGroundStandSlopeDownAngle);
+        }
+    }
+
     public bool GroundStandMaintainVelocityOnSlopes = true;
     public bool GroundStandMaintainVelocityOnWallSlides = true;
     public float GroundCrouchWalkSpeed;
@@ -158,7 +224,7 @@ public class CharacterMovement : MonoBehaviour
 
     protected virtual void CheckForGround()
     {
-        RaycastHit hit = CharacterCapsule.BaseSphereCast(-transform.up * k_GroundTestDepth);
+        RaycastHit hit = CharacterCapsule.SmallBaseSphereCast(Character.GetDown * k_GroundTestDepth);
         if (hit.IsHit())
         {
             IsOnGround = hit.collider.tag.Contains("Ground");
@@ -202,16 +268,25 @@ public class CharacterMovement : MonoBehaviour
 
     protected virtual bool GroundStepUp(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit)
     {
-        if (hit.IsHit() == false || remainingMove == Vector3.zero)
+        if (hit.collider == null || remainingMove == Vector3.zero)
             return false;
+
+        // check if hit point is below than capsule center
+        Vector3 capCenter_HitPoint = Vector3.ProjectOnPlane(hit.point - CharacterCapsule.GetCenter, CharacterCapsule.GetRightVector);
+        float hitAngleFromCapCenter = Vector3.SignedAngle(CharacterCapsule.GetForwardVector, capCenter_HitPoint.normalized, CharacterCapsule.GetRightVector);
+        Debug.Log("GroundStepUp| HitAngle: " + hitAngleFromCapCenter);
+        if (hitAngleFromCapCenter >= 0)
+        {
+            return false;
+        }
 
         Vector3 basePoint = CharacterCapsule.GetBasePosition;
         Vector3 basePoint_ObstacleTop = hit.point - basePoint;
         Vector3 obstacleHeightVector = Vector3.ProjectOnPlane(basePoint_ObstacleTop, CharacterCapsule.GetUpVector);
         float obstacleHeight = obstacleHeightVector.magnitude;
 
-        float stepUpHeightPercent = Math.Clamp(GroundStandStepUpHeight,
-            k_MinGroundStandStepOffsetHeightPercent, k_MaxGroundStandStepOffsetHeightPercent);
+        float stepUpHeightPercent = Math.Clamp(GroundStandStepUpPercent,
+            k_MinGroundStandStepUpPercent, k_MaxGroundStandStepUpPercent);
 
         float stepUpHeight = CharacterCapsule.GetHeight * (stepUpHeightPercent / 100);
 
@@ -227,6 +302,29 @@ public class CharacterMovement : MonoBehaviour
         CharacterCapsule.Move(stepUpVector);
         Debug.Log("Ground StepUp" + " | StepUpCapacity: " + stepUpHeight + " | ObstacleHeight: "
             + obstacleHeight + " | StepUpHeight: " + stepUpVector.y);
+
+        return true;
+    }
+
+    protected virtual bool GroundStepDown(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit)
+    {
+        if (hit.collider == null)
+            return false;
+
+        float stepDownDepth = GroundStandStepDownDepth;
+        if (stepDownDepth >= 0)
+            return false;
+
+        RaycastHit stepDownHit = CharacterCapsule.SmallBaseSphereCast(Character.GetDown * stepDownDepth);
+        if (stepDownHit.collider == null)
+        {
+            return false;
+        }
+
+        CharacterCapsule.Move(Character.GetDown * hit.distance);
+
+        Debug.Log("GroundStepDown" + " | StepDownDepth: " + stepDownDepth +
+            " | CurrentStepDown: " + Character.GetDown * hit.distance);
 
         return true;
     }

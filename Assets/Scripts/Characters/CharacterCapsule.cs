@@ -435,11 +435,30 @@ public class CharacterCapsule : MonoBehaviour
         return (uint)Physics.SphereCastNonAlloc(topSphere, radius, move.normalized, hitResults, move.magnitude, LayerMask, TriggerQuery);
     }
 
-    public Collider[] BaseSphereOverlap()
+    //////////////////////////////////////////////////////////////////
+    /// BaseSphereOverlap
+
+    public Collider[] SmallBaseSphereOverlap()
     {
         CalculateSmallCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
         return Physics.OverlapSphere(baseSphere, radius, LayerMask, TriggerQuery);
     }
+
+    public Collider[] BigBaseSphereOverlap()
+    {
+        CalculateBigCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
+        return Physics.OverlapSphere(baseSphere, radius, LayerMask, TriggerQuery);
+    }
+
+    public uint BaseSphereOverlap(out Collider[] smallSphereOverlaps, out Collider[] bigSphereOverlaps)
+    {
+        smallSphereOverlaps = SmallBaseSphereOverlap();
+        bigSphereOverlaps = BigBaseSphereOverlap();
+
+        return (uint)smallSphereOverlaps.Length + (uint)bigSphereOverlaps.Length;
+    }
+
+    //////////////////////////////////////////////////////////////////
 
     public uint BaseSphereOverlapNonAlloc(Collider[] colliders)
     {
@@ -450,12 +469,32 @@ public class CharacterCapsule : MonoBehaviour
         return (uint)Physics.OverlapSphereNonAlloc(baseSphere, radius, colliders, LayerMask, TriggerQuery);
     }
 
-    public RaycastHit BaseSphereCast(Vector3 move)
+    //////////////////////////////////////////////////////////////////
+    /// BaseSphereCast
+
+    public RaycastHit SmallBaseSphereCast(Vector3 move)
     {
         CalculateSmallCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
         Physics.SphereCast(baseSphere, radius, move.normalized, out RaycastHit hit, move.magnitude, LayerMask, TriggerQuery);
         return hit;
     }
+
+    public RaycastHit BigBaseSphereCast(Vector3 move)
+    {
+        CalculateBigCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
+        Physics.SphereCast(baseSphere, radius, move.normalized, out RaycastHit hit, move.magnitude, LayerMask, TriggerQuery);
+        return hit;
+    }
+
+    public bool BaseSphereCast(Vector3 move, out RaycastHit smallSphereHit, out RaycastHit baseSphereHit)
+    {
+        smallSphereHit = SmallBaseSphereCast(move);
+        baseSphereHit = BigBaseSphereCast(move);
+
+        return smallSphereHit.collider || baseSphereHit.collider;
+    }
+
+    //////////////////////////////////////////////////////////////////
 
     public RaycastHit[] BaseSphereCastAll(Vector3 move)
     {
