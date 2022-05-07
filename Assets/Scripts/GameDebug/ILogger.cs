@@ -34,6 +34,8 @@ namespace GameLog
         void Log(LogLevel lvl, string format, params object[] msg);
         void Log(LogMsg logMsg);
         void Write(LogLevel lvl, string msg);
+        void Throw(string format, params object[] msg);
+        void Assert(bool assertion, string format, params object[] msg);
         void Assert(bool assertion, LogLevel lvl, string format, params object[] msg);
 
         void Flush(LogLevel lvl);

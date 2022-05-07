@@ -10,7 +10,8 @@ namespace GameLog
         /// Constants
         //////////////////////////////////////////////////////////////////
 
-        public const LogLevel ThrowErrorLevel = LogLevel.CRITICAL;
+        public const LogLevel DefaultThrowLevel = LogLevel.CRITICAL;
+        public const LogLevel DefaultAssertLevel = LogLevel.WARN;
         public const int DefaultLogTargetsCapacity = 2;
 
         //////////////////////////////////////////////////////////////////
@@ -102,6 +103,11 @@ namespace GameLog
             }
         }
 
+        public void Assert(bool assertion, string format, params object[] msg)
+        {
+            Assert(assertion, DefaultAssertLevel, format, msg);
+        }
+
         public void Assert(bool assertion, LogLevel lvl, string format, params object[] msg)
         {
             if (assertion == false)
@@ -109,6 +115,12 @@ namespace GameLog
                 Log(lvl, format, msg);
                 throw new UnityException(String.Format(format, msg));
             }
+        }
+
+        public void Throw(string format, params object[] msg)
+        {
+            Log(DefaultThrowLevel, format, msg);
+            throw new UnityException(String.Format(format, msg));
         }
 
         public void Flush(LogLevel lvl)

@@ -87,6 +87,11 @@ namespace GameLog
             }
         }
 
+        public void Assert(bool assertion, string format, params object[] msg)
+        {
+            Assert(assertion, Logger.DefaultAssertLevel, format, msg);
+        }
+
         public void Assert(bool assertion, LogLevel lvl, string format, params object[] msg)
         {
             if (assertion == false)
@@ -94,6 +99,12 @@ namespace GameLog
                 Log(lvl, format, msg);
                 throw new UnityException(String.Format(format, msg));
             }
+        }
+
+        public void Throw(string format, params object[] msg)
+        {
+            Log(Logger.DefaultThrowLevel, format, msg);
+            throw new UnityException(String.Format(format, msg));
         }
 
         public void Flush(LogLevel lvl)
