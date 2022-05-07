@@ -1,3 +1,5 @@
+using System;
+
 namespace GameLog
 {
     public interface ILogTarget
@@ -14,5 +16,59 @@ namespace GameLog
 
         void Flush(LogLevel lvl);
         void ForceFlush();
+    }
+
+    public abstract class LogTarget : ILogTarget
+    {
+        public ILogTarget iLogTarget => (ILogTarget)this;
+
+        public LogLevel logLevel { get; set; }
+        public LogLevel flushLevel { get; set; }
+
+        public LogTarget(LogLevel logLevel, LogLevel flushLevel)
+        {
+            this.logLevel = logLevel;
+            this.flushLevel = flushLevel;
+        }
+
+        // Formats the LogMsg and writes
+        public void Log(LogMsg logMsg)
+        {
+            if (iLogTarget.CanLog(logMsg) == false)
+                return;
+
+            string fmtMsg = Format(logMsg);
+            InternalWrite(logMsg.logLevel, fmtMsg);
+        }
+
+        // Writes down to the target, does not format the msg
+        public void Write(LogLevel lvl, string msg)
+        {
+            if (iLogTarget.CanLog(lvl) == false)
+                return;
+
+            InternalWrite(lvl, msg);
+        }
+
+        public void Flush(LogLevel lvl)
+        {
+            if (iLogTarget.CanFlush(lvl) == false)
+                return;
+
+            InternalFlush();
+        }
+
+        public void ForceFlush()
+        {
+            InternalFlush();
+        }
+
+        protected virtual string Format(LogMsg logMsg)
+        {
+            return String.Format("{0} [{1}]: {2}", logMsg.loggerName, logMsg.logLevel, logMsg.msg);
+        }
+
+        protected abstract void InternalWrite(LogLevel lvl, string msg);
+        protected abstract void InternalFlush();
     }
 }
