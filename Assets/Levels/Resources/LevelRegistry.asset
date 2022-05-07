@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7e5471cce9ec67c47bb6f75e4cd013b4, type: 3}
-  m_Name: Playground
+  m_Script: {fileID: 11500000, guid: 63da1d429b192954f90e80779a2c5301, type: 3}
+  m_Name: LevelRegistry
   m_EditorClassIdentifier: 
-  m_sceneAsset: {fileID: 102900000, guid: 707acc8dffb72b144bb1ffbe1c965f3d, type: 3}
-  sceneIndex: 1
+  BootstrapLevel: {fileID: 11400000, guid: e1c471cdb9e6e544e8dc2fd9d981b08c, type: 2}
+  TrainingLevel: {fileID: 11400000, guid: 74e44d2eebce64744bddf4c567059e1e, type: 2}

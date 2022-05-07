@@ -1,6 +1,17 @@
 using UnityEngine;
 
-public class GameDebug
+public static class GameDebug
 {
-    public static GameDebug instance { get; private set; }
+    public static void Init()
+    {
+    }
+
+    public static void Shutdown()
+    {
+    }
+
+    public static ILogger CreateLogger(string name)
+    {
+        return new Logger(name);
+    }
 }

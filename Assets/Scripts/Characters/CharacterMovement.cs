@@ -274,7 +274,7 @@ public class CharacterMovement : MonoBehaviour
         // check if hit point is below than capsule center
         Vector3 capCenter_HitPoint = Vector3.ProjectOnPlane(hit.point - CharacterCapsule.GetCenter, CharacterCapsule.GetRightVector);
         float hitAngleFromCapCenter = Vector3.SignedAngle(CharacterCapsule.GetForwardVector, capCenter_HitPoint.normalized, CharacterCapsule.GetRightVector);
-        Debug.Log("GroundStepUp| HitAngle: " + hitAngleFromCapCenter);
+        // Debug.Log("GroundStepUp| HitAngle: " + hitAngleFromCapCenter);
         if (hitAngleFromCapCenter >= 0)
         {
             return false;

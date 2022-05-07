@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameInstance : IGameInstanceChannelPipeline
 {
@@ -8,67 +9,35 @@ public class GameInstance : IGameInstanceChannelPipeline
     protected static GameInstance Instance = new GameInstance();
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    static void StaticSubsystemRegistrationRuntimeMethod()
-    {
-        Instance.SubsystemRegistrationRuntimeMethod();
-    }
+    static void StaticSubsystemRegistrationRuntimeMethod() { }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
-    static void StaticAfterAssembliesLoadedRuntimeMethod()
-    {
-        Instance.AfterAssembliesLoadedRuntimeMethod();
-    }
+    static void StaticAfterAssembliesLoadedRuntimeMethod() { }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
-    static void StaticBeforeSplashScreenRuntimeMethod()
-    {
-        Instance.BeforeSplashScreenRuntimeMethod();
-    }
+    static void StaticBeforeSplashScreenRuntimeMethod() { }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void StaticBeforeSceneLoadRuntimeMethod()
     {
-        Instance.BeforeSceneLoadRuntimeMethod();
+        Instance.Init();
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    static void StaticAfterSceneLoadRuntimeMethod()
-    {
-        Instance.AfterSceneLoadRuntimeMethod();
-    }
+    static void StaticAfterSceneLoadRuntimeMethod() { }
 
     #endregion
 
+    protected ILogger logger;
     protected GameInstanceChannel UpdateChannel;
 
-    // [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    protected virtual void SubsystemRegistrationRuntimeMethod()
-    {
-        Debug.Log("GAMEINSTANCE: SubsystemRegistration");
-    }
-
-    // [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
-    protected virtual void AfterAssembliesLoadedRuntimeMethod()
-    {
-        Debug.Log("GAMEINSTANCE: AfterAssembliesLoaded");
-    }
-
-    // [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
-    protected virtual void BeforeSplashScreenRuntimeMethod()
-    {
-        Debug.Log("GAMEINSTANCE: BeforeSplashScreen");
-    }
-
-    // [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    protected virtual void BeforeSceneLoadRuntimeMethod()
-    {
-        Debug.Log("GAMEINSTANCE: BeforeSceneLoad");
-    }
-
     // [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    protected virtual void AfterSceneLoadRuntimeMethod()
+    protected virtual void Init()
     {
-        Debug.Log("GAMEINSTANCE: AfterSceneLoad");
+        GameDebug.Init();
+        logger = GameDebug.CreateLogger("GAMEINSTANCE");
+
+        logger.Info("Init");
 
         // Setup GameInstanceUpdateChannel
         GameObject UpdateChannelPrefab = Resources.Load<GameObject>("GameInstanceUpdateChannelPrefab");
@@ -77,40 +46,36 @@ public class GameInstance : IGameInstanceChannelPipeline
         UpdateChannel = UpdateChannelGameObject.GetComponent<GameInstanceChannel>();
         UpdateChannel.Pipeline = this;
         GameObject.DontDestroyOnLoad(UpdateChannel);
-        Debug.Log("GAMEINSTANCE: Created GameInstanceUpdateChannel");
+        logger.Info("Created GameInstanceUpdateChannel");
 
-        // Create Player
-        GameObject PlayerPrefab = Resources.Load<GameObject>("PlayerPrefab");
-        GameObject PlayerGameObject = GameObject.Instantiate(PlayerPrefab);
-        PlayerGameObject.name = "LocalPlayer";
-        Player player = PlayerGameObject.GetComponent<Player>();
-        GameObject.DontDestroyOnLoad(PlayerGameObject);
-        Debug.Log("GAMEINSTANCE: Created LocalPlayer");
+        logger.Info("Initializing PlayerManager");
+        PlayerManager.Init();
+        logger.Info("PlayerManager: CreatingLocalPlayer");
+        PlayerManager.CreateLocalPlayer();
 
-        // Create Character
-        GameObject CharacterPrefab = Resources.Load<GameObject>("Manny");
-        GameObject CharacterGameObject = GameObject.Instantiate(CharacterPrefab, new Vector3(0, 1f, 8f), Quaternion.identity);
-        CharacterGameObject.name = "Manny";
-        Character character = CharacterGameObject.GetComponent<Character>();
-        Debug.Log("GAMEINSTANCE: Created Character");
-
-        // Player Possess Character
-        player.Possess(character);
-        Debug.Log("GAMEINSTANCE: Player Possessed Character");
+        logger.Info("Initializing LevelManager");
+        LevelManager.Init();
+        logger.Info("LevelManager: LoadBootstrapLevel");
+        LevelManager.LoadBootstrapLevel();
     }
 
     public void AwakeByChannel(GameInstanceChannel Channel)
     {
-        Debug.Log("GAMEINSTANCE: AwakeByChannel");
+        // logger.Info("AwakeByChannel");
     }
 
     public void StartByChannel(GameInstanceChannel Channel)
     {
-        Debug.Log("GAMEINSTANCE: StartByChannel");
+        // logger.Info("StartByChannel");
     }
 
     public void UpdateByChannel(GameInstanceChannel Channel)
     {
-        // Debug.Log("GAMEINSTANCE: UpdateByChannel");
+        // logger.Info("UpdateByChannel");
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            logger.Info("LevelManager: LoadTrainingLevel");
+            LevelManager.LoadTrainingLevel();
+        }
     }
 }

@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c68f3920101f18499e45eb0c5c38b21, type: 3}
-  m_Name: TestLab
+  m_Script: {fileID: 11500000, guid: 7e5471cce9ec67c47bb6f75e4cd013b4, type: 3}
+  m_Name: Bootstrap
   m_EditorClassIdentifier: 
-  mainScene: {fileID: 11400000, guid: 967ee209c54b78c48b892e562472866d, type: 2}
-  additiveScenes: []
+  m_sceneAsset: {fileID: 102900000, guid: 51cdef0469f501b45befe7711e194a85, type: 3}
+  sceneIndex: 0

@@ -22,6 +22,9 @@ public class PlayerCamera : MonoBehaviour
         ThirdPersonCameraObject.name = "ThirdPersonPlayerCamera";
         FirstPersonCameraObject.name = "FirstPersonPlayerCamera";
 
+        GameObject.DontDestroyOnLoad(ThirdPersonCameraObject);
+        GameObject.DontDestroyOnLoad(FirstPersonCameraObject);
+
         // ThirdPersonCameraObject.SetActive(false);
         FirstPersonCameraObject.SetActive(false);
 
