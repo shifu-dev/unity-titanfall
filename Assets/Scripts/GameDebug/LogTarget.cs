@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 
 namespace GameLog
 {
@@ -65,7 +66,16 @@ namespace GameLog
 
         protected virtual string Format(LogMsg logMsg)
         {
-            return String.Format("{0} [{1}]: {2}", logMsg.loggerName, logMsg.logLevel, logMsg.msg);
+            // Join All LoggerNames
+            var loggerNames = logMsg.loggerNames;
+            StringBuilder fmtLoggerName = new StringBuilder(loggerNames.Count);
+            foreach (var loggerName in loggerNames)
+            {
+                fmtLoggerName.Append(loggerName);
+                fmtLoggerName.Append(" | ");
+            }
+
+            return String.Format("{0} [{1}]: {2}", fmtLoggerName, logMsg.logLevel, logMsg.msg);
         }
 
         protected abstract void InternalWrite(LogLevel lvl, string msg);

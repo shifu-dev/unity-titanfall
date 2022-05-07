@@ -32,6 +32,7 @@ namespace GameLog
         bool CanFlush(LogLevel lvl) => lvl >= flushLevel;
 
         void Log(LogLevel lvl, string format, params object[] msg);
+        void Log(LogMsg logMsg);
         void Write(LogLevel lvl, string msg);
         void Assert(bool assertion, LogLevel lvl, string format, params object[] msg);
 

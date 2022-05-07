@@ -52,7 +52,15 @@ namespace GameLog
         {
             if (ilogger.CanLog(lvl))
             {
-                InternalLog(lvl, format, msg);
+                if (logTargets.Count > 0)
+                {
+                    LogMsg logMsg = new LogMsg(lvl, loggerName, format, msg);
+
+                    foreach (var logTarget in logTargets)
+                    {
+                        logTarget.Log(logMsg);
+                    }
+                }
             }
 
             if (ilogger.CanFlush(lvl))
@@ -61,16 +69,20 @@ namespace GameLog
             }
         }
 
-        public void InternalLog(LogLevel lvl, string format, params object[] msg)
+        public void Log(LogMsg logMsg)
         {
-            if (logTargets.Count == 0)
-                return;
-
-            LogMsg logMsg = new LogMsg(lvl, loggerName, format, msg);
-
-            foreach (var logTarget in logTargets)
+            if (ilogger.CanLog(logMsg.logLevel))
             {
-                logTarget.Log(logMsg);
+                logMsg.loggerNames.Add(loggerName);
+                foreach (var logTarget in logTargets)
+                {
+                    logTarget.Log(logMsg);
+                }
+            }
+
+            if (ilogger.CanFlush(logMsg.logLevel))
+            {
+                Flush(logMsg.logLevel);
             }
         }
 
