@@ -357,7 +357,7 @@ public class CharacterCapsule : MonoBehaviour
         smallCapsuleHit = SmallCapsuleCast(move);
         bigCapsuleHit = BigCapsuleCast(move);
 
-        return smallCapsuleHit.IsHit() || bigCapsuleHit.IsHit();
+        return smallCapsuleHit.collider || bigCapsuleHit.collider;
     }
 
     //////////////////////////////////////////////////////////////////

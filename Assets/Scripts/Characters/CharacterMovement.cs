@@ -225,10 +225,13 @@ public class CharacterMovement : MonoBehaviour
     protected virtual void CheckForGround()
     {
         RaycastHit hit = CharacterCapsule.SmallBaseSphereCast(Character.GetDown * k_GroundTestDepth);
-        if (hit.IsHit())
+        if (hit.collider == null)
         {
-            IsOnGround = hit.collider.tag.Contains("Ground");
+            IsOnGround = false;
+            return;
         }
+
+        IsOnGround = hit.collider.tag.Contains("Ground");
     }
 
     protected virtual void GroundMove(Vector3 originalMove)
@@ -296,14 +299,17 @@ public class CharacterMovement : MonoBehaviour
         Vector3 stepUpVector = CharacterCapsule.GetUpVector * obstacleHeight;
         RaycastHit stepUpHit = CharacterCapsule.SmallCapsuleCast(stepUpVector);
 
-        if (stepUpHit.IsHit())
-            return false;
+        if (stepUpHit.collider == null)
+        {
+            CharacterCapsule.Move(stepUpVector);
 
-        CharacterCapsule.Move(stepUpVector);
-        Debug.Log("Ground StepUp" + " | StepUpCapacity: " + stepUpHeight + " | ObstacleHeight: "
-            + obstacleHeight + " | StepUpHeight: " + stepUpVector.y);
+            Debug.Log("Ground StepUp" + " | StepUpCapacity: " + stepUpHeight + " | ObstacleHeight: "
+                + obstacleHeight + " | StepUpHeight: " + stepUpVector.y);
 
-        return true;
+            return true;
+        }
+
+        return false;
     }
 
     protected virtual bool GroundStepDown(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit)
