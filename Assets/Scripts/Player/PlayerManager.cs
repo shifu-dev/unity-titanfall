@@ -1,10 +1,11 @@
+using GameLog;
 using UnityEngine;
 
 public static class PlayerManager
 {
     private static GameObject playerPrefab;
     public static Player localPlayer { get; set; }
-    public static ILogger logger { get; private set; }
+    public static GameLog.ILogger logger { get; private set; }
 
     public static void Init()
     {

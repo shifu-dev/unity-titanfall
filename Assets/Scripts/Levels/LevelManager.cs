@@ -1,4 +1,5 @@
 using System;
+using GameLog;
 using UnityEngine;
 
 public static class LevelManager
@@ -7,7 +8,7 @@ public static class LevelManager
     private static Level m_ActiveLevel;
 
     public static LevelRegistry registry { get; private set; }
-    public static ILogger logger { get; private set; }
+    public static GameLog.ILogger logger { get; private set; }
 
     public static void Init()
     {

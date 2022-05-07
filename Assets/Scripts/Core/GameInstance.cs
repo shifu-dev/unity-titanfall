@@ -1,4 +1,5 @@
 using System;
+using GameLog;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -28,7 +29,7 @@ public class GameInstance : IGameInstanceChannelPipeline
 
     #endregion
 
-    protected ILogger logger;
+    protected GameLog.ILogger logger;
     protected GameInstanceChannel UpdateChannel;
 
     // [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
