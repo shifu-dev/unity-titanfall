@@ -1,3 +1,4 @@
+using UnityEngine;
 using System.Collections.Generic;
 
 namespace GameLog
@@ -22,6 +23,8 @@ namespace GameLog
 
         public static LogLevel logLevel { get; set; } = LogLevel.INFO;
         public static LogLevel flushLevel { get; set; } = LogLevel.WARN;
+
+        public static string GetLogPath => Application.temporaryCachePath;
 
         //////////////////////////////////////////////////////////////////
         /// Initialization and Shutdown
@@ -76,9 +79,12 @@ namespace GameLog
         private static ILogger InternalCreateLogger(string name, params ILogTarget[] logTargets)
         {
             ILogger logger = new Logger(name);
-            logger.logTargets.Capacity = logTargets.Length + 2;
+            FileLogTarget fileTarget = new FileLogTarget(GetLogPath + name);
+
+            logger.logTargets.Capacity = logTargets.Length + 3;
             logger.logTargets.Add(globalLogFile);
             logger.logTargets.Add(consoleLog);
+            logger.logTargets.Add(fileTarget);
             logger.logTargets.AddRange(logTargets);
 
             return logger;
