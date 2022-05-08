@@ -11,21 +11,24 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterAnimation))]
 public class Character : MonoBehaviour
 {
-    public CharacterInputs CharacterInputs { get => _CharacterInputs; }
-    public CharacterMovement CharacterMovement { get => _CharacterMovement; }
-    public CharacterInteraction CharacterInteraction { get => _CharacterInteraction; }
-    public CharacterWeapon CharacterWeapon { get => _CharacterWeapon; }
-    public CharacterCamera CharacterCamera { get => _CharacterCamera; }
-    public CharacterCapsule CharacterCapsule { get => _CharacterCapsule; }
-    public CharacterAnimation CharacterAnimation { get => _CharacterAnimation; }
+    //////////////////////////////////////////////////////////////////
+    /// Variables
+    //////////////////////////////////////////////////////////////////
 
-    [NonSerialized] protected CharacterInputs _CharacterInputs;
-    [NonSerialized] protected CharacterMovement _CharacterMovement;
-    [NonSerialized] protected CharacterInteraction _CharacterInteraction;
-    [NonSerialized] protected CharacterWeapon _CharacterWeapon;
-    [NonSerialized] protected CharacterCamera _CharacterCamera;
-    [NonSerialized] protected CharacterCapsule _CharacterCapsule;
-    [NonSerialized] protected CharacterAnimation _CharacterAnimation;
+    public CharacterInputs CharacterInputs { get; protected set; }
+    public CharacterMovement CharacterMovement { get; protected set; }
+    public CharacterInteraction CharacterInteraction { get; protected set; }
+    public CharacterWeapon CharacterWeapon { get; protected set; }
+    public CharacterCamera CharacterCamera { get; protected set; }
+    public CharacterCapsule CharacterCapsule { get; protected set; }
+    public CharacterAnimation CharacterAnimation { get; protected set; }
+
+    public float Mass { get; set; } = 80f;
+    public float ScaledMass
+    {
+        get => transform.lossyScale.magnitude * Mass;
+        set => Mass = value / transform.lossyScale.magnitude;
+    }
 
     public Vector3 GetForward => transform.forward;
     public Vector3 GetBack => -transform.forward;
@@ -36,21 +39,21 @@ public class Character : MonoBehaviour
 
     void Awake()
     {
-        _CharacterInputs = GetComponent<CharacterInputs>();
-        _CharacterMovement = GetComponent<CharacterMovement>();
-        _CharacterInteraction = GetComponent<CharacterInteraction>();
-        _CharacterWeapon = GetComponent<CharacterWeapon>();
-        _CharacterCamera = GetComponent<CharacterCamera>();
-        _CharacterCapsule = GetComponent<CharacterCapsule>();
-        _CharacterAnimation = GetComponent<CharacterAnimation>();
+        CharacterInputs = GetComponent<CharacterInputs>();
+        CharacterMovement = GetComponent<CharacterMovement>();
+        CharacterInteraction = GetComponent<CharacterInteraction>();
+        CharacterWeapon = GetComponent<CharacterWeapon>();
+        CharacterCamera = GetComponent<CharacterCamera>();
+        CharacterCapsule = GetComponent<CharacterCapsule>();
+        CharacterAnimation = GetComponent<CharacterAnimation>();
 
-        _CharacterInputs.Init(this);
-        _CharacterMovement.Init(this);
-        _CharacterCamera.Init(this);
-        _CharacterCapsule.Init(this);
-        _CharacterInteraction.Init(this);
-        _CharacterWeapon.Init(this);
-        _CharacterAnimation.Init(this);
+        CharacterInputs.Init(this);
+        CharacterMovement.Init(this);
+        CharacterCamera.Init(this);
+        CharacterCapsule.Init(this);
+        CharacterInteraction.Init(this);
+        CharacterWeapon.Init(this);
+        CharacterAnimation.Init(this);
     }
 
     void Start()
@@ -59,18 +62,18 @@ public class Character : MonoBehaviour
 
     void Update()
     {
-        _CharacterInputs.UpdateImpl();
-        _CharacterMovement.UpdateImpl();
-        _CharacterCapsule.UpdateImpl();
-        _CharacterCamera.UpdateImpl();
-        _CharacterInteraction.UpdateImpl();
-        _CharacterWeapon.UpdateImpl();
-        _CharacterAnimation.UpdateImpl();
+        CharacterInputs.UpdateImpl();
+        CharacterMovement.UpdateImpl();
+        CharacterCapsule.UpdateImpl();
+        CharacterCamera.UpdateImpl();
+        CharacterInteraction.UpdateImpl();
+        CharacterWeapon.UpdateImpl();
+        CharacterAnimation.UpdateImpl();
     }
 
     void FixedUpdate()
     {
-        _CharacterMovement.FixedUpdateImpl();
+        CharacterMovement.FixedUpdateImpl();
     }
 
     public void OnPossessed(Player Player)
@@ -78,11 +81,11 @@ public class Character : MonoBehaviour
         if (Player == null)
             return;
 
-        _CharacterInputs.PlayerInputs = Player.PlayerInputs;
+        CharacterInputs.PlayerInputs = Player.PlayerInputs;
     }
 
     public void OnUnPossessed()
     {
-        _CharacterInputs.PlayerInputs = null;
+        CharacterInputs.PlayerInputs = null;
     }
 }

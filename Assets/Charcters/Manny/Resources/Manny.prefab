@@ -239,29 +239,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7262304a2f5a754bb05b7e89d850f58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MovementState:
-    State: 0
-  IsOnGround: 0
-  CurrentMoveSpeed: 0
-  GroundCheckDepth: 0
-  GroundStandWalkSpeed: 0
-  GroundStandRunSpeed: 5
-  GroundStandSprintSpeed: 0
-  GroundStandSprintLeftAngleMax: 0
-  GroundStandSprintRightAngleMax: 0
-  GroundStandJumpSpeed: 0
-  GroundStandStepUpHeight: 10
-  GroundStandStepDownHeight: 0
-  GroundStandWalkableAngleZ: 0
-  GroundCrouchWalkSpeed: 0
-  GroundCrouchRunSpeed: 0
-  GroundCrouchJumpSpeed: 0
-  GroundCrouchStepUpHeight: 0
-  GroundCrouchStepDownHeight: 0
-  GroundCrouchWalkableAngleZ: 0
-  GroundCrouchAutoRiseToStandSprint: 0
-  GroundProneMoveSpeed: 0
-  GroundProneAutoRiseToStandSprint: 0
+  m_GroundCheckDepth: 0
+  m_GroundMinMoveDistance: 0
+  m_GroundStandWalkSpeed: 0
+  m_GroundStandRunSpeed: 0
+  m_GroundStandSprintSpeed: 0
+  m_GroundStandSprintLeftAngleMax: 0
+  m_GroundStandSprintRightAngleMax: 0
+  m_GroundStandJumpSpeed: 0
+  m_GroundStandStepUpPercent: 0
+  m_GroundStandStepDownPercent: 0
+  m_GroundStandSlopeUpAngle: 0
+  m_GroundStandSlopeDownAngle: 0
+  m_GroundStandMaintainVelocityOnSlopes: 0
+  m_GroundStandMaintainVelocityOnWallSlides: 0
+  m_GroundCrouchWalkSpeed: 0
+  m_GroundCrouchRunSpeed: 0
+  m_GroundCrouchJumpSpeed: 0
+  m_GroundCrouchStepUpPercent: 0
+  m_GroundCrouchStepDownPercent: 0
+  m_GroundCrouchSlopeUpAngle: 0
+  m_GroundCrouchSlopeDownAngle: 0
+  m_GroundCrouchMaintainVelocityOnSlopes: 0
+  m_GroundCrouchMaintainVelocityOnWallSlides: 0
+  m_GroundCrouchAutoRiseToStandSprint: 0
+  m_GroundProneMoveSpeed: 0
+  m_GroundProneSlopeUpAngle: 0
+  m_GroundProneSlopeDownAngle: 0
+  m_GroundProneMaintainVelocityOnSlopes: 0
+  m_GroundProneMaintainVelocityOnWallSlides: 0
+  m_GroundProneAutoRiseToStandSprint: 0
+  m_AirHelperSpeed: 1
+  m_AirGravityDirection: {x: 0, y: 0, z: 0}
+  m_AirGravityAcceleration: 9.8
 --- !u!114 &7993160800140144679
 MonoBehaviour:
   m_ObjectHideFlags: 0

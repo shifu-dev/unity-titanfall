@@ -12,7 +12,7 @@ public static class LevelManager
 
     public static void Init()
     {
-        logger = GameDebug.CreateLogger("LEVELMANAGER");
+        logger = GameDebug.GetOrCreateLogger("LEVELMANAGER");
         logger.Info("Initalizing");
 
         registry = Resources.Load<LevelRegistry>("LevelRegistry");
@@ -24,7 +24,7 @@ public static class LevelManager
 
     public static void Shutdown()
     {
-        logger.Info("Shutdown");
+        logger.Info("Shutting down");
     }
 
     public static async void LoadLevel(Level level)

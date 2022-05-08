@@ -9,7 +9,7 @@ public static class PlayerManager
 
     public static void Init()
     {
-        logger = GameDebug.CreateLogger("PLAYERMANAGER");
+        logger = GameDebug.GetOrCreateLogger("PLAYERMANAGER");
 
         logger.Info("Initializing");
         playerPrefab = Resources.Load<GameObject>("PlayerPrefab");
