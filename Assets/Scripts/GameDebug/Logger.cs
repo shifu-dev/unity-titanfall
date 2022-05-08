@@ -13,12 +13,13 @@ namespace GameLog
         public const LogLevel DefaultThrowLevel = LogLevel.CRITICAL;
         public const LogLevel DefaultAssertLevel = LogLevel.WARN;
         public const int DefaultLogTargetsCapacity = 2;
+        public const int DefaultSubLoggerCapacity = 2;
 
         //////////////////////////////////////////////////////////////////
         /// Variables
         //////////////////////////////////////////////////////////////////
 
-        public ILogger ilogger => (ILogger)this;
+        public ILogger ilogger => this as ILogger;
 
         public string loggerName { get; set; } = "UnknownLogger";
 
@@ -27,6 +28,8 @@ namespace GameLog
         public LogLevel flushLevel { get; set; } = LogLevel.INFO;
 
         public List<ILogTarget> logTargets { get; set; } = new List<ILogTarget>(DefaultLogTargetsCapacity);
+
+        public List<ILogger> subLoggers { get; set; } = new List<ILogger>(DefaultSubLoggerCapacity);
 
         //////////////////////////////////////////////////////////////////
         /// Constructors
@@ -142,9 +145,34 @@ namespace GameLog
             }
         }
 
+        public ILogger GetSubLogger(string name)
+        {
+            foreach (var subLogger in subLoggers)
+            {
+                if (subLogger.loggerName == name)
+                    return subLogger;
+            }
+
+            return null;
+        }
+
         public ILogger CreateSubLogger(string name)
         {
-            return new OwnedLogger(this, name);
+            ILogger subLogger = new OwnedLogger(this, name);
+            subLoggers.Add(subLogger);
+
+            return subLogger;
+        }
+
+        public ILogger GetOrCreateSubLogger(string name)
+        {
+            ILogger subLogger = GetSubLogger(name);
+            if (subLogger == null)
+            {
+                subLogger = CreateSubLogger(name);
+            }
+
+            return subLogger;
         }
     }
 }

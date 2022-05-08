@@ -67,16 +67,22 @@ namespace GameLog
         protected virtual string Format(LogMsg logMsg)
         {
             // Join All LoggerNames
+            StringBuilder fmtLoggerName = new StringBuilder(String.Empty);
             var loggerNames = logMsg.loggerNames;
-            StringBuilder fmtLoggerName = new StringBuilder(loggerNames.Count);
-            fmtLoggerName.Append(loggerNames[0]);
-            for (int i = 1; i < loggerNames.Count; i++)
+            if (loggerNames.Count > 0)
             {
-                fmtLoggerName.Append(" | ");
-                fmtLoggerName.Append(loggerNames[i]);
+                fmtLoggerName.Clear();
+
+                int length = loggerNames.Count;
+                fmtLoggerName.Append(loggerNames[length - 1]);
+                for (int i = length - 2; i >= 0; i--)
+                {
+                    fmtLoggerName.Append(" | ");
+                    fmtLoggerName.Append(loggerNames[i]);
+                }
             }
 
-            return String.Format("{0} [{1}]: {2}\n", fmtLoggerName, logMsg.logLevel, logMsg.msg);
+            return String.Format($"[{logMsg.logLevel}] {fmtLoggerName}: {logMsg.msg}\n");
         }
 
         protected abstract void InternalWrite(LogLevel lvl, string msg);

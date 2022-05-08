@@ -11,6 +11,7 @@ namespace GameLog
         //////////////////////////////////////////////////////////////////
 
         public ILogger superLogger;
+        public List<ILogger> subLoggers { get; set; } = new List<ILogger>(Logger.DefaultSubLoggerCapacity);
 
         public string loggerName
         {
@@ -63,11 +64,7 @@ namespace GameLog
                     return;
 
                 LogMsg logMsg = new LogMsg(lvl, loggerName, format, msg);
-
-                foreach (var logTarget in superLogger.logTargets)
-                {
-                    logTarget.Log(logMsg);
-                }
+                superLogger.Log(logMsg);
             }
         }
 
@@ -119,9 +116,34 @@ namespace GameLog
         public void ForceFlush()
             => superLogger.ForceFlush();
 
+        public ILogger GetSubLogger(string name)
+        {
+            foreach (var subLogger in subLoggers)
+            {
+                if (subLogger.loggerName == name)
+                    return subLogger;
+            }
+
+            return null;
+        }
+
         public ILogger CreateSubLogger(string name)
         {
-            return new OwnedLogger(this, name);
+            ILogger subLogger = new OwnedLogger(this, name);
+            subLoggers.Add(subLogger);
+
+            return subLogger;
+        }
+
+        public ILogger GetOrCreateSubLogger(string name)
+        {
+            ILogger subLogger = GetSubLogger(name);
+            if (subLogger == null)
+            {
+                subLogger = CreateSubLogger(name);
+            }
+
+            return subLogger;
         }
     }
 }

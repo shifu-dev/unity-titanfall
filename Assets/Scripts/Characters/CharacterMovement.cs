@@ -533,8 +533,8 @@ public class CharacterMovement : MonoBehaviour
 
         CharacterCapsule.Move(Character.GetDown * hit.distance);
 
-        Debug.Log("GroundStepDown" + " | StepDownDepth: " + stepDownDepth +
-            " | CurrentStepDown: " + Character.GetDown * hit.distance);
+        // Debug.Log("GroundStepDown" + " | StepDownDepth: " + stepDownDepth +
+        //     " | CurrentStepDown: " + Character.GetDown * hit.distance);
 
         return true;
     }

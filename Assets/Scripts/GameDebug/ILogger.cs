@@ -41,6 +41,8 @@ namespace GameLog
         void Flush(LogLevel lvl);
         void ForceFlush();
 
+        ILogger GetSubLogger(string name);
         ILogger CreateSubLogger(string name);
+        ILogger GetOrCreateSubLogger(string name);
     }
 }

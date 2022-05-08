@@ -1,10 +1,15 @@
 using UnityEngine;
+using GameLog;
+
+using ILogger = GameLog.ILogger;
 
 [CreateAssetMenu(fileName = "TrainingLevel")]
 public class TrainingLevel : Level
 {
     protected override void AfterLoadLevel()
     {
+        ILogger logger = LevelManager.logger.GetOrCreateSubLogger("TrainingLevel");
+
         var sceneObject = mainScene.sceneObject;
         var startPositions = sceneObject.PlayerStartPositions;
 
@@ -23,11 +28,11 @@ public class TrainingLevel : Level
 
                     CharacterGameObject.name = "Manny";
                     Character character = CharacterGameObject.GetComponent<Character>();
-                    Debug.Log("TrainingLevel: Created Character");
+                    logger.Info("Created Character");
 
                     // Player Possess Character
                     localPlayer.Possess(character);
-                    Debug.Log("TrainingLevel: Player Possessed Character");
+                    logger.Info("Player Possessed Character");
                 }
             }
         }
