@@ -37,8 +37,9 @@ namespace GameLog
 
             consoleLog = new ConsoleLogTarget();
             globalLogFile = new FileLogTarget(globalLogFileName);
+            globalLogger = new Logger("GLOBAL LOGGER", consoleLog, globalLogFile);
 
-            globalLogger = CreateLogger("GLOBAL LOGGER", consoleLog, globalLogFile);
+            RegisterLogger(globalLogger);
         }
 
         public static void Shutdown()
