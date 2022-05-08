@@ -1,4 +1,5 @@
 ﻿using System;
+using GameLog;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -31,7 +32,8 @@ public class CharacterMovement : MonoBehaviour
     protected const float k_MinGroundProneSlopeDownAngle = 0f;
     protected const float k_MaxGroundProneSlopeDownAngle = -89f;
 
-    protected const float k_GroundTestDepth = 0.01f;
+    protected const float k_MinGroundTestDepth = 0.01f;
+    protected const float k_MaxGroundTestDepth = 0.1f;
     protected const uint k_MaxMoveIterations = 10;
 
     //////////////////////////////////////////////////////////////////
@@ -58,7 +60,12 @@ public class CharacterMovement : MonoBehaviour
     //////////////////////////////////////////////////////////////////
     /// GroundData
 
+    [Range(k_MinGroundTestDepth, k_MaxGroundTestDepth)]
     [SerializeField] protected float m_GroundCheckDepth;
+
+    [SerializeField] protected LayerMask m_GroundLayer;
+
+    [Min(0f)]
     [SerializeField] protected float m_GroundMinMoveDistance;
 
     //////////////////////////////////////////////////////////////////
@@ -426,7 +433,7 @@ public class CharacterMovement : MonoBehaviour
 
     protected virtual void CheckForGround()
     {
-        RaycastHit hit = CharacterCapsule.SmallBaseSphereCast(Character.GetDown * k_GroundTestDepth);
+        RaycastHit hit = CharacterCapsule.SmallBaseSphereCast(Character.GetDown * m_GroundCheckDepth);
         if (hit.collider == null)
         {
             PhysIsOnGround = false;
@@ -434,8 +441,7 @@ public class CharacterMovement : MonoBehaviour
         }
 
         var hitLayer = hit.collider.gameObject.layer;
-        var hitLayerName = LayerMask.LayerToName(hitLayer);
-        PhysIsOnGround = hitLayerName == "Ground";
+        PhysIsOnGround = m_GroundLayer.Contains(hitLayer);
     }
 
     protected virtual void GroundMove(Vector3 originalMove)

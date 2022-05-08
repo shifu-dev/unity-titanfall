@@ -10,7 +10,7 @@ namespace GameLog
         /// Constants
         //////////////////////////////////////////////////////////////////
 
-        public const string globalLogFileName = "GlobalLog";
+        public const string GlobalLoggerName = "GLOBAL LOGGER";
 
         //////////////////////////////////////////////////////////////////
         /// Variables
@@ -33,13 +33,12 @@ namespace GameLog
 
         public static void Init()
         {
-            UnityEngine.Debug.Log("LogPath: " + GetLogPath);
+            UnityEngine.Debug.Log("[INFO] GAMEDEBUG LogPath: " + GetLogPath);
 
             consoleLog = new ConsoleLogTarget();
-            globalLogFile = new FileLogTarget(globalLogFileName);
-            globalLogger = new Logger("GLOBAL LOGGER", consoleLog, globalLogFile);
+            globalLogFile = new FileLogTarget(GetLogFileNameFor(GlobalLoggerName));
 
-            RegisterLogger(globalLogger);
+            globalLogger = new Logger(GlobalLoggerName, globalLogFile, consoleLog);
         }
 
         public static void Shutdown()
@@ -83,11 +82,7 @@ namespace GameLog
         private static ILogger InternalCreateLogger(string name, params ILogTarget[] logTargets)
         {
             ILogger logger = new Logger(name);
-
-            // Create File Target
-            name = Path.ChangeExtension(name, ".log");
-            string filePath = Path.Combine(GetLogPath, name);
-            FileLogTarget fileTarget = new FileLogTarget(filePath, FileMode.Create);
+            FileLogTarget fileTarget = new FileLogTarget(GetLogFileNameFor(name), FileMode.Create);
 
             // Add LogTargets to Logger
             logger.logTargets.Capacity = logTargets.Length + 3;
@@ -151,6 +146,12 @@ namespace GameLog
             {
                 logger.ForceFlush();
             }
+        }
+
+        private static string GetLogFileNameFor(string loggerName)
+        {
+            string name = Path.ChangeExtension(loggerName, ".log");
+            return Path.Combine(GetLogPath, name);
         }
 
         //////////////////////////////////////////////////////////////////

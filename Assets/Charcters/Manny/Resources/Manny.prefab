@@ -239,8 +239,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7262304a2f5a754bb05b7e89d850f58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_GroundCheckDepth: 0
-  m_GroundMinMoveDistance: 0
+  m_GroundCheckDepth: 0.1
+  m_GroundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  m_GroundMinMoveDistance: 0.001
   m_GroundStandWalkSpeed: 0
   m_GroundStandRunSpeed: 0
   m_GroundStandSprintSpeed: 0
@@ -354,7 +357,7 @@ MonoBehaviour:
   SkinWidth: 0.01
   LayerMask:
     serializedVersion: 2
-    m_Bits: 4294967291
+    m_Bits: 2147483647
   TriggerQuery: 1
 --- !u!95 &2017536350101832689
 Animator:

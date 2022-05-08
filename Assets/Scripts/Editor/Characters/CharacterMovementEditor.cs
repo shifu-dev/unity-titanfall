@@ -11,6 +11,7 @@ public class CharacterMovementEditor : Editor
 
     // Ground Stand Data
     SerializedProperty m_GroundCheckDepth;
+    SerializedProperty m_GroundLayer;
     SerializedProperty m_GroundMinMoveDistance;
     SerializedProperty m_GroundStandWalkSpeed;
     SerializedProperty m_GroundStandRunSpeed;
@@ -56,6 +57,7 @@ public class CharacterMovementEditor : Editor
 
         // Ground Stand Properties
         m_GroundCheckDepth = serializedObject.FindProperty("m_GroundCheckDepth");
+        m_GroundLayer = serializedObject.FindProperty("m_GroundLayer");
         m_GroundMinMoveDistance = serializedObject.FindProperty("m_GroundMinMoveDistance");
         m_GroundStandWalkSpeed = serializedObject.FindProperty("m_GroundStandWalkSpeed");
         m_GroundStandRunSpeed = serializedObject.FindProperty("m_GroundStandRunSpeed");
@@ -135,6 +137,7 @@ public class CharacterMovementEditor : Editor
         if (showGroundData)
         {
             EditorGUILayout.PropertyField(m_GroundCheckDepth, new GUIContent("Ground Check Depth"));
+            EditorGUILayout.PropertyField(m_GroundLayer, new GUIContent("Ground Layer"));
             EditorGUILayout.PropertyField(m_GroundMinMoveDistance, new GUIContent("Min Move Distance"));
 
             //////////////////////////////////////////////////////////////////
