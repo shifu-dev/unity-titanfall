@@ -293,8 +293,49 @@ public class CharacterMovement : MonoBehaviour
 
     public CharacterMovement()
     {
+        MovementState = new CharacterMovementState(CharacterMovementState.Enum.UNKNOWN);
         PhysIsOnGround = false;
 
+        /// GroundData
+        m_GroundCheckDepth = 0.05f;
+        m_GroundLayer = 0;
+        m_GroundMinMoveDistance = 0.001f;
+
+        /// Ground Stand Data
+        m_GroundStandWalkSpeed = 10;
+        m_GroundStandRunSpeed = 15;
+        m_GroundStandSprintSpeed = 25;
+        m_GroundStandSprintLeftAngleMax = -45;
+        m_GroundStandSprintRightAngleMax = 45;
+        m_GroundStandJumpSpeed = 40;
+        m_GroundStandStepUpPercent = 10;
+        m_GroundStandStepDownPercent = 10;
+        m_GroundStandSlopeUpAngle = 45;
+        m_GroundStandSlopeDownAngle = 55;
+        m_GroundStandMaintainVelocityOnSlopes = false;
+        m_GroundStandMaintainVelocityOnWallSlides = false;
+
+        /// Ground Crouch Data
+        m_GroundCrouchWalkSpeed = 8;
+        m_GroundCrouchRunSpeed = 12;
+        m_GroundCrouchJumpSpeed = 50;
+        m_GroundCrouchStepUpPercent = 5;
+        m_GroundCrouchStepDownPercent = 5;
+        m_GroundCrouchSlopeUpAngle = 55;
+        m_GroundCrouchSlopeDownAngle = 65;
+        m_GroundCrouchMaintainVelocityOnSlopes = false;
+        m_GroundCrouchMaintainVelocityOnWallSlides = false;
+        m_GroundCrouchAutoRiseToStandSprint = true;
+
+        /// Ground Prone Data
+        m_GroundProneMoveSpeed = 4;
+        m_GroundProneSlopeUpAngle = 15;
+        m_GroundProneSlopeDownAngle = 25;
+        m_GroundProneMaintainVelocityOnSlopes = false;
+        m_GroundProneMaintainVelocityOnWallSlides = false;
+        m_GroundProneAutoRiseToStandSprint = true;
+
+        /// Air Data
         m_AirHelperSpeed = 1f;
         m_AirGravityDirection = Vector3.zero;
         m_AirGravityAcceleration = 9.8f;
@@ -342,7 +383,7 @@ public class CharacterMovement : MonoBehaviour
             else if (CharacterInputs.WantsToProne)
             {
             }
-            else	// Standing
+            else    // Standing
             {
                 if (CharacterInputs.MoveInputVector.normalized.magnitude == 0)
                 {
