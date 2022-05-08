@@ -141,5 +141,10 @@ namespace GameLog
                 logTarget.ForceFlush();
             }
         }
+
+        public ILogger CreateSubLogger(string name)
+        {
+            return new OwnedLogger(this, name);
+        }
     }
 }

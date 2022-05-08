@@ -18,6 +18,11 @@ namespace GameLog
             set;
         }
 
+        public string superLoggerName
+        {
+            get => superLogger.loggerName;
+        }
+
         public LogLevel logLevel
         {
             get => superLogger.logLevel;
@@ -40,9 +45,10 @@ namespace GameLog
         /// Constructors
         //////////////////////////////////////////////////////////////////
 
-        public OwnedLogger(ILogger logger)
+        public OwnedLogger(ILogger logger, string name)
         {
             this.superLogger = logger;
+            this.loggerName = name;
         }
 
         //////////////////////////////////////////////////////////////////
@@ -112,5 +118,10 @@ namespace GameLog
 
         public void ForceFlush()
             => superLogger.ForceFlush();
+
+        public ILogger CreateSubLogger(string name)
+        {
+            return new OwnedLogger(this, name);
+        }
     }
 }
