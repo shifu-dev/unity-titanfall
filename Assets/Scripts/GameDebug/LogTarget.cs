@@ -69,13 +69,14 @@ namespace GameLog
             // Join All LoggerNames
             var loggerNames = logMsg.loggerNames;
             StringBuilder fmtLoggerName = new StringBuilder(loggerNames.Count);
-            foreach (var loggerName in loggerNames)
+            fmtLoggerName.Append(loggerNames[0]);
+            for (int i = 1; i < loggerNames.Count; i++)
             {
-                fmtLoggerName.Append(loggerName);
                 fmtLoggerName.Append(" | ");
+                fmtLoggerName.Append(loggerNames[i]);
             }
 
-            return String.Format("{0} [{1}]: {2}", fmtLoggerName, logMsg.logLevel, logMsg.msg);
+            return String.Format("{0} [{1}]: {2}\n", fmtLoggerName, logMsg.logLevel, logMsg.msg);
         }
 
         protected abstract void InternalWrite(LogLevel lvl, string msg);

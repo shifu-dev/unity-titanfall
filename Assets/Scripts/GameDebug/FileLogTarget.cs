@@ -4,24 +4,29 @@ namespace GameLog
 {
     public class FileLogTarget : LogTarget
     {
-        public StreamWriter fileSteamWriter { get; private set; }
-        public FileStream fileStream => (FileStream)fileSteamWriter.BaseStream;
+        public StreamWriter fileStreamWriter { get; private set; }
+        public FileStream fileStream => (FileStream)fileStreamWriter.BaseStream;
 
-        public FileLogTarget(string filePath, FileMode fileMode = FileMode.CreateNew)
-            : base(LogLevel.INFO, LogLevel.WARN)
+        public FileLogTarget(string filePath, FileMode fileMode = FileMode.Create)
+            : base(LogLevel.INFO, LogLevel.INFO)
         {
             var fileStream = new FileStream(filePath, fileMode);
-            fileSteamWriter = new StreamWriter(fileStream);
+            fileStreamWriter = new StreamWriter(fileStream);
+        }
+
+        ~FileLogTarget()
+        {
+            fileStreamWriter.Close();
         }
 
         protected override void InternalWrite(LogLevel lvl, string msg)
         {
-            fileSteamWriter.Write(msg);
+            fileStreamWriter.Write(msg);
         }
 
         protected override void InternalFlush()
         {
-            fileSteamWriter.Flush();
+            fileStreamWriter.Flush();
         }
     }
 }

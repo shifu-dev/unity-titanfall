@@ -1,0 +1,16 @@
+GAMEINSTANCE [INFO]: Initializing
+GAMEINSTANCE [INFO]: Created GameInstanceUpdateChannel
+GAMEINSTANCE [INFO]: Initializing PlayerManager
+PLAYERMANAGER [INFO]: Initializing
+GAMEINSTANCE [INFO]: PlayerManager: CreatingLocalPlayer
+PLAYERMANAGER [INFO]: Creating LocalPlayer
+PLAYERMANAGER [INFO]: Created LocalPlayer
+GAMEINSTANCE [INFO]: Initializing LevelManager
+LEVELMANAGER [INFO]: Initalizing
+GAMEINSTANCE [INFO]: LevelManager: LoadBootstrapLevel
+LEVELMANAGER [INFO]: Loading TrainingLevel Level
+LEVELMANAGER [INFO]: LEVELSCENE: Loading... | Index: 1 | Scene: True
+LEVELMANAGER [INFO]: LEVELSCENE: FindingSceneObject | force: False | SceneObject: null
+LEVELMANAGER [INFO]: LEVELSCENE: Found 1 SceneObjects
+LEVELMANAGER [INFO]: LEVELSCENE: Found SceneObject
+LEVELMANAGER [INFO]: Loaded TrainingLevel Level successfully

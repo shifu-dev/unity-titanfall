@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.IO;
 using System.Collections.Generic;
 
 namespace GameLog
@@ -32,6 +33,8 @@ namespace GameLog
 
         public static void Init()
         {
+            UnityEngine.Debug.Log("LogPath: " + GetLogPath);
+
             consoleLog = new ConsoleLogTarget();
             globalLogFile = new FileLogTarget(globalLogFileName);
 
@@ -79,8 +82,13 @@ namespace GameLog
         private static ILogger InternalCreateLogger(string name, params ILogTarget[] logTargets)
         {
             ILogger logger = new Logger(name);
-            FileLogTarget fileTarget = new FileLogTarget(GetLogPath + name);
 
+            // Create File Target
+            name = Path.ChangeExtension(name, ".log");
+            string filePath = Path.Combine(GetLogPath, name);
+            FileLogTarget fileTarget = new FileLogTarget(filePath, FileMode.Create);
+
+            // Add LogTargets to Logger
             logger.logTargets.Capacity = logTargets.Length + 3;
             logger.logTargets.Add(globalLogFile);
             logger.logTargets.Add(consoleLog);

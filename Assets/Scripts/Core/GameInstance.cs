@@ -1,7 +1,5 @@
-using System;
 using GameLog;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class GameInstance : IGameInstanceChannelPipeline
 {
@@ -32,13 +30,12 @@ public class GameInstance : IGameInstanceChannelPipeline
     protected GameLog.ILogger logger;
     protected GameInstanceChannel UpdateChannel;
 
-    // [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     protected virtual void Init()
     {
         GameDebug.Init();
-        logger = GameDebug.CreateLogger("GAMEINSTANCE");
+        logger = GameDebug.GetOrCreateLogger("GAMEINSTANCE");
 
-        logger.Info("Init");
+        logger.Info("Initializing");
 
         // Setup GameInstanceUpdateChannel
         GameObject UpdateChannelPrefab = Resources.Load<GameObject>("GameInstanceUpdateChannelPrefab");
@@ -57,26 +54,43 @@ public class GameInstance : IGameInstanceChannelPipeline
         logger.Info("Initializing LevelManager");
         LevelManager.Init();
         logger.Info("LevelManager: LoadBootstrapLevel");
-        LevelManager.LoadBootstrapLevel();
+        LevelManager.LoadTrainingLevel();
+    }
+
+    protected virtual void Shutdown()
+    {
+        logger.Info("Shutting down LevelManager");
+        LevelManager.Shutdown();
+
+        logger.Info("Shutting down PlayerManager");
+        PlayerManager.Shutdown();
+
+        logger.Info("Shutting down GameDebug");
+        GameDebug.Shutdown();
     }
 
     public void AwakeByChannel(GameInstanceChannel Channel)
     {
-        // logger.Info("AwakeByChannel");
     }
 
     public void StartByChannel(GameInstanceChannel Channel)
     {
-        // logger.Info("StartByChannel");
     }
 
     public void UpdateByChannel(GameInstanceChannel Channel)
     {
-        // logger.Info("UpdateByChannel");
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            logger.Info("LevelManager: LoadTrainingLevel");
-            LevelManager.LoadTrainingLevel();
-        }
+    }
+
+    public void ApplicationFocusByChannel(GameInstanceChannel channel, bool isFocused)
+    {
+    }
+
+    public void ApplicationPauseByChannel(GameInstanceChannel channel, bool isPaused)
+    {
+    }
+
+    public void ApplicationQuitByChannel(GameInstanceChannel Channel)
+    {
+        Shutdown();
     }
 }

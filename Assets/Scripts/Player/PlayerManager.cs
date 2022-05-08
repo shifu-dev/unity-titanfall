@@ -15,6 +15,11 @@ public static class PlayerManager
         playerPrefab = Resources.Load<GameObject>("PlayerPrefab");
     }
 
+    public static void Shutdown()
+    {
+        logger.Info("Shutting down");
+    }
+
     public static Player CreateLocalPlayer()
     {
         logger.Info("Creating LocalPlayer");
