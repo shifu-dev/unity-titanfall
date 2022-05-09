@@ -486,7 +486,6 @@ public class CharacterMovement : MonoBehaviour
         PhysIsOnGround = m_GroundLayer.Contains(hitLayer);
     }
 
-    bool climbing = false;
     protected virtual void GroundMove(Vector3 originalMove)
     {
         Vector3 remainingMove = originalMove;
@@ -494,19 +493,11 @@ public class CharacterMovement : MonoBehaviour
         bool canRunIteration(uint it) => it < k_MaxMoveIterations ||
             remainingMove.magnitude == 0 || remainingMove.magnitude < m_GroundMinMoveDistance;
 
-        // Debug.Log(Time.frameCount + " | CharacterMovement | Move: " + originalMove + " | Iterations: " + k_MaxMoveIterations);
         for (uint it = 0; canRunIteration(it); it++)
         {
-            // Debug.Log(it + " | RemainingMove: " + remainingMove);
             RaycastHit sweepHit = CharacterCapsule.CapsuleMove(remainingMove, 0f);
             if (sweepHit.collider == null)
             {
-                if (climbing)
-                {
-                    Debug.LogWarning("Climbed Up");
-                    // climbing = false;
-                }
-
                 CharacterCapsule.ResolvePenetrationForSmallCapsule();
                 remainingMove = Vector3.zero;
                 break;
@@ -515,16 +506,16 @@ public class CharacterMovement : MonoBehaviour
             // pending move vector after we collided with something
             remainingMove = remainingMove - (originalMove.normalized * sweepHit.distance);
 
-            // // try stepup
-            // if (GroundStepUp(originalMove, ref remainingMove, sweepHit))
-            // {
-            //     // Perform the rest of the move in the next loop
-            //     // This way we can step up again
-            //     continue;
-            // }
+            // try stepup
+            if (GroundStepUp(originalMove, ref remainingMove, sweepHit))
+            {
+                // Perform the rest of the move in the next loop
+                // This way we can step up again
+                continue;
+            }
 
-            climbing = GroundMoveAlongSurface(originalMove, ref remainingMove, sweepHit);
-            CharacterCapsule.ResolvePenetrationForSmallCapsule();
+            GroundMoveAlongSurface(originalMove, ref remainingMove, sweepHit);
+            CharacterCapsule.ResolvePenetrationForSmallCapsule(0f);
         }
     }
 
@@ -591,14 +582,12 @@ public class CharacterMovement : MonoBehaviour
         return true;
     }
 
-    protected virtual bool GroundMoveAlongSurface(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit)
+    protected virtual void GroundMoveAlongSurface(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit)
     {
         Vector3 moveVectorLeft = (Quaternion.Euler(0, -90, 0) * remainingMove).normalized;
         Vector3 obstacleForward = Vector3.ProjectOnPlane(-hit.normal, moveVectorLeft).normalized;
         float slopeAngle = 90f - Vector3.SignedAngle(remainingMove.normalized, obstacleForward, -moveVectorLeft);
         slopeAngle = Math.Max(slopeAngle, 0);
-
-        // Debug.Log($"GameObject: {hit.collider.name} | SlopeAngle: {slopeAngle}");
 
         float walkableAngle = m_GroundStandSlopeUpAngle;
         if (slopeAngle <= walkableAngle)
@@ -612,8 +601,7 @@ public class CharacterMovement : MonoBehaviour
             }
 
             remainingMove = slopeMove;
-            Debug.Log($"GroundSlopeMove | RemainingMove: {remainingMove} | GameObject: {hit.collider.name}");
-            return true;
+            return;
         }
 
         Vector3 slideMove = Vector3.ProjectOnPlane(originalMove.normalized * remainingMove.magnitude, hit.normal);
@@ -624,8 +612,6 @@ public class CharacterMovement : MonoBehaviour
         }
 
         remainingMove = slideMove;
-        // Debug.Log($"GroundSlideAlong | RemainingMove: {remainingMove} | GameObject: {hit.collider.name}");
-        return false;
     }
 
     //////////////////////////////////////////////////////////////////
@@ -657,6 +643,6 @@ public class CharacterMovement : MonoBehaviour
         Vector3 gravityDirection = Character.GetDown;
 
         CharacterCapsule.CapsuleMove(gravityDirection * speed);
-        // CharacterCapsule.ResolvePenetrationForSmallCapsule();
+        CharacterCapsule.ResolvePenetrationForSmallCapsule();
     }
 }

@@ -291,9 +291,9 @@ public class CharacterCapsule : MonoBehaviour
     /// Physics
     //////////////////////////////////////////////////////////////////
 
-    public void Move(Vector3 pos)
+    public void Move(Vector3 move)
     {
-        m_Position += pos;
+        m_Position += move;
     }
 
     public void Rotate(Vector3 rot)

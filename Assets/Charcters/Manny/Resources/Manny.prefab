@@ -245,7 +245,7 @@ MonoBehaviour:
     m_Bits: 64
   m_GroundMinMoveDistance: 0.001
   m_GroundStandWalkSpeed: 10
-  m_GroundStandRunSpeed: 6
+  m_GroundStandRunSpeed: 15
   m_GroundStandSprintSpeed: 25
   m_GroundStandSprintLeftAngleMax: -45
   m_GroundStandSprintRightAngleMax: 45
