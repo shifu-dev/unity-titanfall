@@ -352,7 +352,6 @@ public class CharacterMovement : MonoBehaviour
 
     public void UpdateImpl()
     {
-        // Debug.Log("CharacterMovement| Frame: " + Time.frameCount);
         UpdatePhysicsData();
         UpdateMovementState();
         UpdatePhysicsState();

@@ -94,6 +94,7 @@ GameObject:
   - component: {fileID: 2269155104213234648}
   - component: {fileID: 1188773750617346290}
   - component: {fileID: 7619453308641592270}
+  - component: {fileID: 919132148756112230}
   - component: {fileID: 7148912495656108501}
   m_Layer: 0
   m_Name: CyberFrag Prefab
@@ -157,6 +158,18 @@ MonoBehaviour:
   m_Effect: {fileID: 0}
   m_Force: 0
   m_Radius: 0
+--- !u!114 &919132148756112230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1456483642364963170}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08bb2d7d24704c74f9c31db7c27e922e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!135 &7148912495656108501
 SphereCollider:
   m_ObjectHideFlags: 0

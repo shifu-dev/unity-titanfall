@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 [DisallowMultipleComponent]
 public class CharacterInteraction : MonoBehaviour
@@ -9,7 +8,6 @@ public class CharacterInteraction : MonoBehaviour
     //////////////////////////////////////////////////////////////////
 
     public Character Character { get; protected set; }
-    protected CharacterCapsule CharacterCapsule => Character.CharacterCapsule;
 
     [SerializeField, Space] protected InteractionBound m_InteractionBound;
     public InteractionBound InteractionBound
