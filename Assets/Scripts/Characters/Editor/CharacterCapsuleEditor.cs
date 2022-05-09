@@ -39,10 +39,11 @@ public class CharacterCapsuleEditor : Editor
     {
         ShowScript();
         ShowOptions();
-        ShowWorldInfo();
 
         serializedObject.ApplyModifiedProperties();
         target.UpdateImpl();
+
+        ShowWorldInfo();
     }
 
     private void ShowScript()
