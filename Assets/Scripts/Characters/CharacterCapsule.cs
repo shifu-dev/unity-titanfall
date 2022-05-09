@@ -558,7 +558,7 @@ public class CharacterCapsule : MonoBehaviour
     /// <param name="colliderPosition">Position of the collider.</param>
     /// <param name="colliderRotation">Rotation of the collider.</param>
     /// <returns>True if found penetration.</returns>
-    public bool ComputePenetration(out Vector3 moveOut, Collider collider, Vector3 colliderPosition, Quaternion colliderRotation)
+    public bool ComputePenetrationForSmallCapsule(out Vector3 moveOut, Collider collider, Vector3 colliderPosition, Quaternion colliderRotation)
     {
         if (CapsuleCollider == null || collider == null || collider == CapsuleCollider)
         {
@@ -567,19 +567,64 @@ public class CharacterCapsule : MonoBehaviour
             return false;
         }
 
-        float cacheRadius = CapsuleCollider.radius + SkinWidth;
+        // store current values
+        float cacheRadius = CapsuleCollider.radius;
         float cacheHeight = CapsuleCollider.height;
+        Vector3 cacheCenter = CapsuleCollider.center;
 
-        CapsuleCollider.radius = cacheRadius + SkinWidth;
-        CapsuleCollider.height = cacheHeight;
+        // set new values
+        CapsuleCollider.radius = Radius;
+        CapsuleCollider.center = Center;
+        CapsuleCollider.height = Height;
 
         // Note: Physics.ComputePenetration does not always return values when the colliders overlap.
-        var result = Physics.ComputePenetration(CapsuleCollider, CapsuleCollider.transform.position,
-            CapsuleCollider.transform.rotation, collider, colliderPosition, colliderRotation,
-            out Vector3 direction, out float distance);
+        var result = Physics.ComputePenetration(CapsuleCollider, Position, Rotation,
+            collider, colliderPosition, colliderRotation, out Vector3 direction, out float distance);
 
+        // restore previous values
         CapsuleCollider.radius = cacheRadius;
         CapsuleCollider.height = cacheHeight;
+        CapsuleCollider.center = cacheCenter;
+
+        moveOut = direction * distance;
+        return result;
+    }
+
+    /// <summary>
+    /// Compute the minimal translation required to separate the character from the collider.
+    /// </summary>
+    /// <param name="moveOut">Minimal move required to separate the colliders apart.</param>
+    /// <param name="collider">The collider to test.</param>
+    /// <param name="colliderPosition">Position of the collider.</param>
+    /// <param name="colliderRotation">Rotation of the collider.</param>
+    /// <returns>True if found penetration.</returns>
+    public bool ComputePenetrationForBigCapsule(out Vector3 moveOut, Collider collider, Vector3 colliderPosition, Quaternion colliderRotation)
+    {
+        if (CapsuleCollider == null || collider == null || collider == CapsuleCollider)
+        {
+            // Ignore self
+            moveOut = Vector3.zero;
+            return false;
+        }
+
+        // store current values
+        float cacheRadius = CapsuleCollider.radius;
+        float cacheHeight = CapsuleCollider.height;
+        Vector3 cacheCenter = CapsuleCollider.center;
+
+        // set new values
+        CapsuleCollider.radius = Radius;
+        CapsuleCollider.center = Center;
+        CapsuleCollider.height = Height;
+
+        // Note: Physics.ComputePenetration does not always return values when the colliders overlap.
+        var result = Physics.ComputePenetration(CapsuleCollider, Position, Rotation,
+            collider, colliderPosition, colliderRotation, out Vector3 direction, out float distance);
+
+        // restore previous values
+        CapsuleCollider.radius = cacheRadius;
+        CapsuleCollider.height = cacheHeight;
+        CapsuleCollider.center = cacheCenter;
 
         moveOut = direction * distance;
         return result;
@@ -596,12 +641,8 @@ public class CharacterCapsule : MonoBehaviour
         Vector3 moveOut = Vector3.zero;
         foreach (var collider in overlaps)
         {
-            if (collider == null)
-            {
-                break;
-            }
-
-            if (ComputePenetration(out Vector3 capsuleMoveOut, collider, collider.transform.position, collider.transform.rotation))
+            if (ComputePenetrationForSmallCapsule(out Vector3 capsuleMoveOut, 
+                collider, collider.transform.position, collider.transform.rotation))
             {
                 moveOut += capsuleMoveOut + (capsuleMoveOut.normalized * collisionOffset);
             }
@@ -617,7 +658,7 @@ public class CharacterCapsule : MonoBehaviour
 
     void OnDrawGizmosSelected()
     {
-        Gizmos.DrawSphere(GetTopSpherePosition, GetRadius);
-        Gizmos.DrawSphere(GetBaseSpherePosition, GetRadius);
+        // Gizmos.DrawSphere(GetTopSpherePosition, GetRadius);
+        // Gizmos.DrawSphere(GetBaseSpherePosition, GetRadius);
     }
 }

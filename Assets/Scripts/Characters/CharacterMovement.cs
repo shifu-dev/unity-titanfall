@@ -461,6 +461,7 @@ public class CharacterMovement : MonoBehaviour
                 speed = m_GroundStandRunSpeed;
             }
         }
+        speed = speed / 4;
 
         // Calculate Movement
         Vector3 moveInputVector = new Vector3(CharacterInputs.MoveInputVector.x, 0, CharacterInputs.MoveInputVector.y);
@@ -485,6 +486,7 @@ public class CharacterMovement : MonoBehaviour
         PhysIsOnGround = m_GroundLayer.Contains(hitLayer);
     }
 
+    bool climbing = false;
     protected virtual void GroundMove(Vector3 originalMove)
     {
         Vector3 remainingMove = originalMove;
@@ -499,6 +501,12 @@ public class CharacterMovement : MonoBehaviour
             RaycastHit sweepHit = CharacterCapsule.CapsuleMove(remainingMove, 0f);
             if (sweepHit.collider == null)
             {
+                if (climbing)
+                {
+                    Debug.LogWarning("Climbed Up");
+                    climbing = false;
+                }
+
                 CharacterCapsule.ResolvePenetration();
                 remainingMove = Vector3.zero;
                 break;
@@ -507,16 +515,16 @@ public class CharacterMovement : MonoBehaviour
             // pending move vector after we collided with something
             remainingMove = remainingMove - (originalMove.normalized * sweepHit.distance);
 
-            // try stepup
-            if (GroundStepUp(originalMove, ref remainingMove, sweepHit))
-            {
-                // Perform the rest of the move in the next loop
-                // This way we can step up again
-                continue;
-            }
+            // // try stepup
+            // if (GroundStepUp(originalMove, ref remainingMove, sweepHit))
+            // {
+            //     // Perform the rest of the move in the next loop
+            //     // This way we can step up again
+            //     continue;
+            // }
 
-            GroundMoveAlongSurface(originalMove, ref remainingMove, sweepHit);
-            // Debug.Break();
+            climbing = GroundMoveAlongSurface(originalMove, ref remainingMove, sweepHit);
+            CharacterCapsule.ResolvePenetration();
         }
     }
 
@@ -528,7 +536,6 @@ public class CharacterMovement : MonoBehaviour
         // check if hit point is below than capsule center
         Vector3 capCenter_HitPoint = Vector3.ProjectOnPlane(hit.point - CharacterCapsule.GetCenter, CharacterCapsule.GetRightVector);
         float hitAngleFromCapCenter = Vector3.SignedAngle(CharacterCapsule.GetForwardVector, capCenter_HitPoint.normalized, CharacterCapsule.GetRightVector);
-        // Debug.Log("GroundStepUp| HitAngle: " + hitAngleFromCapCenter);
         if (hitAngleFromCapCenter >= 0)
         {
             return false;
@@ -553,9 +560,7 @@ public class CharacterMovement : MonoBehaviour
         if (stepUpHit.collider == null)
         {
             CharacterCapsule.Move(stepUpVector);
-
-            // Debug.Log("Ground StepUp" + " | StepUpCapacity: " + stepUpHeight + " | ObstacleHeight: "
-            //     + obstacleHeight + " | StepUpHeight: " + stepUpVector.y);
+            Debug.Log($"Ground StepUp | StepUpCapacity: {stepUpHeight} | ObstacleHeight: {obstacleHeight} | StepUpHeight: {stepUpVector.y}");
 
             return true;
         }
@@ -586,17 +591,17 @@ public class CharacterMovement : MonoBehaviour
         return true;
     }
 
-    protected virtual void GroundMoveAlongSurface(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit)
+    protected virtual bool GroundMoveAlongSurface(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit)
     {
         Vector3 moveVectorLeft = (Quaternion.Euler(0, -90, 0) * remainingMove).normalized;
         Vector3 obstacleForward = Vector3.ProjectOnPlane(-hit.normal, moveVectorLeft).normalized;
         float slopeAngle = 90f - Vector3.SignedAngle(remainingMove.normalized, obstacleForward, -moveVectorLeft);
         slopeAngle = Math.Max(slopeAngle, 0);
 
-        // Debug.Log("GameObject: " + hit.collider.name + " | SlopeAngle: " + slopeAngle);
+        // Debug.Log($"GameObject: {hit.collider.name} | SlopeAngle: {slopeAngle}");
 
-        float walkableAngle = 0f;
-        if (false && slopeAngle <= walkableAngle)
+        float walkableAngle = m_GroundStandSlopeUpAngle;
+        if (slopeAngle <= walkableAngle)
         {
             // walk
             Vector3 slopeMove = Vector3.ProjectOnPlane(originalMove.normalized * remainingMove.magnitude, hit.normal);
@@ -607,8 +612,8 @@ public class CharacterMovement : MonoBehaviour
             }
 
             remainingMove = slopeMove;
-            // Debug.Log("GroundSlopeMove | RemainingMove: " + remainingMove + " | GameObject: " + hit.collider.name);
-            return;
+            Debug.Log($"GroundSlopeMove | RemainingMove: {remainingMove} | GameObject: {hit.collider.name}");
+            return true;
         }
 
         Vector3 slideMove = Vector3.ProjectOnPlane(originalMove.normalized * remainingMove.magnitude, hit.normal);
@@ -619,7 +624,8 @@ public class CharacterMovement : MonoBehaviour
         }
 
         remainingMove = slideMove;
-        // Debug.Log("GroundSlideAlong | RemainingMove: " + remainingMove + " | GameObject: " + hit.collider.name);
+        // Debug.Log($"GroundSlideAlong | RemainingMove: {remainingMove} | GameObject: {hit.collider.name}");
+        return false;
     }
 
     //////////////////////////////////////////////////////////////////
@@ -647,8 +653,10 @@ public class CharacterMovement : MonoBehaviour
         float mass = Character.ScaledMass;
         float speed = m_AirGravityAcceleration * Time.deltaTime;
         speed = CharacterCapsule.Velocity.y + speed;
-        Vector3 gravityDirection = Quaternion.Euler(Character.GetDown) * m_AirGravityDirection;
+        // Vector3 gravityDirection = Quaternion.Euler(Character.GetDown) * m_AirGravityDirection;
+        Vector3 gravityDirection = Character.GetDown;
 
         CharacterCapsule.CapsuleMove(gravityDirection * speed);
+        // CharacterCapsule.ResolvePenetration();
     }
 }
