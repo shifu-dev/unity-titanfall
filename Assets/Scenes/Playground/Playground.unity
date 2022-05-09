@@ -728,7 +728,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1456483642364963170, guid: b41b911ae3119fd4fbf35847d0ef1df5, type: 3}
       propertyPath: m_Name
-      value: CyberGrenade
+      value: CyberFrag
       objectReference: {fileID: 0}
     - target: {fileID: 2269155104213234648, guid: b41b911ae3119fd4fbf35847d0ef1df5, type: 3}
       propertyPath: m_RootOrder
