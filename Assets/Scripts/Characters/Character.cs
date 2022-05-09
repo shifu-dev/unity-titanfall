@@ -30,6 +30,7 @@ public class Character : MonoBehaviour
         set => Mass = value / transform.lossyScale.magnitude;
     }
 
+    public Quaternion GetRotation => transform.rotation;
     public Vector3 GetForward => transform.forward;
     public Vector3 GetBack => -transform.forward;
     public Vector3 GetRight => transform.right;
