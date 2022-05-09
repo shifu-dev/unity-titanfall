@@ -24,7 +24,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1098455465291470478}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -287,17 +287,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f655a3c2231dfe4b9e6764ea9237497, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CapsuleCollider: {fileID: 4855064170810617402}
-  Scale: {x: 1, y: 1, z: 1}
-  Center: {x: 0, y: 0, z: 0}
-  Direction: 1
-  Height: 2
-  Radius: 0.5
-  SkinWidth: 0.01
-  LayerMask:
+  m_CapsuleCollider: {fileID: 4855064170810617402}
+  m_Position: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+  m_Direction: 1
+  m_Height: 2
+  m_Radius: 0.5
+  m_SkinWidth: 0.01
+  m_LayerMask:
     serializedVersion: 2
-    m_Bits: 2147483647
-  TriggerQuery: 1
+    m_Bits: 4294967291
+  m_TriggerQuery: 1
 --- !u!114 &7993160800140144679
 MonoBehaviour:
   m_ObjectHideFlags: 0
