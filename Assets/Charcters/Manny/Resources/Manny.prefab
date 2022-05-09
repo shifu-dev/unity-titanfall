@@ -173,11 +173,11 @@ GameObject:
   - component: {fileID: 1561319467078266631}
   - component: {fileID: 8863942587269995025}
   - component: {fileID: 3335872080112416175}
+  - component: {fileID: 1210957656046409178}
   - component: {fileID: 7993160800140144679}
   - component: {fileID: 1873485337021413729}
   - component: {fileID: 6932028184359725518}
   - component: {fileID: 115547698234889312}
-  - component: {fileID: 1210957656046409178}
   - component: {fileID: 2017536350101832689}
   m_Layer: 0
   m_Name: Manny
@@ -275,6 +275,29 @@ MonoBehaviour:
   m_AirHelperSpeed: 1
   m_AirGravityDirection: {x: 0, y: 0, z: 0}
   m_AirGravityAcceleration: 9.8
+--- !u!114 &1210957656046409178
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6526974782931169490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f655a3c2231dfe4b9e6764ea9237497, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CapsuleCollider: {fileID: 4855064170810617402}
+  Scale: {x: 1, y: 1, z: 1}
+  Center: {x: 0, y: 0, z: 0}
+  Direction: 1
+  Height: 2
+  Radius: 0.5
+  SkinWidth: 0.01
+  LayerMask:
+    serializedVersion: 2
+    m_Bits: 2147483647
+  TriggerQuery: 1
 --- !u!114 &7993160800140144679
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -334,31 +357,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 463932af96b40e449b7015fd958be4e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1210957656046409178
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6526974782931169490}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f655a3c2231dfe4b9e6764ea9237497, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CapsuleCollider: {fileID: 4855064170810617402}
-  Position: {x: 0, y: 0, z: 0}
-  Rotation: {x: 0, y: 0, z: 0, w: 1}
-  Scale: {x: 1, y: 1, z: 1}
-  Center: {x: 0, y: 0, z: 0}
-  Direction: 1
-  Height: 2
-  Radius: 0.5
-  SkinWidth: 0.01
-  LayerMask:
-    serializedVersion: 2
-    m_Bits: 2147483647
-  TriggerQuery: 1
 --- !u!95 &2017536350101832689
 Animator:
   serializedVersion: 4

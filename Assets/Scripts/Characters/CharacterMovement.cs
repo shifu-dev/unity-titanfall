@@ -504,10 +504,10 @@ public class CharacterMovement : MonoBehaviour
                 if (climbing)
                 {
                     Debug.LogWarning("Climbed Up");
-                    climbing = false;
+                    // climbing = false;
                 }
 
-                CharacterCapsule.ResolvePenetration();
+                CharacterCapsule.ResolvePenetrationForSmallCapsule();
                 remainingMove = Vector3.zero;
                 break;
             }
@@ -524,7 +524,7 @@ public class CharacterMovement : MonoBehaviour
             // }
 
             climbing = GroundMoveAlongSurface(originalMove, ref remainingMove, sweepHit);
-            CharacterCapsule.ResolvePenetration();
+            CharacterCapsule.ResolvePenetrationForSmallCapsule();
         }
     }
 
@@ -657,6 +657,6 @@ public class CharacterMovement : MonoBehaviour
         Vector3 gravityDirection = Character.GetDown;
 
         CharacterCapsule.CapsuleMove(gravityDirection * speed);
-        // CharacterCapsule.ResolvePenetration();
+        // CharacterCapsule.ResolvePenetrationForSmallCapsule();
     }
 }
