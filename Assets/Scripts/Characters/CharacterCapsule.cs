@@ -12,23 +12,42 @@ public class CharacterCapsule : MonoBehaviour
     //////////////////////////////////////////////////////////////////
     // Variables
     //////////////////////////////////////////////////////////////////
-    [SerializeField] protected CapsuleCollider m_CapsuleCollider = null;
-    [SerializeField] protected Vector3 m_Position = Vector3.zero;
-    [SerializeField] protected Quaternion m_LocalRotation = Quaternion.identity;
-    [SerializeField] protected Vector3 m_LocalScale = Vector3.one;
-    [SerializeField] protected Vector3 m_Center = Vector3.zero;
-    [SerializeField] protected int m_Direction = 1;
-    [SerializeField] protected float m_Height = 2;
-    [SerializeField] protected float m_Radius = 0.5f;
-    [SerializeField] protected float m_SkinWidth = 0.01f;
-    [SerializeField] protected LayerMask m_LayerMask = Physics.DefaultRaycastLayers;
-    [SerializeField] protected QueryTriggerInteraction m_TriggerQuery = QueryTriggerInteraction.Ignore;
+    [SerializeField] protected CapsuleCollider m_CapsuleCollider;
+    [SerializeField] protected Vector3 m_Position;
+    [SerializeField] protected Quaternion m_LocalRotation;
+    [SerializeField] protected Vector3 m_LocalScale;
+    [SerializeField] protected Vector3 m_Center;
+    [SerializeField] protected int m_Direction;
+    [SerializeField] protected float m_Height;
+    [SerializeField] protected float m_Radius;
+    [SerializeField] protected float m_SkinWidth;
+    [SerializeField] protected LayerMask m_LayerMask;
+    [SerializeField] protected QueryTriggerInteraction m_TriggerQuery;
 
     public CapsuleCollider Capsule => m_CapsuleCollider;
     public Vector3 LastPosition { get; protected set; }
     public Quaternion LastRotation { get; protected set; }
     public Vector3 Velocity { get; protected set; }
     public float Speed => Velocity.magnitude;
+
+    //////////////////////////////////////////////////////////////////
+    /// Constructors
+    //////////////////////////////////////////////////////////////////
+
+    public CharacterCapsule()
+    {
+        m_CapsuleCollider = null;
+        m_Position = Vector3.zero;
+        m_LocalRotation = Quaternion.identity;
+        m_LocalScale = Vector3.one;
+        m_Center = Vector3.zero;
+        m_Direction = 1;
+        m_Height = 2;
+        m_Radius = 0.5f;
+        m_SkinWidth = 0.01f;
+        m_LayerMask = Physics.DefaultRaycastLayers;
+        m_TriggerQuery = QueryTriggerInteraction.Ignore;
+    }
 
     //////////////////////////////////////////////////////////////////
     /// UpdateLoop
