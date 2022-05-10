@@ -7,6 +7,7 @@ public enum GrenadeCategory
     SmokeGrenade
 }
 
+[DisallowMultipleComponent]
 [RequireComponent(typeof(Rigidbody))]
 public abstract class Grenade : MonoBehaviour
 {
