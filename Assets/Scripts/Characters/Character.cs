@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(CharacterInputs))]
@@ -38,7 +37,7 @@ public class Character : MonoBehaviour
     public Vector3 GetUp => transform.up;
     public Vector3 GetDown => -transform.up;
 
-    void Awake()
+    void Start()
     {
         CharacterInputs = GetComponent<CharacterInputs>();
         CharacterMovement = GetComponent<CharacterMovement>();
