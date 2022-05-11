@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3932349516667682350}
+  - component: {fileID: 7202238407574169744}
   m_Layer: 0
   m_Name: Body
   m_TagString: Untagged
@@ -34,6 +35,19 @@ Transform:
   m_Father: {fileID: 2269155104213234648}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &7202238407574169744
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 722600843670753417}
+  m_Material: {fileID: 13400000, guid: c70949a8f6781ee468275c9970384e38, type: 2}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &726392999852351651
 GameObject:
   m_ObjectHideFlags: 0
@@ -126,10 +140,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2269155104213234648}
-  - component: {fileID: 1188773750617346290}
-  - component: {fileID: 7619453308641592270}
   - component: {fileID: 919132148756112230}
-  - component: {fileID: 7148912495656108501}
+  - component: {fileID: 7619453308641592270}
+  - component: {fileID: 1033780732}
+  - component: {fileID: 1188773750617346290}
   m_Layer: 0
   m_Name: CyberFrag Prefab
   m_TagString: Untagged
@@ -154,6 +168,60 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &919132148756112230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1456483642364963170}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08bb2d7d24704c74f9c31db7c27e922e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Interactor: {fileID: 0}
+  canInteract: 0
+  m_RequireRaycast: 0
+  m_FaceAngleX: 0
+  m_FaceAngleY: 0
+  m_FaceAngleZ: 0
+--- !u!114 &7619453308641592270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1456483642364963170}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 729925f4fc6047e43a3c9482a56a265a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Category: 1
+  m_TriggerTime: 0
+  m_CanStopTrigger: 0
+  m_disablePhysicsOnEquip: 1
+  <isTriggered>k__BackingField: 0
+  m_Colliders:
+  - {fileID: 7202238407574169744}
+  m_fragGrenadeAsset: {fileID: 0}
+  m_effect: {fileID: 0}
+  m_force: 0
+  m_damage: 0
+  m_radius: 0
+--- !u!114 &1033780732
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1456483642364963170}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc645d9b07035e48b54e6132ab28d4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!54 &1188773750617346290
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -170,54 +238,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &7619453308641592270
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1456483642364963170}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 729925f4fc6047e43a3c9482a56a265a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Category: 1
-  m_TriggerTime: 0
-  m_CanStopTrigger: 0
-  <isTriggered>k__BackingField: 0
-  m_Colliders:
-  - {fileID: 7148912495656108501}
-  m_FragGrenadeAsset: {fileID: 11400000, guid: 6cabb609801e31e4aa21372fa2102b8b, type: 2}
-  m_Effect: {fileID: 2672152108495047593}
-  m_Force: 0
-  m_Damage: 0
-  m_Radius: 0
---- !u!114 &919132148756112230
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1456483642364963170}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 08bb2d7d24704c74f9c31db7c27e922e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!135 &7148912495656108501
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1456483642364963170}
-  m_Material: {fileID: 13400000, guid: c70949a8f6781ee468275c9970384e38, type: 2}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &4628429013153661278
 GameObject:
   m_ObjectHideFlags: 0

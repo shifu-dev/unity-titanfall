@@ -9,12 +9,12 @@ public enum GrenadeCategory
 }
 
 [DisallowMultipleComponent]
-[RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Interactable))]
+[RequireComponent(typeof(Projectile))]
 public abstract class Grenade : MonoBehaviour
 {
     public abstract GrenadeAsset grenadeAsset { get; }
-    new public Rigidbody rigidbody { get; protected set; }
+    public Projectile projectile { get; protected set; }
     public Interactable interactable { get; protected set; }
 
     [Header("GRENADE"), Space]
@@ -26,12 +26,13 @@ public abstract class Grenade : MonoBehaviour
     public float triggerTime => m_TriggerTime;
 
     [SerializeField] protected bool m_CanStopTrigger;
-    [SerializeField] protected bool m_disablePhysicsOnEquip;
 
     [field: SerializeField, ReadOnly]
     public bool isTriggered { get; protected set; }
 
-    [SerializeField, Space] protected Collider[] m_Colliders;
+    [Space]
+    [SerializeField] protected bool m_disablePhysicsOnEquip;
+    [SerializeField] protected Collider[] m_Colliders;
 
     //////////////////////////////////////////////////////////////////
     /// Events
@@ -49,7 +50,7 @@ public abstract class Grenade : MonoBehaviour
 
     void Awake()
     {
-        rigidbody = GetComponent<Rigidbody>();
+        projectile = GetComponent<Projectile>();
         interactable = GetComponent<Interactable>();
     }
 
@@ -66,7 +67,6 @@ public abstract class Grenade : MonoBehaviour
 
     public virtual void OnEquip()
     {
-        Debug.Log("OnEquip");
         if (interactable)
         {
             interactable.canInteract = false;
@@ -162,10 +162,9 @@ public abstract class Grenade : MonoBehaviour
 
     protected virtual void DisablePhysics()
     {
-        if (rigidbody)
+        if (projectile)
         {
-            rigidbody.isKinematic = true;
-            rigidbody.velocity = Vector3.zero;
+            projectile.Stop();
         }
 
         foreach (var collider in m_Colliders)
@@ -176,9 +175,9 @@ public abstract class Grenade : MonoBehaviour
 
     protected virtual void EnablePhysics()
     {
-        if (rigidbody)
+        if (projectile)
         {
-            rigidbody.isKinematic = false;
+            projectile.Stop();
         }
 
         foreach (var collider in m_Colliders)
