@@ -2,7 +2,6 @@ using UnityEngine;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Character))]
-
 public abstract class CharacterBehaviour : MonoBehaviour
 {
     public Character character { get; protected set; }
