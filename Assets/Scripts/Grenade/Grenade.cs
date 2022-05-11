@@ -10,20 +10,23 @@ public enum GrenadeCategory
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Interactable))]
 public abstract class Grenade : MonoBehaviour
 {
-    public abstract GrenadeAsset GrenadeAsset { get; }
-    public Rigidbody Rigidbody { get; protected set; }
+    public abstract GrenadeAsset grenadeAsset { get; }
+    new public Rigidbody rigidbody { get; protected set; }
+    public Interactable interactable { get; protected set; }
 
     [Header("GRENADE"), Space]
 
     [SerializeField] protected GrenadeCategory m_Category;
-    public GrenadeCategory Category => m_Category;
+    public GrenadeCategory category => m_Category;
 
     [SerializeField, Min(0)] protected float m_TriggerTime;
-    public float TriggerTime => m_TriggerTime;
+    public float triggerTime => m_TriggerTime;
 
     [SerializeField] protected bool m_CanStopTrigger;
+    [SerializeField] protected bool m_disablePhysicsOnEquip;
 
     [field: SerializeField, ReadOnly]
     public bool isTriggered { get; protected set; }
@@ -31,26 +34,60 @@ public abstract class Grenade : MonoBehaviour
     [SerializeField, Space] protected Collider[] m_Colliders;
 
     //////////////////////////////////////////////////////////////////
-    /// CharacterEvents
+    /// Events
     //////////////////////////////////////////////////////////////////
+
+    public Grenade()
+    {
+        m_Category = GrenadeCategory.Unknown;
+        m_TriggerTime = 0;
+        m_CanStopTrigger = false;
+        m_disablePhysicsOnEquip = true;
+        isTriggered = false;
+        m_Colliders = new Collider[0];
+    }
+
+    void Awake()
+    {
+        rigidbody = GetComponent<Rigidbody>();
+        interactable = GetComponent<Interactable>();
+    }
+
+    public virtual bool CanEquip()
+    {
+        if (isTriggered)
+            return false;
+
+        if (category == GrenadeCategory.Unknown)
+            return false;
+
+        return true;
+    }
 
     public virtual void OnEquip()
     {
-        Rigidbody = GetComponent<Rigidbody>();
-        Rigidbody.isKinematic = true;
-        Rigidbody.velocity = Vector3.zero;
-
-        foreach (var collider in m_Colliders)
+        Debug.Log("OnEquip");
+        if (interactable)
         {
-            collider.enabled = false;
+            interactable.canInteract = false;
+        }
+
+        if (m_disablePhysicsOnEquip)
+        {
+            DisablePhysics();
         }
     }
 
     public virtual void OnUnequip()
     {
-        foreach (var collider in m_Colliders)
+        if (interactable)
         {
-            collider.enabled = true;
+            interactable.canInteract = isTriggered ? false : true;
+        }
+
+        if (m_disablePhysicsOnEquip)
+        {
+            EnablePhysics();
         }
     }
 
@@ -65,6 +102,11 @@ public abstract class Grenade : MonoBehaviour
 
     public virtual bool StartTrigger()
     {
+        if (interactable)
+        {
+            interactable.canInteract = false;
+        }
+
         if (CanStartTrigger() == false)
             return false;
 
@@ -111,6 +153,45 @@ public abstract class Grenade : MonoBehaviour
     }
 
     protected virtual void OnTriggerStop()
+    {
+    }
+
+    //////////////////////////////////////////////////////////////////
+    /// Physics & Geometry
+    //////////////////////////////////////////////////////////////////
+
+    protected virtual void DisablePhysics()
+    {
+        if (rigidbody)
+        {
+            rigidbody.isKinematic = true;
+            rigidbody.velocity = Vector3.zero;
+        }
+
+        foreach (var collider in m_Colliders)
+        {
+            collider.enabled = false;
+        }
+    }
+
+    protected virtual void EnablePhysics()
+    {
+        if (rigidbody)
+        {
+            rigidbody.isKinematic = false;
+        }
+
+        foreach (var collider in m_Colliders)
+        {
+            collider.enabled = true;
+        }
+    }
+
+    protected virtual void DisableGeometry()
+    {
+    }
+
+    protected virtual void EnableGeometry()
     {
     }
 }

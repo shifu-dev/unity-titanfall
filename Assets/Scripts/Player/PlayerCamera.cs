@@ -40,7 +40,7 @@ public class PlayerCamera : MonoBehaviour
     {
         if (character)
         {
-            character.CharacterCamera.SetCamera(ThirdPersonCamera);
+            character.characterCamera.SetCamera(ThirdPersonCamera);
         }
     }
 
@@ -48,7 +48,7 @@ public class PlayerCamera : MonoBehaviour
     {
         if (character)
         {
-            character.CharacterCamera.UnsetCamera();
+            character.characterCamera.UnsetCamera();
         }
     }
 }

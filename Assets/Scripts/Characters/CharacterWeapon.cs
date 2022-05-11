@@ -19,26 +19,26 @@ public class CharacterWeapon : CharacterBehaviour
 
     public bool PickGrenade(Grenade grenade)
     {
-        int slot = -1;
-
-        slot = grenadeSlots1.PushGrenade(grenade);
-        if (slot >= 0)
-        {
+        if (grenadeSlots1.Equip(grenade))
             return true;
-        }
 
-        slot = grenadeSlots2.PushGrenade(grenade);
-        if (slot >= 0)
-        {
+        if (grenadeSlots2.Equip(grenade))
             return true;
-        }
 
         return false;
     }
 
-    public bool DropGrenade(int slot)
+    public bool DropGrenade(GrenadeCategory category)
     {
         return true;
+    }
+
+    public void DropAllGrenades(GrenadeCategory category)
+    {
+    }
+
+    public void DropAllGrenades()
+    {
     }
 }
 
@@ -76,7 +76,7 @@ public struct GrenadeSlots
 
     public bool WantsGrenade(Grenade grenade)
     {
-        if (grenade == null || grenade.Category == GrenadeCategory.Unknown)
+        if (grenade == null || grenade.category == GrenadeCategory.Unknown)
             return false;
 
         // no space left
@@ -98,7 +98,7 @@ public struct GrenadeSlots
 
     public int CanPushGrenade(Grenade grenade)
     {
-        if (grenade == null || grenade.Category == GrenadeCategory.Unknown)
+        if (grenade == null || grenade.category == GrenadeCategory.Unknown)
             return -1;
 
         // check category
@@ -119,17 +119,17 @@ public struct GrenadeSlots
         return -1;
     }
 
-    public int PushGrenade(Grenade grenade)
+    public bool Equip(Grenade grenade)
     {
-        if (grenade == null || grenade.Category == GrenadeCategory.Unknown)
-            return -1;
+        if (grenade == null || grenade.category == GrenadeCategory.Unknown)
+            return false;
 
         // check category
         if (category == GrenadeCategory.Unknown)
         {
             if (fixedCategory || m_count > 0)
             {
-                return -1;
+                return false;
             }
         }
 
@@ -138,15 +138,16 @@ public struct GrenadeSlots
         {
             grenades[m_count] = grenade;
             m_count++;
-            m_category = grenade.Category;
+            m_category = grenade.category;
+            grenade.OnEquip();
 
-            return m_count - 1;
+            return true;
         }
 
-        return -1;
+        return false;
     }
 
-    public Grenade PopGrenade()
+    public Grenade Unequip()
     {
         int slot = m_count - 1;
         if (slot < 0)
@@ -160,6 +161,7 @@ public struct GrenadeSlots
             m_category = GrenadeCategory.Unknown;
         }
 
+        grenades[slot].OnUnequip();
         return grenades[slot];
     }
 }

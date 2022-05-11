@@ -32,8 +32,8 @@ public class CharacterCamera : CharacterBehaviour
 
     public override void OnInitCharacter(Character character, CharacterInitializer initializer)
     {
-        CharacterInputs = character.CharacterInputs;
-        CharacterCapsule = character.CharacterCapsule;
+        CharacterInputs = character.characterInputs;
+        CharacterCapsule = character.characterCapsule;
 
         CameraMode = CharacterCameraModes.None;
     }

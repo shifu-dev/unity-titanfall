@@ -6,8 +6,8 @@ public class CharacterInteraction : CharacterBehaviour
     /// Variables
     //////////////////////////////////////////////////////////////////
 
-    public CharacterWeapon CharacterWeapon => character.CharacterWeapon;
-    public CharacterInputs CharacterInputs => character.CharacterInputs;
+    public CharacterWeapon CharacterWeapon => character.characterWeapon;
+    public CharacterInputs CharacterInputs => character.characterInputs;
 
     [SerializeField, Space] protected InteractionBound m_InteractionBound;
     public InteractionBound InteractionBound
@@ -46,6 +46,8 @@ public class CharacterInteraction : CharacterBehaviour
 
     public override void OnInitCharacter(Character character, CharacterInitializer initializer)
     {
+        base.OnInitCharacter(character, initializer);
+
         // this sets up the events
         InteractionBound = InteractionBound;
     }

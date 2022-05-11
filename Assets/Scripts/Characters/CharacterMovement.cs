@@ -41,8 +41,8 @@ public class CharacterMovement : CharacterBehaviour
     //////////////////////////////////////////////////////////////////
     /// Character Data
 
-    protected CharacterCapsule CharacterCapsule { get => character.CharacterCapsule; }
-    protected CharacterInputs CharacterInputs { get => character.CharacterInputs; }
+    protected CharacterCapsule CharacterCapsule { get => character.characterCapsule; }
+    protected CharacterInputs CharacterInputs { get => character.characterInputs; }
 
     //////////////////////////////////////////////////////////////////
 
