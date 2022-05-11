@@ -386,6 +386,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68eae79b8a37f9046ae6564df5e7a7a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  grenadeSlots1:
+    m_category: 0
+    m_fixedCategory: 0
+    m_count: 0
+    m_grenades:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+  grenadeSlots2:
+    m_category: 0
+    m_fixedCategory: 0
+    m_count: 0
+    m_grenades: []
 --- !u!114 &6932028184359725518
 MonoBehaviour:
   m_ObjectHideFlags: 0

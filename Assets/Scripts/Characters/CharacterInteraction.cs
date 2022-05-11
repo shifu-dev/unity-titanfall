@@ -8,6 +8,8 @@ public class CharacterInteraction : MonoBehaviour
     //////////////////////////////////////////////////////////////////
 
     public Character Character { get; protected set; }
+    public CharacterWeapon CharacterWeapon => Character.CharacterWeapon;
+    public CharacterInputs CharacterInputs => Character.CharacterInputs;
 
     [SerializeField, Space] protected InteractionBound m_InteractionBound;
     public InteractionBound InteractionBound
@@ -66,6 +68,15 @@ public class CharacterInteraction : MonoBehaviour
 
     protected void OnInteractableFound(Interactable interactable)
     {
+        if (interactable == null)
+            return;
+
+        Grenade grenade = interactable.GetComponent<Grenade>();
+        if (grenade != null)
+        {
+            CharacterWeapon.OnGrenadeFound(grenade);
+            return;
+        }
     }
 
     protected void OnInteractableLost(Interactable interactable)

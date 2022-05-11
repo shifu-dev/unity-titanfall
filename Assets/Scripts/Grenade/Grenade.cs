@@ -3,6 +3,7 @@ using System.Collections;
 
 public enum GrenadeCategory
 {
+    Unknown,
     FragGrenade,
     SmokeGrenade
 }
@@ -36,6 +37,8 @@ public abstract class Grenade : MonoBehaviour
     public virtual void OnEquip()
     {
         Rigidbody = GetComponent<Rigidbody>();
+        Rigidbody.isKinematic = true;
+        Rigidbody.velocity = Vector3.zero;
 
         foreach (var collider in m_Colliders)
         {
