@@ -1,15 +1,13 @@
 ﻿using UnityEngine;
 
-[DisallowMultipleComponent]
-public class CharacterInteraction : MonoBehaviour
+public class CharacterInteraction : CharacterBehaviour
 {
     //////////////////////////////////////////////////////////////////
     /// Variables
     //////////////////////////////////////////////////////////////////
 
-    public Character Character { get; protected set; }
-    public CharacterWeapon CharacterWeapon => Character.CharacterWeapon;
-    public CharacterInputs CharacterInputs => Character.CharacterInputs;
+    public CharacterWeapon CharacterWeapon => character.CharacterWeapon;
+    public CharacterInputs CharacterInputs => character.CharacterInputs;
 
     [SerializeField, Space] protected InteractionBound m_InteractionBound;
     public InteractionBound InteractionBound
@@ -46,15 +44,13 @@ public class CharacterInteraction : MonoBehaviour
     /// UpdateLoop
     //////////////////////////////////////////////////////////////////
 
-    public void Init(Character character)
+    public override void OnInitCharacter(Character character, CharacterInitializer initializer)
     {
-        this.Character = character;
-
         // this sets up the events
         InteractionBound = InteractionBound;
     }
 
-    public void UpdateImpl()
+    public override void OnUpdateCharacter()
     {
         if (m_InteractionRay)
         {

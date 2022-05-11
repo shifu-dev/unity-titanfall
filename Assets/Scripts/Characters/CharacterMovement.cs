@@ -1,9 +1,7 @@
 ﻿using System;
-using GameLog;
 using UnityEngine;
 
-[DisallowMultipleComponent]
-public class CharacterMovement : MonoBehaviour
+public class CharacterMovement : CharacterBehaviour
 {
     //////////////////////////////////////////////////////////////////
     /// Constants
@@ -43,9 +41,8 @@ public class CharacterMovement : MonoBehaviour
     //////////////////////////////////////////////////////////////////
     /// Character Data
 
-    protected Character Character { get; set; }
-    protected CharacterCapsule CharacterCapsule { get => Character.CharacterCapsule; }
-    protected CharacterInputs CharacterInputs { get => Character.CharacterInputs; }
+    protected CharacterCapsule CharacterCapsule { get => character.CharacterCapsule; }
+    protected CharacterInputs CharacterInputs { get => character.CharacterInputs; }
 
     //////////////////////////////////////////////////////////////////
 
@@ -345,20 +342,11 @@ public class CharacterMovement : MonoBehaviour
     /// Update Calls
     //////////////////////////////////////////////////////////////////
 
-    public void Init(Character character)
-    {
-        Character = character;
-    }
-
-    public void UpdateImpl()
+    public override void OnUpdateCharacter()
     {
         UpdatePhysicsData();
         UpdateMovementState();
         UpdatePhysicsState();
-    }
-
-    public void FixedUpdateImpl()
-    {
     }
 
     //////////////////////////////////////////////////////////////////
@@ -474,7 +462,7 @@ public class CharacterMovement : MonoBehaviour
 
     protected virtual void CheckForGround()
     {
-        RaycastHit hit = CharacterCapsule.SmallBaseSphereCast(Character.GetDown * m_GroundCheckDepth);
+        RaycastHit hit = CharacterCapsule.SmallBaseSphereCast(character.GetDown * m_GroundCheckDepth);
         if (hit.collider == null)
         {
             PhysIsOnGround = false;
@@ -567,13 +555,13 @@ public class CharacterMovement : MonoBehaviour
         if (stepDownDepth >= 0)
             return false;
 
-        RaycastHit stepDownHit = CharacterCapsule.SmallBaseSphereCast(Character.GetDown * stepDownDepth);
+        RaycastHit stepDownHit = CharacterCapsule.SmallBaseSphereCast(character.GetDown * stepDownDepth);
         if (stepDownHit.collider == null)
         {
             return false;
         }
 
-        CharacterCapsule.Move(Character.GetDown * hit.distance);
+        CharacterCapsule.Move(character.GetDown * hit.distance);
 
         // Debug.Log("GroundStepDown" + " | StepDownDepth: " + stepDownDepth +
         //     " | CurrentStepDown: " + Character.GetDown * hit.distance);
@@ -635,11 +623,11 @@ public class CharacterMovement : MonoBehaviour
     {
         GroundMove(originalMove);
 
-        float mass = Character.ScaledMass;
+        float mass = character.ScaledMass;
         float speed = m_AirGravityAcceleration * Time.deltaTime;
         speed = CharacterCapsule.Velocity.y + speed;
         // Vector3 gravityDirection = Quaternion.Euler(Character.GetDown) * m_AirGravityDirection;
-        Vector3 gravityDirection = Character.GetDown;
+        Vector3 gravityDirection = character.GetDown;
 
         CharacterCapsule.CapsuleMove(gravityDirection * speed);
         CharacterCapsule.ResolvePenetrationForSmallCapsule();

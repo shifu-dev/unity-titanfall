@@ -41,7 +41,7 @@ public class CharacterCapsuleEditor : Editor
         ShowOptions();
 
         serializedObject.ApplyModifiedProperties();
-        target.UpdateImpl();
+        target.OnUpdateCharacter();
 
         ShowWorldInfo();
     }

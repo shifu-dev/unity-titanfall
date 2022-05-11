@@ -1,20 +1,15 @@
 ﻿using System;
 using UnityEngine;
 
-[DisallowMultipleComponent]
-public class CharacterWeapon : MonoBehaviour
+public class CharacterWeapon : CharacterBehaviour
 {
     [SerializeField] protected GrenadeSlots grenadeSlots1;
     [SerializeField] protected GrenadeSlots grenadeSlots2;
 
-    public void Init(Character character)
+    public override void OnInitCharacter(Character character, CharacterInitializer initializer)
     {
         grenadeSlots1.Init();
         grenadeSlots2.Init();
-    }
-
-    public void UpdateImpl()
-    {
     }
 
     public void OnGrenadeFound(Grenade grenade)

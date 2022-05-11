@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CharacterCapsule : MonoBehaviour
+public class CharacterCapsule : CharacterBehaviour
 {
     //////////////////////////////////////////////////////////////////
     // Constants
@@ -53,13 +53,13 @@ public class CharacterCapsule : MonoBehaviour
     /// UpdateLoop
     //////////////////////////////////////////////////////////////////
 
-    public void Init(Character character)
+    public override void OnInitCharacter(Character character, CharacterInitializer initializer)
     {
         m_Position = transform.position;
         m_LocalRotation = m_CapsuleCollider.transform.rotation;
     }
 
-    public void UpdateImpl()
+    public override void OnUpdateCharacter()
     {
         PerformMove();
     }

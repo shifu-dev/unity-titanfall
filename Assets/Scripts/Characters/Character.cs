@@ -48,33 +48,41 @@ public class Character : MonoBehaviour
         CharacterCapsule = GetComponent<CharacterCapsule>();
         CharacterAnimation = GetComponent<CharacterAnimation>();
 
-        CharacterInputs.Init(this);
-        CharacterMovement.Init(this);
-        CharacterCamera.Init(this);
-        CharacterCapsule.Init(this);
-        CharacterInteraction.Init(this);
-        CharacterWeapon.Init(this);
-        CharacterAnimation.Init(this);
-    }
+        // get initializer
+        var initializer = GetComponent<CharacterInitializer>();
 
-    void Start()
-    {
+        CharacterInputs.OnInitCharacter(this, initializer);
+        CharacterMovement.OnInitCharacter(this, initializer);
+        CharacterCamera.OnInitCharacter(this, initializer);
+        CharacterCapsule.OnInitCharacter(this, initializer);
+        CharacterInteraction.OnInitCharacter(this, initializer);
+        CharacterWeapon.OnInitCharacter(this, initializer);
+        CharacterAnimation.OnInitCharacter(this, initializer);
+
+        // destroy initializer
+        Destroy(initializer);
     }
 
     void Update()
     {
-        CharacterInputs.UpdateImpl();
-        CharacterMovement.UpdateImpl();
-        CharacterCapsule.UpdateImpl();
-        CharacterCamera.UpdateImpl();
-        CharacterInteraction.UpdateImpl();
-        CharacterWeapon.UpdateImpl();
-        CharacterAnimation.UpdateImpl();
+        CharacterInputs.OnUpdateCharacter();
+        CharacterMovement.OnUpdateCharacter();
+        CharacterCapsule.OnUpdateCharacter();
+        CharacterCamera.OnUpdateCharacter();
+        CharacterInteraction.OnUpdateCharacter();
+        CharacterWeapon.OnUpdateCharacter();
+        CharacterAnimation.OnUpdateCharacter();
     }
 
     void FixedUpdate()
     {
-        CharacterMovement.FixedUpdateImpl();
+        CharacterInputs.OnFixedUpdateCharacter();
+        CharacterMovement.OnFixedUpdateCharacter();
+        CharacterCapsule.OnFixedUpdateCharacter();
+        CharacterCamera.OnFixedUpdateCharacter();
+        CharacterInteraction.OnFixedUpdateCharacter();
+        CharacterWeapon.OnFixedUpdateCharacter();
+        CharacterAnimation.OnFixedUpdateCharacter();
     }
 
     public void OnPossessed(Player Player)

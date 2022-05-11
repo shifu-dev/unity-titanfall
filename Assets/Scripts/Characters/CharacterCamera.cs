@@ -13,9 +13,8 @@ public enum CharacterCameraModes
 }
 
 [DisallowMultipleComponent]
-public class CharacterCamera : MonoBehaviour
+public class CharacterCamera : CharacterBehaviour
 {
-    public Character Character { get; protected set; }
     public CharacterInputs CharacterInputs { get; protected set; }
     public CharacterCapsule CharacterCapsule { get; protected set; }
 
@@ -31,16 +30,15 @@ public class CharacterCamera : MonoBehaviour
     public float MaxDistanceFromLookSource = 10;
     public float MinDistanceFromLookSource = 2;
 
-    public void Init(Character character)
+    public override void OnInitCharacter(Character character, CharacterInitializer initializer)
     {
-        Character = character;
-        CharacterInputs = Character.CharacterInputs;
-        CharacterCapsule = Character.CharacterCapsule;
+        CharacterInputs = character.CharacterInputs;
+        CharacterCapsule = character.CharacterCapsule;
 
         CameraMode = CharacterCameraModes.None;
     }
 
-    public void UpdateImpl()
+    public override void OnUpdateCharacter()
     {
         Vector3 totalRawInput = CharacterInputs.TotalLookInputVector;
         Vector3 lookVector = new Vector3(totalRawInput.y, totalRawInput.x, totalRawInput.z);
