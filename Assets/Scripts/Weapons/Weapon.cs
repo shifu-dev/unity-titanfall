@@ -107,4 +107,36 @@ public class Weapon : MonoBehaviour
             behaviour.OnDestroyWeapon();
         }
     }
+
+    //////////////////////////////////////////////////////////////////
+    /// Events
+    //////////////////////////////////////////////////////////////////
+
+    public virtual void OnPickup()
+    {
+    }
+
+    public virtual void OnDrop()
+    {
+    }
+
+    public virtual void OnInventory()
+    {
+    }
+
+    public virtual void OnEquip()
+    {
+    }
+
+    public virtual void OnEquipFinished()
+    {
+    }
+
+    public virtual void OnUnequip()
+    {
+    }
+
+    public virtual void OnUnequipFinished()
+    {
+    }
 }
