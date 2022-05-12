@@ -364,24 +364,24 @@ public class CharacterMovement : CharacterBehaviour
 
         if (PhysIsOnGround)
         {
-            if (CharacterInputs.WantsToCrouch)
+            if (CharacterInputs.wantsToCrouch)
             {
             }
-            else if (CharacterInputs.WantsToProne)
+            else if (CharacterInputs.wantsToProne)
             {
             }
             else    // Standing
             {
-                if (CharacterInputs.MoveInputVector.normalized.magnitude == 0)
+                if (CharacterInputs.moveInputVector.normalized.magnitude == 0)
                 {
                     state.State = CharacterMovementState.Enum.GROUND_STAND_IDLE;
                 }
-                else if (CharacterInputs.WantsToWalk)
+                else if (CharacterInputs.wantsToWalk)
                 {
                     state.State = CharacterMovementState.Enum.GROUND_STAND_WALK;
                 }
-                else if (CharacterInputs.WantsToSprint && CharacterInputs.MoveInputAngle > GroundStandSprintLeftAngleMax
-                                                      && CharacterInputs.MoveInputAngle < GroundStandSprintRightAngleMax)
+                else if (CharacterInputs.wantsToSprint && CharacterInputs.moveInputAngle > GroundStandSprintLeftAngleMax
+                                                      && CharacterInputs.moveInputAngle < GroundStandSprintRightAngleMax)
                 {
                     state.State = CharacterMovementState.Enum.GROUND_STAND_SPRINT;
                 }
@@ -420,26 +420,26 @@ public class CharacterMovement : CharacterBehaviour
         // Calculate speed
         float speed = 0;
 
-        if (CharacterInputs.WantsToCrouch)
+        if (CharacterInputs.wantsToCrouch)
         {
             speed = m_GroundCrouchRunSpeed;
         }
-        else if (CharacterInputs.WantsToProne)
+        else if (CharacterInputs.wantsToProne)
         {
             speed = m_GroundProneMoveSpeed;
         }
         else    // Standing
         {
-            if (CharacterInputs.MoveInputVector.normalized.magnitude == 0)
+            if (CharacterInputs.moveInputVector.normalized.magnitude == 0)
             {
                 speed = 0;
             }
-            else if (CharacterInputs.WantsToWalk)
+            else if (CharacterInputs.wantsToWalk)
             {
                 speed = m_GroundStandWalkSpeed;
             }
-            else if (CharacterInputs.WantsToSprint && CharacterInputs.MoveInputAngle > GroundStandSprintLeftAngleMax
-                                                  && CharacterInputs.MoveInputAngle < GroundStandSprintRightAngleMax)
+            else if (CharacterInputs.wantsToSprint && CharacterInputs.moveInputAngle > GroundStandSprintLeftAngleMax
+                                                  && CharacterInputs.moveInputAngle < GroundStandSprintRightAngleMax)
             {
                 speed = m_GroundStandSprintSpeed;
             }
@@ -451,7 +451,7 @@ public class CharacterMovement : CharacterBehaviour
         speed = speed / 4;
 
         // Calculate Movement
-        Vector3 moveInputVector = new Vector3(CharacterInputs.MoveInputVector.x, 0, CharacterInputs.MoveInputVector.y);
+        Vector3 moveInputVector = new Vector3(CharacterInputs.moveInputVector.x, 0, CharacterInputs.moveInputVector.y);
         Vector3 normalizedMoveInputVector = moveInputVector.normalized;
         Vector3 directionalMoveVector = Quaternion.Euler(0, 0, 0) * normalizedMoveInputVector;
         Vector3 deltaMove = directionalMoveVector * speed * Time.deltaTime;
@@ -611,7 +611,7 @@ public class CharacterMovement : CharacterBehaviour
         float speed = m_AirHelperSpeed;
 
         // Calculate Movement
-        Vector3 moveInputVector = new Vector3(CharacterInputs.MoveInputVector.x, 0, CharacterInputs.MoveInputVector.y);
+        Vector3 moveInputVector = new Vector3(CharacterInputs.moveInputVector.x, 0, CharacterInputs.moveInputVector.y);
         Vector3 directionalMoveVector = Quaternion.Euler(0, 0, 0) * moveInputVector;
         Vector3 deltaMove = directionalMoveVector * speed * Time.deltaTime;
 

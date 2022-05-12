@@ -235,6 +235,7 @@ GameObject:
   - component: {fileID: 3335872080112416175}
   - component: {fileID: 1210957656046409178}
   - component: {fileID: 7993160800140144679}
+  - component: {fileID: 2890709128893624832}
   - component: {fileID: 1873485337021413729}
   - component: {fileID: 1164611347096179261}
   - component: {fileID: 6932028184359725518}
@@ -375,6 +376,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_InteractionBound: {fileID: 5474103358199081222}
   m_InteractionRay: {fileID: 5446854440347709342}
+--- !u!114 &2890709128893624832
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6526974782931169490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb7d0c9f08f8c0d4f85611f9bd4a91f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1873485337021413729
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -403,6 +416,12 @@ MonoBehaviour:
     m_category: 0
     m_fixedCategory: 0
     m_count: 0
+    m_capacity: 4
+    m_transforms:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
     m_grenades:
     - {fileID: 0}
     - {fileID: 0}
@@ -412,7 +431,17 @@ MonoBehaviour:
     m_category: 0
     m_fixedCategory: 0
     m_count: 0
-    m_grenades: []
+    m_capacity: 4
+    m_transforms:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    m_grenades:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
 --- !u!114 &6932028184359725518
 MonoBehaviour:
   m_ObjectHideFlags: 0

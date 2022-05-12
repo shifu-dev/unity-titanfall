@@ -4,24 +4,16 @@ using UnityEngine.InputSystem;
 
 public class PlayerInputs : MonoBehaviour
 {
-    public bool IsValid { get => true; }
-    public Vector3 MoveInputVector { get => _MoveInputVector; }
-    public Vector3 LookInputVector { get => _LookInputVector; }
-    public float MoveInputAngle { get => _MoveInputAngle; }
-    public bool WantsToWalk { get => _WantsToWalk; }
-    public bool WantsToSprint { get => _WantsToSprint; }
-    public bool WantsToJump { get => _WantsToJump; }
-    public bool WantsToCrouch { get => _WantsToCrouch; }
-    public bool WantsToProne { get => _WantsToProne; }
-
-    [SerializeField] protected Vector3 _MoveInputVector;
-    [SerializeField] protected Vector3 _LookInputVector;
-    [SerializeField] protected float _MoveInputAngle;
-    [SerializeField] protected bool _WantsToWalk;
-    [SerializeField] protected bool _WantsToSprint;
-    [SerializeField] protected bool _WantsToJump;
-    [SerializeField] protected bool _WantsToCrouch;
-    [SerializeField] protected bool _WantsToProne;
+    [field: SerializeField, ReadOnly] public Vector3 moveInputVector { get; protected set; }
+    [field: SerializeField, ReadOnly] public Vector3 lookInputVector { get; protected set; }
+    [field: SerializeField, ReadOnly] public float moveInputAngle { get; protected set; }
+    [field: SerializeField, ReadOnly] public bool wantsToWalk { get; protected set; }
+    [field: SerializeField, ReadOnly] public bool wantsToSprint { get; protected set; }
+    [field: SerializeField, ReadOnly] public bool wantsToJump { get; protected set; }
+    [field: SerializeField, ReadOnly] public bool wantsToCrouch { get; protected set; }
+    [field: SerializeField, ReadOnly] public bool wantsToProne { get; protected set; }
+    [field: SerializeField, ReadOnly] public bool grenadeSlot1 { get; protected set; }
+    [field: SerializeField, ReadOnly] public bool grenadeSlot2 { get; protected set; }
 
     public void Init(Player character)
     {
@@ -29,14 +21,19 @@ public class PlayerInputs : MonoBehaviour
 
     public void UpdateImpl()
     {
-        _MoveInputVector.x = Input.GetAxis("move x");
-        _MoveInputVector.y = Input.GetAxis("move y");
-        _MoveInputVector.z = 0;
+        float moveInput_x = Input.GetAxis("move x");
+        float moveInput_y = Input.GetAxis("move y");
+        float moveInput_z = 0;
+        moveInputVector = new Vector3(moveInput_x, moveInput_y, moveInput_z);
 
-        _MoveInputAngle = Vector3.SignedAngle(_MoveInputVector, new Vector3(0, 1, 0), new Vector3(0, 0, 1));
+        moveInputAngle = Vector3.SignedAngle(moveInputVector, new Vector3(0, 1, 0), new Vector3(0, 0, 1));
 
-        _LookInputVector.x = Input.GetAxis("look x");
-        _LookInputVector.y = -Input.GetAxis("look y");
-        _LookInputVector.z = 0;
+        float lookInput_x = Input.GetAxis("look x");
+        float lookInput_y = -Input.GetAxis("look y");
+        float lookInput_z = 0;
+        lookInputVector = new Vector3(lookInput_x, lookInput_y, lookInput_z);
+
+        grenadeSlot1 = Input.GetKey("GrenadeSlot1");
+        grenadeSlot2 = Input.GetKey("GrenadeSlot2");
     }
 }

@@ -3,22 +3,35 @@ using UnityEngine;
 
 public class CharacterGrenade : CharacterBehaviour
 {
+    protected CharacterInputs inputs;
+
     [SerializeField] protected GrenadeSlots grenadeSlots1;
     [SerializeField] protected GrenadeSlots grenadeSlots2;
 
     public override void OnInitCharacter(Character character, CharacterInitializer initializer)
     {
+        inputs = character.characterInputs;
+
         grenadeSlots1.Init();
         grenadeSlots2.Init();
     }
 
-    public void OnGrenadeFound(Grenade grenade)
+    public override void OnUpdateCharacter()
     {
-        PickGrenade(grenade);
+        if (inputs.grenadeSlot1)
+        {
+            Grenade grenade = grenadeSlots1.Get();
+            if (grenade != null)
+            {
+            }
+        }
     }
 
-    public bool PickGrenade(Grenade grenade)
+    protected bool AddGrenade(Grenade grenade)
     {
+        if (grenade == null)
+            return false;
+
         if (grenadeSlots1.Add(grenade))
         {
             grenade.OnEquip();
@@ -34,17 +47,73 @@ public class CharacterGrenade : CharacterBehaviour
         return false;
     }
 
-    public bool DropGrenade(GrenadeCategory category)
+    protected Grenade GetGrenade(GrenadeCategory category)
     {
-        return true;
+        if (category == GrenadeCategory.Unknown)
+            return null;
+
+        Grenade grenade = null;
+
+        if (grenadeSlots1.category == category)
+        {
+            grenade = grenadeSlots1.Get();
+            if (grenade != null)
+            {
+                return grenade;
+            }
+        }
+
+        if (grenadeSlots2.category == category)
+        {
+            grenade = grenadeSlots2.Get();
+            if (grenade != null)
+            {
+                return grenade;
+            }
+        }
+
+        return grenade;
     }
 
-    public void DropAllGrenades(GrenadeCategory category)
+    protected Grenade PopGrenade(GrenadeCategory category)
+    {
+        if (category == GrenadeCategory.Unknown)
+            return null;
+
+        Grenade grenade = null;
+
+        if (grenadeSlots1.category == category)
+        {
+            grenade = grenadeSlots1.Pop();
+            if (grenade != null)
+            {
+                return grenade;
+            }
+        }
+
+        if (grenadeSlots2.category == category)
+        {
+            grenade = grenadeSlots2.Pop();
+            if (grenade != null)
+            {
+                return grenade;
+            }
+        }
+
+        return grenade;
+    }
+
+    protected void EquipGrenade(GrenadeCategory category)
     {
     }
 
-    public void DropAllGrenades()
+    protected void UnequipGrenade()
     {
+    }
+
+    public void OnGrenadeFound(Grenade grenade)
+    {
+        AddGrenade(grenade);
     }
 }
 
@@ -60,7 +129,11 @@ public struct GrenadeSlots
     [SerializeField] private int m_count;
     public int count => m_count;
 
+    [SerializeField] private uint m_capacity;
     public int capacity => grenades.Length;
+
+    [SerializeField] private Transform[] m_transforms;
+    public Transform[] transforms => m_transforms;
 
     [SerializeField] private Grenade[] m_grenades;
     public Grenade[] grenades => m_grenades;
@@ -78,29 +151,6 @@ public struct GrenadeSlots
         {
             m_category = GrenadeCategory.Unknown;
         }
-    }
-
-    public int CanAdd(Grenade grenade)
-    {
-        if (grenade == null || grenade.category == GrenadeCategory.Unknown)
-            return -1;
-
-        // check category
-        if (category == GrenadeCategory.Unknown)
-        {
-            if (fixedCategory || m_count > 0)
-            {
-                return -1;
-            }
-        }
-
-        // find space
-        if (m_count < capacity)
-        {
-            return m_count - 1;
-        }
-
-        return -1;
     }
 
     public bool Add(Grenade grenade)
@@ -132,7 +182,7 @@ public struct GrenadeSlots
         return false;
     }
 
-    public Grenade Last()
+    public Grenade Get()
     {
         int slot = m_count - 1;
         if (slot < 0)
@@ -149,7 +199,7 @@ public struct GrenadeSlots
         return grenades[slot];
     }
 
-    public Grenade Remove()
+    public Grenade Pop()
     {
         int slot = m_count - 1;
         if (slot < 0)

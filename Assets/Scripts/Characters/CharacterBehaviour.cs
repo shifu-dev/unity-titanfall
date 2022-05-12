@@ -5,7 +5,7 @@ public abstract class CharacterBehaviour : MonoBehaviour
 {
     public Character character { get; protected set; }
 
-    public virtual void OnInitCharacter(Character character, CharacterInitializer initializer = null)
+    public virtual void OnInitCharacter(Character character, CharacterInitializer initializer)
     {
         this.character = character;
     }

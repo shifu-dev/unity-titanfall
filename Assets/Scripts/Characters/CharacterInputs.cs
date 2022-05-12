@@ -5,21 +5,28 @@ public class CharacterInputs : CharacterBehaviour
 {
     public PlayerInputs playerInputs { get; set; }
 
-    public bool IsValid { get => true; }
-    public bool IsGettingInputs { get => playerInputs; }
-    public float MoveInputAngle { get => playerInputs ? playerInputs.MoveInputAngle : default; }
-    public Vector3 MoveInputVector { get => playerInputs ? playerInputs.MoveInputVector : default; }
-    public Vector3 LookInputVector { get => playerInputs ? playerInputs.LookInputVector : default; }
-    public bool WantsToWalk { get => playerInputs ? playerInputs.WantsToWalk : default; }
-    public bool WantsToSprint { get => playerInputs ? playerInputs.WantsToSprint : default; }
-    public bool WantsToJump { get => playerInputs ? playerInputs.WantsToJump : default; }
-    public bool WantsToCrouch { get => playerInputs ? playerInputs.WantsToCrouch : default; }
-    public bool WantsToProne { get => playerInputs ? playerInputs.WantsToProne : default; }
+    public bool isValid { get => true; }
+    public bool isGettingInputs { get => playerInputs; }
 
-    public Vector3 TotalLookInputVector { get; protected set; }
+    // Movement Inputs
+    public Vector3 moveInputVector { get => playerInputs ? playerInputs.moveInputVector : default; }
+    public float moveInputAngle { get => playerInputs ? playerInputs.moveInputAngle : default; }
+    public bool wantsToWalk { get => playerInputs ? playerInputs.wantsToWalk : default; }
+    public bool wantsToSprint { get => playerInputs ? playerInputs.wantsToSprint : default; }
+    public bool wantsToJump { get => playerInputs ? playerInputs.wantsToJump : default; }
+    public bool wantsToCrouch { get => playerInputs ? playerInputs.wantsToCrouch : default; }
+    public bool wantsToProne { get => playerInputs ? playerInputs.wantsToProne : default; }
+
+    // Look Inputs
+    public Vector3 lookInputVector { get => playerInputs ? playerInputs.lookInputVector : default; }
+    public Vector3 totalLookInputVector { get; protected set; }
+
+    // Weapon Inputs
+    public bool grenadeSlot1 { get => playerInputs ? playerInputs.grenadeSlot1 : false; }
+    public bool grenadeSlot2 { get => playerInputs ? playerInputs.grenadeSlot1 : false; }
 
     public override void OnUpdateCharacter()
     {
-        TotalLookInputVector += LookInputVector;
+        totalLookInputVector += lookInputVector;
     }
 }

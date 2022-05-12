@@ -5,6 +5,7 @@ using System.Collections.Generic;
 [RequireComponent(typeof(CharacterInputs))]
 [RequireComponent(typeof(CharacterMovement))]
 [RequireComponent(typeof(CharacterInteraction))]
+[RequireComponent(typeof(CharacterEquip))]
 [RequireComponent(typeof(CharacterWeapon))]
 [RequireComponent(typeof(CharacterGrenade))]
 [RequireComponent(typeof(CharacterCamera))]
@@ -19,6 +20,7 @@ public class Character : MonoBehaviour
     public CharacterInputs characterInputs { get; protected set; }
     public CharacterMovement characterMovement { get; protected set; }
     public CharacterInteraction characterInteraction { get; protected set; }
+    public CharacterEquip characterEquip { get; protected set; }
     public CharacterWeapon characterWeapon { get; protected set; }
     public CharacterGrenade characterGrenade { get; protected set; }
     public CharacterCamera characterCamera { get; protected set; }
@@ -47,6 +49,7 @@ public class Character : MonoBehaviour
         characterInputs = GetBehaviour<CharacterInputs>();
         characterMovement = GetBehaviour<CharacterMovement>();
         characterInteraction = GetBehaviour<CharacterInteraction>();
+        characterEquip = GetBehaviour<CharacterEquip>();
         characterWeapon = GetBehaviour<CharacterWeapon>();
         characterGrenade = GetBehaviour<CharacterGrenade>();
         characterCamera = GetBehaviour<CharacterCamera>();
