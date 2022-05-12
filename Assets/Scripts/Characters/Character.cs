@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(CharacterInputs))]
@@ -14,7 +15,7 @@ public class Character : MonoBehaviour
     //////////////////////////////////////////////////////////////////
     /// Variables
     //////////////////////////////////////////////////////////////////
-
+    public CharacterBehaviour[] characterBehaviours { get; protected set; }
     public CharacterInputs characterInputs { get; protected set; }
     public CharacterMovement characterMovement { get; protected set; }
     public CharacterInteraction characterInteraction { get; protected set; }
@@ -41,54 +42,120 @@ public class Character : MonoBehaviour
 
     void Awake()
     {
-        characterInputs = GetComponent<CharacterInputs>();
-        characterMovement = GetComponent<CharacterMovement>();
-        characterInteraction = GetComponent<CharacterInteraction>();
-        characterWeapon = GetComponent<CharacterWeapon>();
-        characterGrenade = GetComponent<CharacterGrenade>();
-        characterCamera = GetComponent<CharacterCamera>();
-        characterCapsule = GetComponent<CharacterCapsule>();
-        characterAnimation = GetComponent<CharacterAnimation>();
+        CollectBehaviours();
 
-        // get initializer
+        characterInputs = GetBehaviour<CharacterInputs>();
+        characterMovement = GetBehaviour<CharacterMovement>();
+        characterInteraction = GetBehaviour<CharacterInteraction>();
+        characterWeapon = GetBehaviour<CharacterWeapon>();
+        characterGrenade = GetBehaviour<CharacterGrenade>();
+        characterCamera = GetBehaviour<CharacterCamera>();
+        characterCapsule = GetBehaviour<CharacterCapsule>();
+        characterAnimation = GetBehaviour<CharacterAnimation>();
+
         var initializer = GetComponent<CharacterInitializer>();
-
-        characterInputs.OnInitCharacter(this, initializer);
-        characterMovement.OnInitCharacter(this, initializer);
-        characterCamera.OnInitCharacter(this, initializer);
-        characterCapsule.OnInitCharacter(this, initializer);
-        characterInteraction.OnInitCharacter(this, initializer);
-        characterWeapon.OnInitCharacter(this, initializer);
-        characterGrenade.OnInitCharacter(this, initializer);
-        characterAnimation.OnInitCharacter(this, initializer);
-
-        // destroy initializer
+        InitBehaviours(initializer);
         Destroy(initializer);
     }
 
     void Update()
     {
-        characterInputs.OnUpdateCharacter();
-        characterMovement.OnUpdateCharacter();
-        characterCapsule.OnUpdateCharacter();
-        characterCamera.OnUpdateCharacter();
-        characterInteraction.OnUpdateCharacter();
-        characterWeapon.OnUpdateCharacter();
-        characterGrenade.OnUpdateCharacter();
-        characterAnimation.OnUpdateCharacter();
+        UpdateBehaviours();
     }
 
     void FixedUpdate()
     {
-        characterInputs.OnFixedUpdateCharacter();
-        characterMovement.OnFixedUpdateCharacter();
-        characterCapsule.OnFixedUpdateCharacter();
-        characterCamera.OnFixedUpdateCharacter();
-        characterInteraction.OnFixedUpdateCharacter();
-        characterWeapon.OnFixedUpdateCharacter();
-        characterGrenade.OnFixedUpdateCharacter();
-        characterAnimation.OnFixedUpdateCharacter();
+        FixedUpdateBehaviours();
     }
+
+    void OnDisable()
+    {
+        DestroyBehaviours();
+    }
+
+    //////////////////////////////////////////////////////////////////
+    /// Behaviours
+    //////////////////////////////////////////////////////////////////
+
+    public virtual T GetBehaviour<T>()
+        where T : CharacterBehaviour
+    {
+        foreach (var behaviour in characterBehaviours)
+        {
+            T customBehaviour = behaviour as T;
+            if (customBehaviour != null)
+            {
+                return customBehaviour;
+            }
+        }
+
+        return null;
+    }
+
+    public virtual bool HasBehaviour<T>()
+        where T : CharacterBehaviour
+    {
+        return GetBehaviour<T>() != null;
+    }
+
+    protected virtual void CollectBehaviours(params CharacterBehaviour[] exceptions)
+    {
+        List<CharacterBehaviour> weaponBehavioursList = new List<CharacterBehaviour>();
+        GetComponents<CharacterBehaviour>(weaponBehavioursList);
+
+        // no need to check for exceptional behaviours, if there are none
+        if (exceptions.Length > 0)
+        {
+            weaponBehavioursList.RemoveAll((CharacterBehaviour behaviour) =>
+            {
+                foreach (var exceptionBehaviour in exceptions)
+                {
+                    if (behaviour == exceptionBehaviour)
+                        return true;
+                }
+
+                return false;
+            });
+        }
+
+        characterBehaviours = weaponBehavioursList.ToArray();
+    }
+
+    protected virtual void InitBehaviours(CharacterInitializer initializer)
+    {
+        foreach (var behaviour in characterBehaviours)
+        {
+            behaviour.OnInitCharacter(this, initializer);
+        }
+    }
+
+    protected virtual void UpdateBehaviours()
+    {
+        foreach (var behaviour in characterBehaviours)
+        {
+            behaviour.OnUpdateCharacter();
+        }
+    }
+
+    protected virtual void FixedUpdateBehaviours()
+    {
+        foreach (var behaviour in characterBehaviours)
+        {
+            behaviour.OnFixedUpdateCharacter();
+        }
+    }
+
+    protected virtual void DestroyBehaviours()
+    {
+        foreach (var behaviour in characterBehaviours)
+        {
+            behaviour.OnDestroyCharacter();
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////
+    /// Player
+    //////////////////////////////////////////////////////////////////
 
     public void OnPossessed(Player Player)
     {
