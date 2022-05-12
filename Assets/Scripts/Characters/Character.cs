@@ -5,6 +5,7 @@
 [RequireComponent(typeof(CharacterMovement))]
 [RequireComponent(typeof(CharacterInteraction))]
 [RequireComponent(typeof(CharacterWeapon))]
+[RequireComponent(typeof(CharacterGrenade))]
 [RequireComponent(typeof(CharacterCamera))]
 [RequireComponent(typeof(CharacterCapsule))]
 [RequireComponent(typeof(CharacterAnimation))]
@@ -18,6 +19,7 @@ public class Character : MonoBehaviour
     public CharacterMovement characterMovement { get; protected set; }
     public CharacterInteraction characterInteraction { get; protected set; }
     public CharacterWeapon characterWeapon { get; protected set; }
+    public CharacterGrenade characterGrenade { get; protected set; }
     public CharacterCamera characterCamera { get; protected set; }
     public CharacterCapsule characterCapsule { get; protected set; }
     public CharacterAnimation characterAnimation { get; protected set; }
@@ -43,6 +45,7 @@ public class Character : MonoBehaviour
         characterMovement = GetComponent<CharacterMovement>();
         characterInteraction = GetComponent<CharacterInteraction>();
         characterWeapon = GetComponent<CharacterWeapon>();
+        characterGrenade = GetComponent<CharacterGrenade>();
         characterCamera = GetComponent<CharacterCamera>();
         characterCapsule = GetComponent<CharacterCapsule>();
         characterAnimation = GetComponent<CharacterAnimation>();
@@ -56,6 +59,7 @@ public class Character : MonoBehaviour
         characterCapsule.OnInitCharacter(this, initializer);
         characterInteraction.OnInitCharacter(this, initializer);
         characterWeapon.OnInitCharacter(this, initializer);
+        characterGrenade.OnInitCharacter(this, initializer);
         characterAnimation.OnInitCharacter(this, initializer);
 
         // destroy initializer
@@ -70,6 +74,7 @@ public class Character : MonoBehaviour
         characterCamera.OnUpdateCharacter();
         characterInteraction.OnUpdateCharacter();
         characterWeapon.OnUpdateCharacter();
+        characterGrenade.OnUpdateCharacter();
         characterAnimation.OnUpdateCharacter();
     }
 
@@ -81,6 +86,7 @@ public class Character : MonoBehaviour
         characterCamera.OnFixedUpdateCharacter();
         characterInteraction.OnFixedUpdateCharacter();
         characterWeapon.OnFixedUpdateCharacter();
+        characterGrenade.OnFixedUpdateCharacter();
         characterAnimation.OnFixedUpdateCharacter();
     }
 

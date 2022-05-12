@@ -6,8 +6,9 @@ public class CharacterInteraction : CharacterBehaviour
     /// Variables
     //////////////////////////////////////////////////////////////////
 
-    public CharacterWeapon CharacterWeapon => character.characterWeapon;
-    public CharacterInputs CharacterInputs => character.characterInputs;
+    public CharacterInputs characterInputs => character.characterInputs;
+    public CharacterWeapon characterWeapon => character.characterWeapon;
+    public CharacterGrenade characterGrenade => character.characterGrenade;
 
     [SerializeField, Space] protected InteractionBound m_InteractionBound;
     public InteractionBound InteractionBound
@@ -56,7 +57,11 @@ public class CharacterInteraction : CharacterBehaviour
     {
         if (m_InteractionRay)
         {
-            OnInteractableFound(m_InteractionRay.FindInteractable());
+            Interactable interactable = m_InteractionRay.FindInteractable();
+            if (interactable != null)
+            {
+                OnInteractableFound(interactable);
+            }
         }
     }
 
@@ -72,7 +77,8 @@ public class CharacterInteraction : CharacterBehaviour
         Grenade grenade = interactable.GetComponent<Grenade>();
         if (grenade != null)
         {
-            CharacterWeapon.OnGrenadeFound(grenade);
+            Debug.Log($"OnGrenadeFound : {grenade}");
+            characterGrenade.OnGrenadeFound(grenade);
             return;
         }
     }

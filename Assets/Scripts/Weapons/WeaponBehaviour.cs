@@ -1,6 +1,5 @@
 using UnityEngine;
 
-[DisallowMultipleComponent]
 [RequireComponent(typeof(Weapon))]
 public abstract class WeaponBehaviour : MonoBehaviour
 {

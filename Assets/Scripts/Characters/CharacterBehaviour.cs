@@ -1,6 +1,5 @@
 using UnityEngine;
 
-[DisallowMultipleComponent]
 [RequireComponent(typeof(Character))]
 public abstract class CharacterBehaviour : MonoBehaviour
 {
