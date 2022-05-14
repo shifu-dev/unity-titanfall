@@ -40,7 +40,7 @@ public class CharacterCamera : CharacterBehaviour
 
     public override void OnUpdateCharacter()
     {
-        Vector3 totalRawInput = CharacterInputs.totalLookInputVector;
+        Vector3 totalRawInput = CharacterInputs.lookProcessed;
         Vector3 lookVector = new Vector3(totalRawInput.y, totalRawInput.x, totalRawInput.z);
         lookVector.x = Math.Clamp(lookVector.x, MinRotation.x, MaxRotation.x);
         lookVector.y = Math.Clamp(lookVector.y, MinRotation.y, MaxRotation.y);

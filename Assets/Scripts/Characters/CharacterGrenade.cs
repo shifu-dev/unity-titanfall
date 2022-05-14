@@ -3,27 +3,75 @@ using UnityEngine;
 
 public class CharacterGrenade : CharacterBehaviour
 {
-    protected CharacterInputs inputs;
+    protected CharacterInputs m_characterInputs;
+    protected CharacterEquip m_characterEquip;
 
-    [SerializeField] protected GrenadeSlots grenadeSlots1;
-    [SerializeField] protected GrenadeSlots grenadeSlots2;
+    [SerializeField] protected GrenadeSlots m_grenadeSlots1;
+    [SerializeField] protected GrenadeSlots m_grenadeSlots2;
+    [SerializeField, ReadOnly] protected Grenade m_grenadeBeingEquipped;
+    [SerializeField, ReadOnly] protected Grenade m_grenadeEquipped;
 
     public override void OnInitCharacter(Character character, CharacterInitializer initializer)
     {
-        inputs = character.characterInputs;
+        m_characterInputs = character.characterInputs;
+        m_characterEquip = character.characterEquip;
 
-        grenadeSlots1.Init();
-        grenadeSlots2.Init();
+        m_grenadeSlots1.Init();
+        m_grenadeSlots2.Init();
     }
 
     public override void OnUpdateCharacter()
     {
-        if (inputs.grenadeSlot1)
+        // process the inputs
+        Grenade grenadeToEquip = null;
+        if (m_characterInputs.grenade1)
         {
-            Grenade grenade = grenadeSlots1.Get();
-            if (grenade != null)
+            grenadeToEquip = m_grenadeSlots1.Get();
+        }
+        else if (m_characterInputs.grenade2)
+        {
+            grenadeToEquip = m_grenadeSlots2.Get();
+        }
+
+        // check if we can equip the grenade
+        bool canEquip(Grenade grenade)
+        {
+            if (grenade == null)
+                return false;
+
+            // check if a grenade with same category is already being equipped
+            if (m_grenadeBeingEquipped && grenadeToEquip.category == m_grenadeBeingEquipped.category)
+                return false;
+
+            // check if a grenade with same category is already equipped
+            if (m_grenadeEquipped && grenadeToEquip.category == m_grenadeEquipped.category)
+                return false;
+
+            return true;
+        };
+
+        // equip the grenade
+        if (canEquip(grenadeToEquip))
+        {
+            EquipData equipData = new EquipData();
+            equipData.equipable = grenadeToEquip;
+            equipData.equipableObject = grenadeToEquip.gameObject;
+            equipData.OnUpdate = this.OnUpdateEquipStatus;
+            equipData.equipSpeed = .5f;
+            equipData.unequipSpeed = .5f;
+            equipData.parentOnUnequip = null;
+
+            if (m_characterEquip.leftHand.Equip(equipData))
             {
+                m_grenadeBeingEquipped = grenadeToEquip;
             }
+        }
+
+        // fire the grenade
+        if (m_characterInputs.fire1)
+        {
+            ThrowGrenade(m_grenadeEquipped);
+            return;
         }
     }
 
@@ -32,13 +80,13 @@ public class CharacterGrenade : CharacterBehaviour
         if (grenade == null)
             return false;
 
-        if (grenadeSlots1.Add(grenade))
+        if (m_grenadeSlots1.Add(grenade))
         {
             grenade.OnEquip();
             return true;
         }
 
-        if (grenadeSlots2.Add(grenade))
+        if (m_grenadeSlots2.Add(grenade))
         {
             grenade.OnEquip();
             return true;
@@ -54,18 +102,18 @@ public class CharacterGrenade : CharacterBehaviour
 
         Grenade grenade = null;
 
-        if (grenadeSlots1.category == category)
+        if (m_grenadeSlots1.category == category)
         {
-            grenade = grenadeSlots1.Get();
+            grenade = m_grenadeSlots1.Get();
             if (grenade != null)
             {
                 return grenade;
             }
         }
 
-        if (grenadeSlots2.category == category)
+        if (m_grenadeSlots2.category == category)
         {
-            grenade = grenadeSlots2.Get();
+            grenade = m_grenadeSlots2.Get();
             if (grenade != null)
             {
                 return grenade;
@@ -82,18 +130,18 @@ public class CharacterGrenade : CharacterBehaviour
 
         Grenade grenade = null;
 
-        if (grenadeSlots1.category == category)
+        if (m_grenadeSlots1.category == category)
         {
-            grenade = grenadeSlots1.Pop();
+            grenade = m_grenadeSlots1.Pop();
             if (grenade != null)
             {
                 return grenade;
             }
         }
 
-        if (grenadeSlots2.category == category)
+        if (m_grenadeSlots2.category == category)
         {
-            grenade = grenadeSlots2.Pop();
+            grenade = m_grenadeSlots2.Pop();
             if (grenade != null)
             {
                 return grenade;
@@ -105,15 +153,39 @@ public class CharacterGrenade : CharacterBehaviour
 
     protected void EquipGrenade(GrenadeCategory category)
     {
+
     }
 
     protected void UnequipGrenade()
     {
     }
 
+    protected void ThrowGrenade(Grenade grenade)
+    {
+    }
+
     public void OnGrenadeFound(Grenade grenade)
     {
         AddGrenade(grenade);
+    }
+
+    //////////////////////////////////////////////////////////////////
+    /// CharacterEquip update evenets
+    //////////////////////////////////////////////////////////////////
+
+    protected void OnUpdateEquipStatus(IEquipable equipable, EquipStatus equipStatus, float meter)
+    {
+        if (equipStatus == EquipStatus.Unequip || equipStatus == EquipStatus.Unequipped)
+        {
+            m_grenadeBeingEquipped = null;
+            return;
+        }
+
+        if (equipStatus == EquipStatus.Equipped)
+        {
+            m_grenadeEquipped = m_grenadeBeingEquipped;
+            m_grenadeBeingEquipped = null;
+        }
     }
 }
 

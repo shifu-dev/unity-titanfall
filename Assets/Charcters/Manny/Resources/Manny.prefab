@@ -49,6 +49,37 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &1926329094455811431
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4563553562970752242}
+  m_Layer: 0
+  m_Name: RightHand EquipSource
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4563553562970752242
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1926329094455811431}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6081539459817332691}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2685017277922627661
 GameObject:
   m_ObjectHideFlags: 0
@@ -163,6 +194,37 @@ Transform:
   m_Father: {fileID: 7830176635475978168}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3973714730083592506
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5708646729824629318}
+  m_Layer: 0
+  m_Name: LeftHand EquipSource
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5708646729824629318
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3973714730083592506}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6081539459817332691}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6252925913378410731
 GameObject:
   m_ObjectHideFlags: 0
@@ -262,6 +324,8 @@ Transform:
   m_Children:
   - {fileID: 5130046698628662828}
   - {fileID: 7830176635475978168}
+  - {fileID: 5708646729824629318}
+  - {fileID: 4563553562970752242}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -388,6 +452,56 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb7d0c9f08f8c0d4f85611f9bd4a91f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_leftHand:
+    m_id: -1
+    m_source: {fileID: 3973714730083592506}
+    m_current:
+      equipableObject: {fileID: 0}
+      status: 0
+      statusValue: 0
+      equipSpeed: 0
+      unequipSpeed: 0
+      localPositionOnEquip: {x: 0, y: 0, z: 0}
+      localRotationOnEquip: {x: 0, y: 0, z: 0, w: 0}
+      localPositionOnUnequip: {x: 0, y: 0, z: 0}
+      localRotationOnUnequip: {x: 0, y: 0, z: 0, w: 0}
+      parentOnUnequip: {fileID: 0}
+    m_next:
+      equipableObject: {fileID: 0}
+      status: 0
+      statusValue: 0
+      equipSpeed: 0
+      unequipSpeed: 0
+      localPositionOnEquip: {x: 0, y: 0, z: 0}
+      localRotationOnEquip: {x: 0, y: 0, z: 0, w: 0}
+      localPositionOnUnequip: {x: 0, y: 0, z: 0}
+      localRotationOnUnequip: {x: 0, y: 0, z: 0, w: 0}
+      parentOnUnequip: {fileID: 0}
+  m_rightHand:
+    m_id: 1
+    m_source: {fileID: 1926329094455811431}
+    m_current:
+      equipableObject: {fileID: 0}
+      status: 0
+      statusValue: 0
+      equipSpeed: 0
+      unequipSpeed: 0
+      localPositionOnEquip: {x: 0, y: 0, z: 0}
+      localRotationOnEquip: {x: 0, y: 0, z: 0, w: 0}
+      localPositionOnUnequip: {x: 0, y: 0, z: 0}
+      localRotationOnUnequip: {x: 0, y: 0, z: 0, w: 0}
+      parentOnUnequip: {fileID: 0}
+    m_next:
+      equipableObject: {fileID: 0}
+      status: 0
+      statusValue: 0
+      equipSpeed: 0
+      unequipSpeed: 0
+      localPositionOnEquip: {x: 0, y: 0, z: 0}
+      localRotationOnEquip: {x: 0, y: 0, z: 0, w: 0}
+      localPositionOnUnequip: {x: 0, y: 0, z: 0}
+      localRotationOnUnequip: {x: 0, y: 0, z: 0, w: 0}
+      parentOnUnequip: {fileID: 0}
 --- !u!114 &1873485337021413729
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -412,36 +526,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 370bdceef7d2de041a30339eaa20bf90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  grenadeSlots1:
+  m_grenadeSlots1:
     m_category: 0
     m_fixedCategory: 0
     m_count: 0
-    m_capacity: 4
-    m_transforms:
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    m_grenades:
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-  grenadeSlots2:
+    m_capacity: 0
+    m_transforms: []
+    m_grenades: []
+  m_grenadeSlots2:
     m_category: 0
     m_fixedCategory: 0
     m_count: 0
-    m_capacity: 4
-    m_transforms:
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    m_grenades:
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
+    m_capacity: 0
+    m_transforms: []
+    m_grenades: []
+  m_grenadeBeingEquipped: {fileID: 0}
+  m_grenadeEquipped: {fileID: 0}
 --- !u!114 &6932028184359725518
 MonoBehaviour:
   m_ObjectHideFlags: 0

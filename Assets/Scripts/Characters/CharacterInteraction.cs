@@ -77,7 +77,6 @@ public class CharacterInteraction : CharacterBehaviour
         Grenade grenade = interactable.GetComponent<Grenade>();
         if (grenade != null)
         {
-            Debug.Log($"OnGrenadeFound : {grenade}");
             characterGrenade.OnGrenadeFound(grenade);
             return;
         }
