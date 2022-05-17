@@ -3,35 +3,56 @@ using UnityEngine;
 
 public class CharacterEquip : CharacterBehaviour
 {
-    [SerializeField] protected EquipmentSlot m_leftHand;
-    public ref EquipmentSlot leftHand => ref m_leftHand;
+    public CharacterInputs charInputs { get; protected set; }
+    public CharacterInventory charInventory { get; protected set; }
 
-    [SerializeField] protected EquipmentSlot m_rightHand;
-    public ref EquipmentSlot rightHand => ref m_rightHand;
+    [SerializeField] protected EquipHand m_leftHand;
+    [SerializeField] protected EquipHand m_rightHand;
 
     public CharacterEquip()
     {
-        m_leftHand = new EquipmentSlot(-1);
-        m_rightHand = new EquipmentSlot(1);
+        m_leftHand = new EquipHand(-1);
+        m_rightHand = new EquipHand(1);
+    }
+
+    public override void OnInitCharacter(Character character, CharacterInitializer initializer)
+    {
+        base.OnInitCharacter(character, initializer);
+
+        charInputs = character.characterInputs;
+        charInventory = character.characterInventory;
     }
 
     public override void OnUpdateCharacter()
     {
-        m_leftHand.Update();
-        m_rightHand.Update();
+    }
+
+    public void OnWeaponFound(Weapon weapon)
+    {
+    }
+
+    public void OnGrenadeFound(Grenade grenade)
+    {
     }
 }
 
 [Serializable]
-public struct EquipmentSlot
+public struct EquipHand
 {
+    public static EquipHand invalid;
+
     [SerializeField, ReadOnly] private int m_id;
     [SerializeField] private GameObject m_source;
     [SerializeField] public bool locked;
     [SerializeField] private EquipData m_current;
     [SerializeField] private EquipData m_next;
 
-    public EquipmentSlot(int id)
+    public int id => m_id;
+    public IEquipable currentEquipable => m_current.equipable;
+    public EquipStatus currentStatus => m_current.status;
+    public float currentWeight => m_current.weight;
+
+    public EquipHand(int id)
     {
         m_id = id;
         m_source = null;
@@ -58,20 +79,20 @@ public struct EquipmentSlot
 
         if (targetStatusValue == 1)
         {
-            m_current.statusValue = Mathf.MoveTowards(m_current.statusValue,
+            m_current.weight = Mathf.MoveTowards(m_current.weight,
                 targetStatusValue, m_current.equipSpeed * Time.deltaTime);
 
-            if (m_current.statusValue == targetStatusValue)
+            if (m_current.weight == targetStatusValue)
             {
                 m_current.status = EquipStatus.Equipped;
             }
         }
         else if (targetStatusValue == 0)
         {
-            m_current.statusValue = Mathf.MoveTowards(m_current.statusValue,
+            m_current.weight = Mathf.MoveTowards(m_current.weight,
                 targetStatusValue, m_current.unequipSpeed * Time.deltaTime);
 
-            if (m_current.statusValue == targetStatusValue)
+            if (m_current.weight == targetStatusValue)
             {
                 m_current.status = EquipStatus.Unequipped;
             }
@@ -102,7 +123,7 @@ public struct EquipmentSlot
         // update the events
         if (m_current.OnUpdate != null)
         {
-            m_current.OnUpdate(m_current.equipable, m_current.status, m_current.statusValue);
+            m_current.OnUpdate(m_current.equipable, m_current.status, m_current.weight);
         }
 
         // check if there is next to equip
@@ -126,14 +147,35 @@ public struct EquipmentSlot
 
     public bool CanEquip(IEquipable equipable)
     {
+        if (locked)
+        {
+            return false;
+        }
+
+        if (equipable == null)
+        {
+            return false;
+        }
+
         return true;
     }
 
     public bool Equip(EquipData equipData)
     {
-        m_next = equipData;
-        m_current.status = EquipStatus.Unequip;
+        if (locked)
+        {
+            return false;
+        }
 
+        if (equipData.equipable == m_current.equipable)
+        {
+            m_current.status = EquipStatus.Equip;
+            m_next = default;
+            return true;
+        }
+
+        m_current.status = EquipStatus.Unequip;
+        m_next = equipData;
         return true;
     }
 
@@ -152,7 +194,7 @@ public struct EquipData
     public IEquipable equipable;
     public GameObject equipableObject;
     public EquipStatus status;
-    public float statusValue;
+    public float weight;
     public float equipSpeed;
     public float unequipSpeed;
     public Vector3 localPositionOnEquip;
@@ -160,6 +202,9 @@ public struct EquipData
     public Vector3 localPositionOnUnequip;
     public Quaternion localRotationOnUnequip;
     public GameObject parentOnUnequip;
+
+    public Weapon weapon;
+    public Grenade grenades;
 
     public GameObject gameObject => equipable == null ? null : equipable.gameObject;
 

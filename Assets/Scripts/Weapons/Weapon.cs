@@ -2,9 +2,22 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 
+[Flags]
+public enum WeaponCategory
+{
+    MELEE = 2 << 1,
+    PISTOL = 2 << 2,
+    LIGHT = 2 << 3,
+    ASSAULT = 2 << 4,
+    HEAVY = 2 << 5,
+    SNIPER = 2 << 6,
+    SPECIAL = 2 << 7,
+    MISC = 2 << 8
+}
+
 [DisallowMultipleComponent]
 [RequireComponent(typeof(WeaponInputs))]
-public class Weapon : MonoBehaviour
+public class Weapon : MonoBehaviour, IEquipable
 {
     //////////////////////////////////////////////////////////////////
     /// Variables
@@ -12,6 +25,8 @@ public class Weapon : MonoBehaviour
 
     public WeaponInputs weaponInputs { get; protected set; }
     public WeaponBehaviour[] weaponBehaviours { get; protected set; }
+
+    [field: SerializeField] public WeaponCategory category { get; protected set; }
 
     //////////////////////////////////////////////////////////////////
     /// Updates

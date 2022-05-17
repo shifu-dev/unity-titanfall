@@ -23,7 +23,7 @@ public class EquipDataPropertyDrawer : PropertyDrawer
             /// collect serialized properties
             SerializedProperty sp_equipableObject = property.FindPropertyRelative("equipableObject");
             SerializedProperty sp_status = property.FindPropertyRelative("status");
-            SerializedProperty sp_statusValue = property.FindPropertyRelative("statusValue");
+            SerializedProperty sp_weight = property.FindPropertyRelative("weight");
             SerializedProperty sp_equipSpeed = property.FindPropertyRelative("equipSpeed");
             SerializedProperty sp_unequipSpeed = property.FindPropertyRelative("unequipSpeed");
             SerializedProperty sp_localPositionOnEquip = property.FindPropertyRelative("localPositionOnEquip");
@@ -37,7 +37,7 @@ public class EquipDataPropertyDrawer : PropertyDrawer
             Rect rect_equipableObject = new Rect(position.x, position.y + height, position.width, lineHeight);
             height += lineHeight + lineGap;
             Rect rect_status = new Rect(position.x, position.y + height, (position.width * .85f), lineHeight);
-            Rect rect_statusValue = new Rect(position.x + rect_status.width - 20, position.y + height, (position.width * .2f), lineHeight);
+            Rect rect_weight = new Rect(position.x + rect_status.width - 20, position.y + height, (position.width * .2f), lineHeight);
             height += lineHeight + lineGap;
             Rect rect_equipSpeed = new Rect(position.x, position.y + height, position.width, lineHeight);
             height += lineHeight + lineGap;
@@ -60,7 +60,7 @@ public class EquipDataPropertyDrawer : PropertyDrawer
             GUI.enabled = false;
             EditorGUI.PropertyField(rect_equipableObject, sp_equipableObject, new GUIContent("Equipable"));
             EditorGUI.PropertyField(rect_status, sp_status, new GUIContent("Status"));
-            EditorGUI.PropertyField(rect_statusValue, sp_statusValue, GUIContent.none);
+            EditorGUI.PropertyField(rect_weight, sp_weight, GUIContent.none);
             EditorGUI.PropertyField(rect_equipSpeed, sp_equipSpeed, new GUIContent("Equip Speed"));
             EditorGUI.PropertyField(rect_unequipSpeed, sp_unequipSpeed, new GUIContent("Unequip Speed"));
             EditorGUI.PropertyField(rect_localPositionOnEquip, sp_localPositionOnEquip, new GUIContent("Position On Equip"));

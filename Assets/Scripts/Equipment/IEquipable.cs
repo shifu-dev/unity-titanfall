@@ -12,5 +12,5 @@ public enum EquipStatus
 
 public interface IEquipable
 {
-    public GameObject gameObject { get; }
+    GameObject gameObject { get; }
 }

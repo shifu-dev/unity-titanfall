@@ -6,9 +6,8 @@ public class CharacterInteraction : CharacterBehaviour
     /// Variables
     //////////////////////////////////////////////////////////////////
 
-    public CharacterInputs characterInputs => character.characterInputs;
-    public CharacterWeapon characterWeapon => character.characterWeapon;
-    public CharacterGrenade characterGrenade => character.characterGrenade;
+    public CharacterInputs charInputs { get; protected set; }
+    public CharacterEquip charEquip { get; protected set; }
 
     [SerializeField, Space] protected InteractionBound m_InteractionBound;
     public InteractionBound InteractionBound
@@ -33,10 +32,6 @@ public class CharacterInteraction : CharacterBehaviour
         set => m_InteractionRay = value;
     }
 
-    //////////////////////////////////////////////////////////////////
-    /// Constructors
-    //////////////////////////////////////////////////////////////////
-
     public CharacterInteraction()
     {
     }
@@ -48,6 +43,9 @@ public class CharacterInteraction : CharacterBehaviour
     public override void OnInitCharacter(Character character, CharacterInitializer initializer)
     {
         base.OnInitCharacter(character, initializer);
+
+        charInputs = character.characterInputs;
+        charEquip = character.characterEquip;
 
         // this sets up the events
         InteractionBound = InteractionBound;
@@ -77,7 +75,7 @@ public class CharacterInteraction : CharacterBehaviour
         Grenade grenade = interactable.GetComponent<Grenade>();
         if (grenade != null)
         {
-            characterGrenade.OnGrenadeFound(grenade);
+            charEquip.OnGrenadeFound(grenade);
             return;
         }
     }

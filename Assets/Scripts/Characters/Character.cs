@@ -3,11 +3,10 @@ using System.Collections.Generic;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(CharacterInputs))]
+[RequireComponent(typeof(CharacterInventory))]
 [RequireComponent(typeof(CharacterMovement))]
 [RequireComponent(typeof(CharacterInteraction))]
 [RequireComponent(typeof(CharacterEquip))]
-[RequireComponent(typeof(CharacterWeapon))]
-[RequireComponent(typeof(CharacterGrenade))]
 [RequireComponent(typeof(CharacterCamera))]
 [RequireComponent(typeof(CharacterCapsule))]
 [RequireComponent(typeof(CharacterAnimation))]
@@ -18,11 +17,10 @@ public class Character : MonoBehaviour
     //////////////////////////////////////////////////////////////////
     public CharacterBehaviour[] characterBehaviours { get; protected set; }
     public CharacterInputs characterInputs { get; protected set; }
+    public CharacterInventory characterInventory { get; protected set; }
     public CharacterMovement characterMovement { get; protected set; }
     public CharacterInteraction characterInteraction { get; protected set; }
     public CharacterEquip characterEquip { get; protected set; }
-    public CharacterWeapon characterWeapon { get; protected set; }
-    public CharacterGrenade characterGrenade { get; protected set; }
     public CharacterCamera characterCamera { get; protected set; }
     public CharacterCapsule characterCapsule { get; protected set; }
     public CharacterAnimation characterAnimation { get; protected set; }
@@ -47,11 +45,10 @@ public class Character : MonoBehaviour
         CollectBehaviours();
 
         characterInputs = GetBehaviour<CharacterInputs>();
+        characterInventory = GetBehaviour<CharacterInventory>();
         characterMovement = GetBehaviour<CharacterMovement>();
         characterInteraction = GetBehaviour<CharacterInteraction>();
         characterEquip = GetBehaviour<CharacterEquip>();
-        characterWeapon = GetBehaviour<CharacterWeapon>();
-        characterGrenade = GetBehaviour<CharacterGrenade>();
         characterCamera = GetBehaviour<CharacterCamera>();
         characterCapsule = GetBehaviour<CharacterCapsule>();
         characterAnimation = GetBehaviour<CharacterAnimation>();

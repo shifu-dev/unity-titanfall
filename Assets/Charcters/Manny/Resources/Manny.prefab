@@ -294,12 +294,11 @@ GameObject:
   - component: {fileID: 6081539459817332691}
   - component: {fileID: 1561319467078266631}
   - component: {fileID: 8863942587269995025}
+  - component: {fileID: 3178208661893971848}
   - component: {fileID: 3335872080112416175}
   - component: {fileID: 1210957656046409178}
   - component: {fileID: 7993160800140144679}
   - component: {fileID: 2890709128893624832}
-  - component: {fileID: 1873485337021413729}
-  - component: {fileID: 1164611347096179261}
   - component: {fileID: 6932028184359725518}
   - component: {fileID: 115547698234889312}
   - component: {fileID: 2017536350101832689}
@@ -353,6 +352,53 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6fe7157e1080ee48a8a2c9b6d09ed47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3178208661893971848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6526974782931169490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08df7f10a02b700419d99728de845233, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponSlots:
+  - category: 496
+    slot: {fileID: 0}
+    weapon: {fileID: 0}
+  - category: 496
+    slot: {fileID: 0}
+    weapon: {fileID: 0}
+  - category: 12
+    slot: {fileID: 0}
+    weapon: {fileID: 0}
+  grenadeSlots:
+  - m_category: 0
+    m_fixedCategory: 0
+    m_count: 0
+    m_capacity: 0
+    m_transforms: []
+    m_grenades: []
+  - m_category: 0
+    m_fixedCategory: 0
+    m_count: 0
+    m_capacity: 0
+    m_transforms: []
+    m_grenades: []
+  - m_category: 0
+    m_fixedCategory: 0
+    m_count: 0
+    m_capacity: 0
+    m_transforms: []
+    m_grenades: []
+  - m_category: 0
+    m_fixedCategory: 0
+    m_count: 0
+    m_capacity: 0
+    m_transforms: []
+    m_grenades: []
 --- !u!114 &3335872080112416175
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -455,10 +501,11 @@ MonoBehaviour:
   m_leftHand:
     m_id: -1
     m_source: {fileID: 3973714730083592506}
+    locked: 0
     m_current:
       equipableObject: {fileID: 0}
       status: 0
-      statusValue: 0
+      weight: 0
       equipSpeed: 0
       unequipSpeed: 0
       localPositionOnEquip: {x: 0, y: 0, z: 0}
@@ -466,10 +513,12 @@ MonoBehaviour:
       localPositionOnUnequip: {x: 0, y: 0, z: 0}
       localRotationOnUnequip: {x: 0, y: 0, z: 0, w: 0}
       parentOnUnequip: {fileID: 0}
+      weapon: {fileID: 0}
+      grenades: {fileID: 0}
     m_next:
       equipableObject: {fileID: 0}
       status: 0
-      statusValue: 0
+      weight: 0
       equipSpeed: 0
       unequipSpeed: 0
       localPositionOnEquip: {x: 0, y: 0, z: 0}
@@ -477,13 +526,16 @@ MonoBehaviour:
       localPositionOnUnequip: {x: 0, y: 0, z: 0}
       localRotationOnUnequip: {x: 0, y: 0, z: 0, w: 0}
       parentOnUnequip: {fileID: 0}
+      weapon: {fileID: 0}
+      grenades: {fileID: 0}
   m_rightHand:
     m_id: 1
     m_source: {fileID: 1926329094455811431}
+    locked: 0
     m_current:
       equipableObject: {fileID: 0}
       status: 0
-      statusValue: 0
+      weight: 0
       equipSpeed: 0
       unequipSpeed: 0
       localPositionOnEquip: {x: 0, y: 0, z: 0}
@@ -491,10 +543,12 @@ MonoBehaviour:
       localPositionOnUnequip: {x: 0, y: 0, z: 0}
       localRotationOnUnequip: {x: 0, y: 0, z: 0, w: 0}
       parentOnUnequip: {fileID: 0}
+      weapon: {fileID: 0}
+      grenades: {fileID: 0}
     m_next:
       equipableObject: {fileID: 0}
       status: 0
-      statusValue: 0
+      weight: 0
       equipSpeed: 0
       unequipSpeed: 0
       localPositionOnEquip: {x: 0, y: 0, z: 0}
@@ -502,46 +556,8 @@ MonoBehaviour:
       localPositionOnUnequip: {x: 0, y: 0, z: 0}
       localRotationOnUnequip: {x: 0, y: 0, z: 0, w: 0}
       parentOnUnequip: {fileID: 0}
---- !u!114 &1873485337021413729
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6526974782931169490}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68eae79b8a37f9046ae6564df5e7a7a6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1164611347096179261
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6526974782931169490}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 370bdceef7d2de041a30339eaa20bf90, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_grenadeSlots1:
-    m_category: 0
-    m_fixedCategory: 0
-    m_count: 0
-    m_capacity: 0
-    m_transforms: []
-    m_grenades: []
-  m_grenadeSlots2:
-    m_category: 0
-    m_fixedCategory: 0
-    m_count: 0
-    m_capacity: 0
-    m_transforms: []
-    m_grenades: []
-  m_grenadeBeingEquipped: {fileID: 0}
-  m_grenadeEquipped: {fileID: 0}
+      weapon: {fileID: 0}
+      grenades: {fileID: 0}
 --- !u!114 &6932028184359725518
 MonoBehaviour:
   m_ObjectHideFlags: 0
