@@ -44,8 +44,8 @@ public struct EquipHand
     [SerializeField, ReadOnly] private int m_id;
     [SerializeField] private GameObject m_source;
     [SerializeField] public bool locked;
-    [SerializeField] private EquipData m_current;
-    [SerializeField] private EquipData m_next;
+    [SerializeField, ReadOnly] private EquipData m_current;
+    [SerializeField, ReadOnly] private EquipData m_next;
 
     public int id => m_id;
     public IEquipable currentEquipable => m_current.equipable;
