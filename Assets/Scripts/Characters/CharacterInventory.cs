@@ -4,27 +4,88 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class CharacterInventory : CharacterBehaviour
 {
-    public WeaponSlot[] weaponSlots;
-    public GrenadeSlots[] grenadeSlots;
+    //////////////////////////////////////////////////////////////////
+    /// Variables
+    //////////////////////////////////////////////////////////////////
+
+    public CharacterInputs charInputs { get; protected set; }
+    public bool autoPickup = true;
+
+    [SerializeField] protected WeaponSlot[] m_weaponSlots;
+    [SerializeField] protected GrenadeSlots[] m_grenadeSlots;
+
+    //////////////////////////////////////////////////////////////////
+    /// Updates
+    //////////////////////////////////////////////////////////////////
+
+    public override void OnInitCharacter(Character character, CharacterInitializer initializer)
+    {
+        base.OnInitCharacter(character, initializer);
+
+        charInputs = character.characterInputs;
+    }
+
+    //////////////////////////////////////////////////////////////////
+    /// Weapons
+    //////////////////////////////////////////////////////////////////
+
+    public void OnWeaponFound(Weapon weapon)
+    {
+        if (weapon == null)
+            return;
+
+        bool pickup = autoPickup || charInputs.action;
+
+        if (pickup)
+        {
+            AddWeapon(weapon);
+        }
+    }
+
+    public uint AddWeapon(Weapon weapon)
+    {
+        for (uint i = 0; i < m_weaponSlots.Length; i++)
+        {
+            if (m_weaponSlots[i].Store(weapon))
+            {
+                return i + 1;
+            }
+        }
+
+        return 0;
+    }
+
+    public bool AddWeaponAtSlot(int slot, Weapon weapon)
+    {
+        return m_weaponSlots[slot - 1].Store(weapon);
+    }
 
     public Weapon GetWeaponAtSlot(int slot)
     {
-        if (slot < 1 || slot > weaponSlots.Length)
+        if (slot < 1 || slot > m_weaponSlots.Length)
         {
             return null;
         }
 
-        return weaponSlots[slot - 1].weapon;
+        return m_weaponSlots[slot - 1].weapon;
+    }
+
+    //////////////////////////////////////////////////////////////////
+    /// Grenades
+    //////////////////////////////////////////////////////////////////
+
+    public void OnGrenadeFound(Grenade grenade)
+    {
     }
 
     public Grenade GetGrenadeAtSlot(int slot)
     {
-        if (slot < 1 || slot > grenadeSlots.Length)
+        if (slot < 1 || slot > m_grenadeSlots.Length)
         {
             return null;
         }
 
-        return grenadeSlots[slot - 1].Get();
+        return m_grenadeSlots[slot - 1].Get();
     }
 }
 

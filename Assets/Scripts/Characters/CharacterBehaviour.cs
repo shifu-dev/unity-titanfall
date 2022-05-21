@@ -10,15 +10,14 @@ public abstract class CharacterBehaviour : MonoBehaviour
         this.character = character;
     }
 
-    public virtual void OnUpdateCharacter()
-    {
-    }
+    public virtual void OnUpdateCharacter() { }
 
-    public virtual void OnFixedUpdateCharacter()
-    {
-    }
+    public virtual void OnFixedUpdateCharacter() { }
 
-    public virtual void OnDestroyCharacter()
-    {
-    }
+    public virtual void OnDestroyCharacter() { }
+
+    public virtual void OnPossessed(Player player) { }
+
+    public virtual void OnUnPossessed() { }
+
 }

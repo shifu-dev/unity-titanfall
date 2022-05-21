@@ -25,13 +25,73 @@ public class CharacterEquip : CharacterBehaviour
 
     public override void OnUpdateCharacter()
     {
+        bool fire1 = charInputs.use1;
+        Weapon rightWeapon = m_rightHand.current.weapon;
+        if (rightWeapon && fire1)
+        {
+            rightWeapon.OnPrimaryFire();
+        }
+
+        bool processedInput = false;
+        if (processedInput == false)
+        {
+            if (processedInput == false && charInputs.weapon1)
+            {
+                processedInput = ProcessWeaponInput(1);
+            }
+
+            if (processedInput == false && charInputs.weapon2)
+            {
+                processedInput = ProcessWeaponInput(2);
+            }
+
+            if (processedInput == false && charInputs.weapon3)
+            {
+                processedInput = ProcessWeaponInput(3);
+            }
+
+            if (processedInput == false && charInputs.grenade1)
+            {
+                processedInput = ProcessGrenadeInput(1);
+            }
+
+            if (processedInput == false && charInputs.grenade2)
+            {
+                processedInput = ProcessGrenadeInput(2);
+            }
+        }
+
+        bool ProcessWeaponInput(int slot)
+        {
+            return true;
+        }
+
+        bool ProcessGrenadeInput(int slot)
+        {
+            return true;
+        }
     }
 
     public void OnWeaponFound(Weapon weapon)
     {
+        uint slot = charInventory.AddWeapon(weapon);
+        if (slot > 0)
+        {
+            EquipData equipData = new EquipData();
+            equipData.equipable = weapon;
+            equipData.equipSpeed = .1f;
+            equipData.unequipSpeed = .1f;
+            equipData.equipableObject = weapon.gameObject;
+            
+            m_rightHand.Equip(equipData);
+        }
     }
 
     public void OnGrenadeFound(Grenade grenade)
+    {
+    }
+
+    public void HandleRightWeapon()
     {
     }
 }
@@ -45,6 +105,8 @@ public struct EquipHand
     [SerializeField] private GameObject m_source;
     [SerializeField] public bool locked;
     [SerializeField, ReadOnly] private EquipData m_current;
+    public EquipData current => m_current;
+
     [SerializeField, ReadOnly] private EquipData m_next;
 
     public int id => m_id;
@@ -136,7 +198,7 @@ public struct EquipHand
 
                 m_next.Clear();
 
-                // // update the events to proveide the fresh values
+                // // update the events to provide the fresh values
                 // if (m_current.OnUpdate != null)
                 // {
                 //     m_current.OnUpdate(m_current.equipable, m_current.equipStatus, m_current.equipMeter);
@@ -203,8 +265,27 @@ public struct EquipData
     public Quaternion localRotationOnUnequip;
     public GameObject parentOnUnequip;
 
-    public Weapon weapon;
-    public Grenade grenades;
+    [SerializeField] private Weapon m_weapon;
+    public Weapon weapon
+    {
+        get => m_weapon;
+        set
+        {
+            m_weapon = value;
+            m_grenade = null;
+        }
+    }
+
+    [SerializeField] private Grenade m_grenade;
+    public Grenade grenade
+    {
+        get => m_grenade;
+        set
+        {
+            m_weapon = null;
+            m_grenade = value;
+        }
+    }
 
     public GameObject gameObject => equipable == null ? null : equipable.gameObject;
 

@@ -7,7 +7,7 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerHUD))]
 public class Player : MonoBehaviour
 {
-    public PlayerInputs PlayerInputs { get; protected set; }
+    public PlayerInputs playerInputs { get; protected set; }
     public PlayerState PlayerState { get; protected set; }
     public PlayerCamera PlayerCamera { get; protected set; }
     public PlayerHUD PlayerHUD { get; protected set; }
@@ -19,12 +19,12 @@ public class Player : MonoBehaviour
 
     void Awake()
     {
-        PlayerInputs = GetComponent<PlayerInputs>();
+        playerInputs = GetComponent<PlayerInputs>();
         PlayerCamera = GetComponent<PlayerCamera>();
         PlayerState = GetComponent<PlayerState>();
         PlayerHUD = GetComponent<PlayerHUD>();
 
-        PlayerInputs.Init(this);
+        playerInputs.Init(this);
         PlayerCamera.Init(this);
         PlayerState.Init(this);
         PlayerHUD.Init(this);
@@ -36,7 +36,7 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        PlayerInputs.UpdateImpl();
+        playerInputs.UpdateImpl();
         PlayerCamera.UpdateImpl();
         PlayerState.UpdateImpl();
         PlayerHUD.UpdateImpl();

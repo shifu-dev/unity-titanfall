@@ -78,6 +78,13 @@ public class CharacterInteraction : CharacterBehaviour
             charEquip.OnGrenadeFound(grenade);
             return;
         }
+
+        Weapon weapon = interactable.GetComponent<Weapon>();
+        if (weapon != null)
+        {
+            charEquip.OnWeaponFound(weapon);
+            return;
+        }
     }
 
     protected void OnInteractableLost(Interactable interactable)

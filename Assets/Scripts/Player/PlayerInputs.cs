@@ -25,9 +25,9 @@ public class PlayerInputs : MonoBehaviour
     [field: SerializeField, ReadOnly] public bool weapon1 { get; protected set; }
     [field: SerializeField, ReadOnly] public bool weapon2 { get; protected set; }
     [field: SerializeField, ReadOnly] public bool weapon3 { get; protected set; }
-    [field: SerializeField, ReadOnly] public bool fire1 { get; protected set; }
-    [field: SerializeField, ReadOnly] public bool fire2 { get; protected set; }
-    [field: SerializeField, ReadOnly] public bool fire3 { get; protected set; }
+    [field: SerializeField, ReadOnly] public bool use1 { get; protected set; }
+    [field: SerializeField, ReadOnly] public bool use2 { get; protected set; }
+    [field: SerializeField, ReadOnly] public bool use3 { get; protected set; }
     [field: SerializeField, ReadOnly] public bool reload { get; protected set; }
 
     public void Init(Player character)
@@ -65,9 +65,9 @@ public class PlayerInputs : MonoBehaviour
         grenade1 = Input.GetKey(KeyCode.Alpha4);
         grenade2 = Input.GetKey(KeyCode.Alpha5);
 
-        fire1 = Input.GetMouseButton(0);
-        fire2 = Input.GetMouseButton(1);
-        fire3 = Input.GetMouseButton(2);
+        use1 = Input.GetMouseButton(0);
+        use2 = Input.GetMouseButton(1);
+        use3 = Input.GetMouseButton(2);
         reload = Input.GetKey(KeyCode.R);
     }
 }

@@ -154,4 +154,13 @@ public class Weapon : MonoBehaviour, IEquipable
     public virtual void OnUnequipFinished()
     {
     }
+
+    //////////////////////////////////////////////////////////////////
+    /// OnUse
+    //////////////////////////////////////////////////////////////////
+
+    public virtual void OnPrimaryFire()
+    {
+        Debug.Log("Weapon | OnPrimaryFire");
+    }
 }

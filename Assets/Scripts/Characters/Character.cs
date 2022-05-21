@@ -153,20 +153,22 @@ public class Character : MonoBehaviour
         }
     }
 
-    //////////////////////////////////////////////////////////////////
-    /// Player
-    //////////////////////////////////////////////////////////////////
-
     public void OnPossessed(Player Player)
     {
         if (Player == null)
             return;
 
-        characterInputs.playerInputs = Player.PlayerInputs;
+        foreach (var behaviour in characterBehaviours)
+        {
+            behaviour.OnPossessed(Player);
+        }
     }
 
     public void OnUnPossessed()
     {
-        characterInputs.playerInputs = null;
+        foreach (var behaviour in characterBehaviours)
+        {
+            behaviour.OnUnPossessed();
+        }
     }
 }
