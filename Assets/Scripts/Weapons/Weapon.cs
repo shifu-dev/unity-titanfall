@@ -27,6 +27,7 @@ public class Weapon : MonoBehaviour, IEquipable
     public WeaponBehaviour[] weaponBehaviours { get; protected set; }
 
     [field: SerializeField] public WeaponCategory category { get; protected set; }
+    [SerializeField] protected Collider[] m_colliders;
 
     //////////////////////////////////////////////////////////////////
     /// Updates
