@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1648066908925112639}
   - component: {fileID: 3974031255312360133}
   - component: {fileID: 48649554291540861}
-  - component: {fileID: 1384169599922253455}
+  - component: {fileID: 7008014305809555718}
   m_Layer: 7
   m_Name: MainBody
   m_TagString: Untagged
@@ -99,7 +99,7 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -3798286172866270255, guid: 8b23092fd1b175940a91f9e0777807ab, type: 3}
---- !u!114 &1384169599922253455
+--- !u!114 &7008014305809555718
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -108,10 +108,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 821799077639448369}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f354f16df31cd9f43bb4cbf84708e61e, type: 3}
+  m_Script: {fileID: 11500000, guid: 480e531a3772a9944ac08108f11ee9c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_interactable: {fileID: 8441519025413082355}
+  m_interactable: {fileID: 2673501343666352933}
 --- !u!1 &2969865088954654830
 GameObject:
   m_ObjectHideFlags: 0
@@ -289,7 +289,7 @@ GameObject:
   - component: {fileID: 4511870531947677376}
   - component: {fileID: -4122510072718417704}
   - component: {fileID: -8612772249472772819}
-  - component: {fileID: 8441519025413082355}
+  - component: {fileID: 2673501343666352933}
   m_Layer: 7
   m_Name: AXR-160 Prefab
   m_TagString: Untagged
@@ -347,7 +347,7 @@ MonoBehaviour:
   meleeAttack: 0
   reload: 0
   showOff: 0
---- !u!114 &8441519025413082355
+--- !u!114 &2673501343666352933
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -356,11 +356,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 8595054391902159044}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 08bb2d7d24704c74f9c31db7c27e922e, type: 3}
+  m_Script: {fileID: 11500000, guid: 330808e97b49ad34a9da658d17095654, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Interactor: {fileID: 0}
-  canInteract: 1
+  canInteract: 0
   m_RequireRaycast: 0
   m_FaceAngleX: 0
   m_FaceAngleY: 0
