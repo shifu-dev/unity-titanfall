@@ -2,6 +2,36 @@ using UnityEngine;
 
 public class Interactable : MonoBehaviour
 {
+    //////////////////////////////////////////////////////////////////
+    /// Static Members
+    //////////////////////////////////////////////////////////////////
+
+    public static Interactable GetInteractable(Collider collider)
+    {
+        if (collider == null)
+        {
+            return null;
+        }
+
+        Interactable interactable = collider.GetComponent<Interactable>();
+        if (interactable == null)
+        {
+            InteractableReference interactableReference = collider.GetComponent<InteractableReference>();
+            if (interactableReference == null)
+            {
+                return null;
+            }
+
+            interactable = interactableReference.getInteractable;
+        }
+
+        return interactable;
+    }
+
+    //////////////////////////////////////////////////////////////////
+    /// Variables
+    //////////////////////////////////////////////////////////////////
+
     [SerializeField, ReadOnly] protected CharacterInteraction m_Interactor;
     public CharacterInteraction interactor => m_Interactor;
 

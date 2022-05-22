@@ -27,7 +27,7 @@ public class CharacterEquip : CharacterBehaviour
     {
         bool fire1 = charInputs.use1;
         Weapon rightWeapon = m_rightHand.current.weapon;
-        if (rightWeapon && fire1)
+        if (rightWeapon && fire1 && m_rightHand.currentWeight > 0.9f)
         {
             rightWeapon.OnPrimaryFire();
         }
@@ -74,6 +74,7 @@ public class CharacterEquip : CharacterBehaviour
 
     public void OnWeaponFound(Weapon weapon)
     {
+        Debug.Log("CharacterEquip| Weapon Found");
         uint slot = charInventory.AddWeapon(weapon);
         if (slot > 0)
         {
@@ -82,7 +83,8 @@ public class CharacterEquip : CharacterBehaviour
             equipData.equipSpeed = .1f;
             equipData.unequipSpeed = .1f;
             equipData.equipableObject = weapon.gameObject;
-            
+            equipData.weapon = weapon;
+
             m_rightHand.Equip(equipData);
         }
     }
