@@ -74,7 +74,6 @@ public class CharacterEquip : CharacterBehaviour
 
     public void OnWeaponFound(Weapon weapon)
     {
-        Debug.Log("CharacterEquip| Weapon Found");
         uint slot = charInventory.AddWeapon(weapon);
         if (slot > 0)
         {

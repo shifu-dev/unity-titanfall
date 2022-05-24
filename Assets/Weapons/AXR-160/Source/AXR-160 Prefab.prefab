@@ -360,7 +360,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Interactor: {fileID: 0}
-  canInteract: 0
+  canInteract: 1
   m_RequireRaycast: 0
   m_FaceAngleX: 0
   m_FaceAngleY: 0

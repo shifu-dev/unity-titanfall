@@ -14,7 +14,7 @@ namespace System
                 throw new IndexOutOfRangeException($"{index} was out of range {{0, {arr.Length}}}");
             }
         }
-        
+
         public static void Insert<T>(this T[] arr, T element, int index)
         {
             arr.AssertRange(index);
@@ -27,26 +27,21 @@ namespace System
             arr[index] = element;
         }
 
-        public static void Remove<T>(this T[] arr, int index)
+        public static void Remove<T>(this T[] arr, int index, T nullValue = default)
         {
-            arr.Pop(index);
+            arr.Pop(index, nullValue);
         }
 
-        public static T Pop<T>(this T[] arr, int index)
+        public static T Pop<T>(this T[] arr, int index, T nullValue = default)
         {
             arr.AssertRange(index);
 
             T element = arr[index];
-            for (int i = index; i < arr.Length; i++)
-            {
-                if (i == arr.Length - 1)
-                {
-                    arr[i] = default;
-                    break;
-                }
 
+            for (int i = index; i < arr.Length - 1; i++)
                 arr[i] = arr[i + 1];
-            }
+
+            arr[arr.Length - 1] = nullValue;
 
             return element;
         }

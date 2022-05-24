@@ -395,33 +395,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_interactables:
   - interactable: {fileID: 0}
-    manualFrame: 0
-    raycastFrame: 0
-    overlapFrame: 0
+    flags: 0
   - interactable: {fileID: 0}
-    manualFrame: 0
-    raycastFrame: 0
-    overlapFrame: 0
+    flags: 0
   - interactable: {fileID: 0}
-    manualFrame: 0
-    raycastFrame: 0
-    overlapFrame: 0
-  - interactable: {fileID: 0}
-    manualFrame: 0
-    raycastFrame: 0
-    overlapFrame: 0
-  - interactable: {fileID: 0}
-    manualFrame: 0
-    raycastFrame: 0
-    overlapFrame: 0
+    flags: 0
   m_interactablesCount: 0
+  m_updateInterval: 2
   m_layerMask:
     serializedVersion: 2
     m_Bits: 128
-  m_generateFoundEvents: 1
-  m_generateLostEvents: 1
-  m_updateInterval: 1
-  m_lastUpdateTime: 0
+  m_triggerQuery: 2
+  m_generateOnAddedEvent: 1
+  m_generateOnUpdatedEvent: 1
+  m_generateOnRemovedEvent: 1
   m_performOverlaps: 1
   m_overlapSize: {x: 1.8, y: 1.5, z: 2}
   m_overlapCenterOffset: {x: 0, y: 0, z: 0.2}

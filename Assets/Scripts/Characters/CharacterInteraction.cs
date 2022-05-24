@@ -8,39 +8,39 @@ public struct InteractableScanResult
 
     public Interactable interactable;
 
-    public uint manualFrame;
+    public int manualFrame;
     public bool manual
     {
         get => manualFrame > 0;
         set
         {
-            manualFrame = value ? (uint)Time.frameCount : 0;
+            manualFrame = value ? Time.frameCount : 0;
         }
     }
 
-    public uint raycastFrame;
+    public int raycastFrame;
     public bool raycasted
     {
         get => raycastFrame > 0;
         set
         {
-            raycastFrame = value ? (uint)Time.frameCount : 0;
+            raycastFrame = value ? Time.frameCount : 0;
         }
     }
 
-    public uint overlapFrame;
+    public int overlapFrame;
     public bool overlapped
     {
         get => overlapFrame > 0;
         set
         {
-            overlapFrame = value ? (uint)Time.frameCount : 0;
+            overlapFrame = value ? Time.frameCount : 0;
         }
     }
 
     public bool isValid => interactable != null;
 
-    public bool HasThisFrame(uint frame)
+    public bool HasThisFrame(int frame)
     {
         if (manualFrame == frame)
             return true;
@@ -65,17 +65,38 @@ public class CharacterInteraction : CharacterBehaviour
     public CharacterCapsule charCapsule { get; protected set; }
     public CharacterEquip charEquip { get; protected set; }
 
-    [SerializeField, ReadOnly] protected InteractableScanResult[] m_interactables;
-    [SerializeField, ReadOnly] protected uint m_interactablesCount;
-    protected InteractableScanResult[] m_oldInteractables;
-    protected Collider[] m_overlappedColliders;
+    [SerializeField] protected InteractableScanResult[] m_interactables;
+    [SerializeField, ReadOnly] protected int m_interactablesCount;
 
-    [Header("Main"), Space]
-    [SerializeField] protected LayerMask m_layerMask;
-    [SerializeField] protected bool m_generateFoundEvents;
-    [SerializeField] protected bool m_generateLostEvents;
+    public int interactablesCapacity
+    {
+        get => m_interactables.Length;
+        set
+        {
+            if (value >= 0 && value != interactablesCapacity)
+            {
+                Array.Resize(ref m_interactables, value);
+                interactablesCount = Math.Min(value, interactablesCount);
+            }
+        }
+    }
+    public int interactablesCount
+    {
+        get => m_interactablesCount;
+        protected set
+        {
+            m_interactablesCount = Math.Max(0, value);
+        }
+    }
+
+    [Space]
     [SerializeField, Min(0)] protected float m_updateInterval;
-    [SerializeField, ReadOnly] protected float m_lastUpdateTime;
+    [SerializeField] protected LayerMask m_layerMask;
+    [SerializeField] protected QueryTriggerInteraction m_triggerQuery;
+    [SerializeField, Label("On Added Event")] protected bool m_generateOnAddedEvent;
+    [SerializeField, Label("On Updated Event")] protected bool m_generateOnUpdatedEvent;
+    [SerializeField, Label("On Removed Event")] protected bool m_generateOnRemovedEvent;
+    protected float m_lastUpdateTime;
 
     [Header("Overlaps"), Space]
     [SerializeField] protected bool m_performOverlaps;
@@ -87,40 +108,23 @@ public class CharacterInteraction : CharacterBehaviour
     [SerializeField] protected Transform m_raycastSource;
     [SerializeField, Min(0)] protected float m_raycastLength;
 
-    public uint interactablesScanLimit
-    {
-        get => (uint)m_interactables.Length;
-        set
-        {
-            var oldInteractables = m_interactables;
-            m_interactables = new InteractableScanResult[value];
-
-            Array.Copy(oldInteractables, m_interactables, value);
-
-            if (overlapScanLimit < interactablesScanLimit)
-            {
-                overlapScanLimit = interactablesScanLimit;
-            }
-        }
-    }
-    public uint interactablesCount => m_interactablesCount;
-
-    public uint overlapScanLimit
-    {
-        get => (uint)m_overlappedColliders.Length;
-        set
-        {
-            if (value < interactablesScanLimit)
-            {
-                return;
-            }
-
-            m_overlappedColliders = new Collider[value];
-        }
-    }
-
     public CharacterInteraction()
     {
+        m_interactables = Array.Empty<InteractableScanResult>();
+        interactablesCapacity = 0;
+
+        m_layerMask = default;
+        m_triggerQuery = QueryTriggerInteraction.Collide;
+        m_generateOnAddedEvent = true;
+        m_generateOnRemovedEvent = false;
+        m_updateInterval = .5f;
+        m_lastUpdateTime = 0;
+        m_performOverlaps = false;
+        m_overlapSize = new Vector3(1.8f, 1.5f, 2f);
+        m_overlapCenterOffset = new Vector3(0, 0, .2f);
+        m_performRaycasts = false;
+        m_raycastSource = null;
+        m_raycastLength = 3;
     }
 
     //////////////////////////////////////////////////////////////////
@@ -152,189 +156,218 @@ public class CharacterInteraction : CharacterBehaviour
         }
 
         m_lastUpdateTime = Time.time;
-        if (interactablesScanLimit == 0)
-        {
-            return false;
-        }
 
-        m_oldInteractables = m_interactables;
-        m_interactables.Clear();
-        m_interactablesCount = 0;
-
-        if (m_performRaycasts)
-        {
-            RaycastInteractable();
-        }
-
-        if (m_performOverlaps)
-        {
-            OverlapInteractables();
-        }
-
-        if (m_generateFoundEvents)
-        {
-            GenerateOnInteractableFoundEvents();
-        }
-
-        if (m_generateLostEvents)
-        {
-            GenerateOnInteractableLostEvents();
-        }
+        FindInteractables();
+        RemovePreviousScanResults();
 
         return true;
     }
 
-    protected void RaycastInteractable()
+    protected void FindInteractables()
     {
-        if (m_raycastSource != null)
-        {
-            bool hit = Physics.Raycast(m_raycastSource.position, m_raycastSource.forward, out RaycastHit hitInfo,
-                m_raycastLength, m_layerMask, QueryTriggerInteraction.Collide);
+        if (interactablesCapacity == 0)
+            return;
 
-            if (hit)
+        InteractableScanResult raycastScanResult = InteractableScanResult.invalid;
+        if (m_performRaycasts)
+        {
+            if (m_raycastSource != null)
             {
-                Interactable interactable = Interactable.GetInteractable(hitInfo.collider);
-                if (interactable)
+                bool hit = Physics.Raycast(m_raycastSource.position, m_raycastSource.forward, out RaycastHit hitInfo,
+                    m_raycastLength, m_layerMask, m_triggerQuery);
+
+                if (hit)
                 {
-                    AddRaycastInteractable(interactable);
+                    Interactable interactable = Interactable.GetInteractable(hitInfo.collider);
+                    if (interactable)
+                    {
+                        raycastScanResult = GenerateRaycastScanResult(interactable, hitInfo);
+                    }
                 }
             }
         }
+
+        if (m_performOverlaps)
+        {
+            /// @todo calculate halfExtents with respect to character size
+            Vector3 halfExtents = m_overlapSize * .5f;
+            Vector3 center = charCapsule.GetBasePosition + (charCapsule.GetUpVector * halfExtents.y) + m_overlapCenterOffset;
+            Collider[] overlapResults = overlapResults = Physics.OverlapBox(center, halfExtents, Quaternion.identity,
+                    m_layerMask, m_triggerQuery);
+
+            foreach (var collider in overlapResults)
+            {
+                Interactable interactable = Interactable.GetInteractable(collider);
+                if (interactable != null)
+                {
+                    var scanResult = GenerateOverlapScanResult(interactable);
+
+                    if (raycastScanResult.isValid && raycastScanResult.interactable == interactable)
+                    {
+                        // @todo merge scan results
+
+                        // invalidate raycastResult to notify that it has been used
+                        raycastScanResult = InteractableScanResult.invalid;
+                    }
+
+                    AddScanResult(scanResult);
+                }
+            }
+        }
+
+        if (raycastScanResult.isValid)
+        {
+            AddScanResult(raycastScanResult);
+        }
     }
 
-    protected void OverlapInteractables()
+    protected void RemovePreviousScanResults()
     {
-        /// @todo calculate halfExtents with respect to character size
-        Vector3 halfExtents = m_overlapSize * .5f;
-        Vector3 center = charCapsule.GetBasePosition + (charCapsule.GetUpVector * halfExtents.y) + m_overlapCenterOffset;
-        var colliders = Physics.OverlapBox(center, halfExtents, Quaternion.identity,
-            m_layerMask, QueryTriggerInteraction.Collide);
-
-        foreach (var collider in colliders)
+        var thisFrame = Time.frameCount;
+        for (int i = 0; i < interactablesCapacity; i++)
         {
-            Interactable interactable = Interactable.GetInteractable(collider);
-            if (interactable != null)
+            if (m_interactables[i].interactable == null)
+                continue;
+
+            if (m_interactables[i].HasThisFrame(thisFrame) == false)
             {
-                AddOverlapInteractable(interactable);
+                RemoveScanResult(i);
+                i--;
             }
         }
     }
 
-    protected void AddManualInteractable(Interactable interactable)
+    protected InteractableScanResult GenerateRaycastScanResult(Interactable interactable, RaycastHit hit)
     {
         if (interactable == null)
-            return;
-
-        InteractableScanResult scanResult = new InteractableScanResult();
-        scanResult.interactable = interactable;
-        scanResult.manual = true;
-
-        AddScanResult(scanResult);
-    }
-
-    protected void AddRaycastInteractable(Interactable interactable)
-    {
-        if (interactable == null)
-            return;
+            return InteractableScanResult.invalid;
 
         InteractableScanResult scanResult = new InteractableScanResult();
         scanResult.interactable = interactable;
         scanResult.raycasted = true;
 
-        AddScanResult(scanResult);
+        return scanResult;
     }
 
-    protected void AddOverlapInteractable(Interactable interactable)
+    protected InteractableScanResult GenerateOverlapScanResult(Interactable interactable)
     {
         if (interactable == null)
-            return;
+            return InteractableScanResult.invalid;
 
         InteractableScanResult scanResult = new InteractableScanResult();
         scanResult.interactable = interactable;
         scanResult.overlapped = true;
 
-        AddScanResult(scanResult);
+        return scanResult;
+    }
+
+    protected InteractableScanResult GenerateManualScanResult(Interactable interactable)
+    {
+        if (interactable == null)
+            return InteractableScanResult.invalid;
+
+        InteractableScanResult scanResult = new InteractableScanResult();
+        scanResult.interactable = interactable;
+        scanResult.manual = true;
+
+        return scanResult;
     }
 
     protected bool AddScanResult(InteractableScanResult scanResult)
     {
+        if (scanResult.isValid == false)
+            return false;
+
+        Debug.Log($"AddScanResult | {m_interactablesCount} | {scanResult.interactable.name}");
         // find if scanResult with this interactable already exists
-        int currentIndex = -1;
-        for (int i = 0; i < m_interactables.Length; i++)
+        bool wasPresent = false;
+        for (int i = 0; i < m_interactablesCount; i++)
         {
             if (m_interactables[i].interactable == scanResult.interactable)
             {
-                currentIndex = i;
+                wasPresent = true;
+                scanResult = UpdateScanResult(m_interactables[i], scanResult);
+
+                Debug.Log($"AddScanResult | {m_interactablesCount} | {scanResult.interactable.name} | Interactable already exists, removing it");
+                // if previous scanResult exists, remove it
+                m_interactables.Remove(i, InteractableScanResult.invalid);
+                m_interactablesCount--;
+
                 break;
             }
         }
 
-        // if exists compute new values based on existing scanResult
-        if (currentIndex >= 0)
-        {
-            if (scanResult.manual == false && m_interactables[currentIndex].manual == true)
-            {
-                scanResult.manualFrame = m_interactables[currentIndex].manualFrame;
-            }
-
-            if (scanResult.raycasted == false && m_interactables[currentIndex].raycasted == true)
-            {
-                scanResult.raycastFrame = m_interactables[currentIndex].raycastFrame;
-            }
-
-            if (scanResult.overlapped == false && m_interactables[currentIndex].overlapped == true)
-            {
-                scanResult.overlapFrame = m_interactables[currentIndex].overlapFrame;
-            }
-        }
-
-        // filter result after computing new values
+        // filter scanResult after updating it
         if (FilterScanResult(scanResult) == false)
         {
-            // remove scanResult
-            if (currentIndex >= 0)
-            {
-                m_interactables.Remove(currentIndex);
-            }
-
+            Debug.Log($"AddScanResult | {m_interactablesCount} | {scanResult.interactable.name} | FilterScanResult Failed");
             return false;
         }
 
-        // set new values after filtering the scanResult
-        if (currentIndex >= 0)
+        // find sorted position position for the scanResult (based on priority)
+        for (int i = 0; i < interactablesCapacity; i++)
         {
-            m_interactables[currentIndex] = scanResult;
-        }
-
-        // find sorted position position for new scanResult (base on priority)
-        int targetIndex = -1;
-        for (int i = 0; i < m_interactables.Length; i++)
-        {
-            if (CompareScanResult(m_interactables[i], scanResult) >= 0)
+            if (i < interactablesCount && CompareScanResult(m_interactables[i], scanResult) <= 0)
             {
-                targetIndex = i;
-                break;
-            }
-        }
-
-        // if targetIndex found
-        if (targetIndex >= 0)
-        {
-            if (currentIndex >= 0)
-            {
-                // if the scanResult already exists, just move it
-                m_interactables.Move(currentIndex, targetIndex);
-                return true;
+                Debug.Log($"AddScanResult | {m_interactablesCount} | {scanResult.interactable.name} | CompareScanResult | {m_interactables[i].interactable.name} | Failed");
+                continue;
             }
 
-            // add the new scanResult
-            m_interactables.Insert(scanResult, targetIndex);
-            m_interactablesCount++;
+            if (i < interactablesCount)
+            {
+                Debug.Log($"AddScanResult | {m_interactablesCount} | {scanResult.interactable.name} | CompareScanResult | {m_interactables[i].interactable.name} | Passed");
+            }
+            else
+            {
+                Debug.Log($"AddScanResult | {m_interactablesCount} | {scanResult.interactable.name} | No interactables left to compare");
+            }
+
+            // add the scanResult
+            // Debug.Log($"AddScanResult | {scanResult.interactable.name} | Added {{{currentIndex}, {i}}}");
+            InsertScanResult(scanResult, i);
+
+            if (wasPresent)
+            {
+                if (m_generateOnUpdatedEvent)
+                {
+                    OnInteractableUpdated(scanResult);
+                }
+            }
+            else if (m_generateOnAddedEvent)
+            {
+                OnInteractableAdded(scanResult);
+            }
+
             return true;
         }
 
-        // no appropriate position found for the new scanResult
+        Debug.Log($"AddScanResult | {m_interactablesCount} | {scanResult.interactable.name} | No position found | WasPresent: {wasPresent}");
+        // no appropriate position found for the scanResult
         return false;
+    }
+
+    protected void InsertScanResult(InteractableScanResult scanResult, int index)
+    {
+        // if full remove the last scanResult
+        if (interactablesCount == interactablesCapacity)
+        {
+            RemoveScanResult(interactablesCount - 1);
+        }
+
+        m_interactables.Insert(scanResult, index);
+        m_interactablesCount++;
+    }
+
+    protected void RemoveScanResult(int index)
+    {
+        var scanResult = m_interactables[index];
+        m_interactables.Remove(index);
+        m_interactablesCount--;
+
+        if (m_generateOnRemovedEvent)
+        {
+            OnInteractableRemoved(scanResult.interactable);
+        }
     }
 
     protected bool FilterScanResult(InteractableScanResult scanResult)
@@ -357,7 +390,7 @@ public class CharacterInteraction : CharacterBehaviour
         if (lhs.interactable == null && rhs.interactable == null)
             return 0;
 
-        if (lhs.interactable == rhs.interactable)
+        if (lhs.interactable && rhs.interactable)
         {
             if (lhs.manual == rhs.manual)
             {
@@ -380,72 +413,21 @@ public class CharacterInteraction : CharacterBehaviour
         return rhs.interactable ? 1 : -1;
     }
 
-    protected void GenerateOnInteractableFoundEvents()
+    protected InteractableScanResult UpdateScanResult(InteractableScanResult previous, InteractableScanResult present)
     {
-        foreach (var scanResult in m_interactables)
-        {
-            bool found = false;
-            if (scanResult.isValid == false)
-            {
-                break;
-            }
+        var result = present;
+        result.manual = present.manual || previous.manual;
+        result.raycasted = present.raycasted || previous.raycasted;
+        result.overlapped = present.overlapped || previous.overlapped;
 
-            foreach (var oldScanResult in m_oldInteractables)
-            {
-                if (oldScanResult.isValid == false)
-                {
-                    break;
-                }
-
-                if (scanResult.interactable == oldScanResult.interactable)
-                {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (found == false)
-            {
-                OnInteractableFound(scanResult);
-            }
-        }
+        return result;
     }
 
-    protected void GenerateOnInteractableLostEvents()
+    protected virtual void OnInteractableAdded(InteractableScanResult scanResult)
     {
-        foreach (var oldScanResult in m_oldInteractables)
-        {
-            bool found = false;
-            if (oldScanResult.isValid == false)
-            {
-                break;
-            }
+        Debug.Log($"OnInteractableAdded | {scanResult.interactable.name}");
 
-            foreach (var scanResult in m_interactables)
-            {
-                if (scanResult.isValid == false)
-                {
-                    break;
-                }
-
-                if (scanResult.interactable == oldScanResult.interactable)
-                {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (found == false)
-            {
-                OnInteractableLost(oldScanResult.interactable);
-            }
-        }
-    }
-
-    protected virtual void OnInteractableFound(InteractableScanResult scanResult)
-    {
         var interactable = scanResult.interactable;
-        Debug.Log($"Interactable Found | {interactable.name}");
         if (interactable == null)
             return;
 
@@ -459,15 +441,19 @@ public class CharacterInteraction : CharacterBehaviour
         Weapon weapon = interactable.GetComponent<Weapon>();
         if (weapon != null)
         {
-            Debug.Log("Weapon Found");
             charEquip.OnWeaponFound(weapon);
             return;
         }
     }
 
-    protected virtual void OnInteractableLost(Interactable interactable)
+    protected virtual void OnInteractableUpdated(InteractableScanResult scanResult)
     {
-        Debug.Log($"Interactable Lost | {interactable.name}");
+        Debug.Log($"OnInteractableUpdated | {scanResult.interactable.name}");
+    }
+
+    protected virtual void OnInteractableRemoved(Interactable interactable)
+    {
+        Debug.Log($"OnInteractableRemoved | {interactable.name}");
     }
 
     //////////////////////////////////////////////////////////////////
@@ -478,9 +464,9 @@ public class CharacterInteraction : CharacterBehaviour
     {
         if (action != null)
         {
-            foreach (var scanResult in m_interactables)
+            for (int i = 0; i < interactablesCount; i++)
             {
-                action(scanResult);
+                action(m_interactables[i]);
             }
         }
     }
@@ -489,9 +475,9 @@ public class CharacterInteraction : CharacterBehaviour
     {
         if (action != null)
         {
-            foreach (var scanResult in m_interactables)
+            for (int i = 0; i < interactablesCount; i++)
             {
-                action(scanResult.interactable);
+                action(m_interactables[i].interactable);
             }
         }
     }
@@ -500,11 +486,11 @@ public class CharacterInteraction : CharacterBehaviour
     {
         if (pred != null)
         {
-            foreach (var scanResult in m_interactables)
+            for (int i = 0; i < interactablesCount; i++)
             {
-                if (pred(scanResult))
+                if (pred(m_interactables[i]))
                 {
-                    return scanResult;
+                    return m_interactables[i];
                 }
             }
         }
@@ -516,11 +502,11 @@ public class CharacterInteraction : CharacterBehaviour
     {
         if (pred != null)
         {
-            foreach (var scanResult in m_interactables)
+            for (int i = 0; i < interactablesCount; i++)
             {
-                if (pred(scanResult))
+                if (pred(m_interactables[i]))
                 {
-                    return scanResult.interactable;
+                    return m_interactables[i].interactable;
                 }
             }
         }
@@ -532,11 +518,11 @@ public class CharacterInteraction : CharacterBehaviour
     {
         if (pred != null)
         {
-            foreach (var scanResult in m_interactables)
+            for (int i = 0; i < interactablesCount; i++)
             {
-                if (pred(scanResult.interactable))
+                if (pred(m_interactables[i].interactable))
                 {
-                    return scanResult.interactable;
+                    return m_interactables[i].interactable;
                 }
             }
         }
@@ -548,10 +534,10 @@ public class CharacterInteraction : CharacterBehaviour
     {
         if (interactable != null)
         {
-            foreach (var scanResult in m_interactables)
+            for (int i = 0; i < interactablesCount; i++)
             {
-                if (scanResult.interactable == interactable)
-                    return scanResult;
+                if (m_interactables[i].interactable == interactable)
+                    return m_interactables[i];
             }
         }
 
@@ -562,9 +548,9 @@ public class CharacterInteraction : CharacterBehaviour
     {
         if (interactable != null)
         {
-            foreach (var scanResult in m_interactables)
+            for (int i = 0; i < interactablesCount; i++)
             {
-                if (scanResult.interactable == interactable)
+                if (m_interactables[i].interactable == interactable)
                 {
                     return true;
                 }
@@ -572,5 +558,26 @@ public class CharacterInteraction : CharacterBehaviour
         }
 
         return false;
+    }
+
+    public Interactable GetInteractableWith<T>(out T comp)
+    {
+        for (int i = 0; i < interactablesCount; i++)
+        {
+            if (m_interactables[i].interactable &&
+                m_interactables[i].interactable.TryGetComponent<T>(out T foundComp))
+            {
+                comp = foundComp;
+                return m_interactables[i].interactable;
+            }
+        }
+
+        comp = default;
+        return null;
+    }
+
+    public Interactable GetInteractableWith<T>()
+    {
+        return GetInteractableWith<T>(out T comp);
     }
 }
