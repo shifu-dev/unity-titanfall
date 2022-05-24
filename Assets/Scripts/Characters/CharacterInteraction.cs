@@ -278,7 +278,6 @@ public class CharacterInteraction : CharacterBehaviour
         if (scanResult.isValid == false)
             return false;
 
-        Debug.Log($"AddScanResult | {m_interactablesCount} | {scanResult.interactable.name}");
         // find if scanResult with this interactable already exists
         bool wasPresent = false;
         for (int i = 0; i < m_interactablesCount; i++)
@@ -288,7 +287,6 @@ public class CharacterInteraction : CharacterBehaviour
                 wasPresent = true;
                 scanResult = UpdateScanResult(m_interactables[i], scanResult);
 
-                Debug.Log($"AddScanResult | {m_interactablesCount} | {scanResult.interactable.name} | Interactable already exists, removing it");
                 // if previous scanResult exists, remove it
                 m_interactables.Remove(i, InteractableScanResult.invalid);
                 m_interactablesCount--;
@@ -300,7 +298,6 @@ public class CharacterInteraction : CharacterBehaviour
         // filter scanResult after updating it
         if (FilterScanResult(scanResult) == false)
         {
-            Debug.Log($"AddScanResult | {m_interactablesCount} | {scanResult.interactable.name} | FilterScanResult Failed");
             return false;
         }
 
@@ -309,21 +306,17 @@ public class CharacterInteraction : CharacterBehaviour
         {
             if (i < interactablesCount && CompareScanResult(m_interactables[i], scanResult) <= 0)
             {
-                Debug.Log($"AddScanResult | {m_interactablesCount} | {scanResult.interactable.name} | CompareScanResult | {m_interactables[i].interactable.name} | Failed");
                 continue;
             }
 
             if (i < interactablesCount)
             {
-                Debug.Log($"AddScanResult | {m_interactablesCount} | {scanResult.interactable.name} | CompareScanResult | {m_interactables[i].interactable.name} | Passed");
             }
             else
             {
-                Debug.Log($"AddScanResult | {m_interactablesCount} | {scanResult.interactable.name} | No interactables left to compare");
             }
 
             // add the scanResult
-            // Debug.Log($"AddScanResult | {scanResult.interactable.name} | Added {{{currentIndex}, {i}}}");
             InsertScanResult(scanResult, i);
 
             if (wasPresent)
@@ -341,7 +334,6 @@ public class CharacterInteraction : CharacterBehaviour
             return true;
         }
 
-        Debug.Log($"AddScanResult | {m_interactablesCount} | {scanResult.interactable.name} | No position found | WasPresent: {wasPresent}");
         // no appropriate position found for the scanResult
         return false;
     }
@@ -425,8 +417,6 @@ public class CharacterInteraction : CharacterBehaviour
 
     protected virtual void OnInteractableAdded(InteractableScanResult scanResult)
     {
-        Debug.Log($"OnInteractableAdded | {scanResult.interactable.name}");
-
         var interactable = scanResult.interactable;
         if (interactable == null)
             return;
@@ -448,12 +438,10 @@ public class CharacterInteraction : CharacterBehaviour
 
     protected virtual void OnInteractableUpdated(InteractableScanResult scanResult)
     {
-        Debug.Log($"OnInteractableUpdated | {scanResult.interactable.name}");
     }
 
     protected virtual void OnInteractableRemoved(Interactable interactable)
     {
-        Debug.Log($"OnInteractableRemoved | {interactable.name}");
     }
 
     //////////////////////////////////////////////////////////////////
