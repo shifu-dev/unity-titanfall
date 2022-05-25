@@ -6,13 +6,13 @@ public class CharacterEquip : CharacterBehaviour
     public CharacterInputs charInputs { get; protected set; }
     public CharacterInventory charInventory { get; protected set; }
 
-    [SerializeField] protected EquipHand m_leftHand;
-    [SerializeField] protected EquipHand m_rightHand;
+    [SerializeField] protected CharacterEquipHand m_leftHand;
+    [SerializeField] protected CharacterEquipHand m_rightHand;
 
     public CharacterEquip()
     {
-        m_leftHand = new EquipHand(-1);
-        m_rightHand = new EquipHand(1);
+        m_leftHand = new CharacterEquipHand(-1);
+        m_rightHand = new CharacterEquipHand(1);
     }
 
     public override void OnInitCharacter(Character character, CharacterInitializer initializer)
@@ -26,8 +26,11 @@ public class CharacterEquip : CharacterBehaviour
     public override void OnUpdateCharacter()
     {
         bool fire1 = charInputs.use1;
+        var rightEquipData = m_rightHand.current;
         Weapon rightWeapon = m_rightHand.current.weapon;
-        if (rightWeapon && fire1 && m_rightHand.currentWeight > 0.9f)
+        uint rightWeaponSlot = m_rightHand.current.weaponSlot;
+
+        if (rightWeapon && fire1 && m_rightHand.current.weight.value > 0.9f)
         {
             rightWeapon.OnPrimaryFire();
         }
@@ -61,183 +64,112 @@ public class CharacterEquip : CharacterBehaviour
             }
         }
 
-        bool ProcessWeaponInput(int slot)
+        bool ProcessWeaponInput(uint slot)
         {
-            return true;
+            if (rightWeaponSlot == slot && (rightEquipData.isEquipping || rightEquipData.isEquipped))
+            {
+                m_rightHand.Unequip();
+                return true;
+            }
+
+            Weapon weapon = charInventory.GetWeaponAtSlot(slot);
+            if (weapon == null)
+                return false;
+
+            CharacterEquipData equipData = new CharacterEquipData();
+            equipData.equipable = weapon;
+            equipData.equipSpeed = .5f;
+            equipData.unequipSpeed = .5f;
+            equipData.weapon = weapon;
+            equipData.weaponSlot = slot;
+
+            return m_rightHand.Equip(equipData);
         }
 
         bool ProcessGrenadeInput(int slot)
         {
             return true;
         }
+
+        m_leftHand.Update();
+        m_rightHand.Update();
     }
 
-    public void OnWeaponFound(Weapon weapon)
+    public void OnWeaponFound(InteractableScanResult scanResult, Weapon weapon)
     {
+        Debug.Log($"CharacterEquip | WeaponFound {{{weapon.name}}}");
         uint slot = charInventory.AddWeapon(weapon);
         if (slot > 0)
         {
-            EquipData equipData = new EquipData();
+            scanResult.interactable.canInteract = false;
+
+            Debug.Log($"CharacterEquip | Weapon sent to inventory {{{weapon.name}, {{{slot}}}}}");
+            CharacterEquipData equipData = new CharacterEquipData();
             equipData.equipable = weapon;
             equipData.equipSpeed = .1f;
             equipData.unequipSpeed = .1f;
-            equipData.equipableObject = weapon.gameObject;
             equipData.weapon = weapon;
+            equipData.weaponSlot = slot;
 
-            m_rightHand.Equip(equipData);
+            if (m_rightHand.Equip(equipData))
+            {
+                Debug.Log($"CharacterEquip | EquipWeapon {{{weapon.name}}}");
+            }
         }
     }
 
     public void OnGrenadeFound(Grenade grenade)
     {
     }
-
-    public void HandleRightWeapon()
-    {
-    }
 }
 
 [Serializable]
-public struct EquipHand
+public struct CharacterEquipHand
 {
-    public static EquipHand invalid;
+    public static readonly CharacterEquipHand invalid;
 
-    [SerializeField, ReadOnly] private int m_id;
     [SerializeField] private GameObject m_source;
-    [SerializeField] public bool locked;
-    [SerializeField, ReadOnly] private EquipData m_current;
-    public EquipData current => m_current;
+    [SerializeField] private bool m_locked;
 
-    [SerializeField, ReadOnly] private EquipData m_next;
+    [SerializeField, ReadOnly] private CharacterEquipData m_current;
+    public CharacterEquipData current => m_current;
 
-    public int id => m_id;
-    public IEquipable currentEquipable => m_current.equipable;
-    public EquipStatus currentStatus => m_current.status;
-    public float currentWeight => m_current.weight;
+    [SerializeField, ReadOnly] private CharacterEquipData m_next;
+    public CharacterEquipData next => m_next;
 
-    public EquipHand(int id)
+    public CharacterEquipHand(int id)
     {
-        m_id = id;
         m_source = null;
-        m_current = default;
-        m_next = default;
-        locked = false;
+        m_locked = false;
+        m_current = CharacterEquipData.empty;
+        m_next = CharacterEquipData.empty;
     }
 
-    public void Update()
+    public bool Equip(CharacterEquipData equipData)
     {
-        float targetStatusValue = 0;
-        if (m_current.status == EquipStatus.Equip)
-        {
-            targetStatusValue = 1;
-        }
-        else if (m_current.status == EquipStatus.Unequip)
-        {
-            targetStatusValue = 0;
-        }
-        else
-        {
-            return;
-        }
-
-        if (targetStatusValue == 1)
-        {
-            m_current.weight = Mathf.MoveTowards(m_current.weight,
-                targetStatusValue, m_current.equipSpeed * Time.deltaTime);
-
-            if (m_current.weight == targetStatusValue)
-            {
-                m_current.status = EquipStatus.Equipped;
-            }
-        }
-        else if (targetStatusValue == 0)
-        {
-            m_current.weight = Mathf.MoveTowards(m_current.weight,
-                targetStatusValue, m_current.unequipSpeed * Time.deltaTime);
-
-            if (m_current.weight == targetStatusValue)
-            {
-                m_current.status = EquipStatus.Unequipped;
-            }
-        }
-
-        // if finalState reached
-        if (m_current.status == EquipStatus.Equipped)
-        {
-            GameObject gameObject = m_current.gameObject;
-            if (gameObject != null)
-            {
-                gameObject.transform.SetParent(m_source.transform, false);
-                gameObject.transform.localPosition = m_current.localPositionOnEquip;
-                gameObject.transform.localRotation = m_current.localRotationOnEquip;
-            }
-        }
-        else if (m_current.status == EquipStatus.Unequipped)
-        {
-            GameObject gameObject = m_current.gameObject;
-            if (gameObject != null)
-            {
-                gameObject.transform.SetParent(m_current.parentOnUnequip.transform, false);
-                gameObject.transform.localPosition = m_current.localPositionOnUnequip;
-                gameObject.transform.localRotation = m_current.localRotationOnUnequip;
-            }
-        }
-
-        // update the events
-        if (m_current.OnUpdate != null)
-        {
-            m_current.OnUpdate(m_current.equipable, m_current.status, m_current.weight);
-        }
-
-        // check if there is next to equip
-        if (m_current.status == EquipStatus.Unequipped)
-        {
-            if (m_next.equipable != null)
-            {
-                m_current = m_next;
-                m_current.status = EquipStatus.Equip;
-
-                m_next.Clear();
-
-                // // update the events to provide the fresh values
-                // if (m_current.OnUpdate != null)
-                // {
-                //     m_current.OnUpdate(m_current.equipable, m_current.equipStatus, m_current.equipMeter);
-                // }
-            }
-        }
-    }
-
-    public bool CanEquip(IEquipable equipable)
-    {
-        if (locked)
+        if (m_locked)
         {
             return false;
         }
 
-        if (equipable == null)
+        if (m_current.status == EquipStatus.Unknown)
         {
-            return false;
-        }
-
-        return true;
-    }
-
-    public bool Equip(EquipData equipData)
-    {
-        if (locked)
-        {
-            return false;
-        }
-
-        if (equipData.equipable == m_current.equipable)
-        {
+            m_current = equipData;
             m_current.status = EquipStatus.Equip;
-            m_next = default;
+            m_next = CharacterEquipData.empty;
+            return true;
+        }
+
+        if (m_current.equipable == equipData.equipable)
+        {
+            m_current = equipData;
+            m_current.status = EquipStatus.Equip;
+            m_next = CharacterEquipData.empty;
             return true;
         }
 
         m_current.status = EquipStatus.Unequip;
+        m_next.status = EquipStatus.Equip;
         m_next = equipData;
         return true;
     }
@@ -247,26 +179,122 @@ public struct EquipHand
         m_current.status = EquipStatus.Unequip;
         return true;
     }
+
+    public void Update()
+    {
+        float targetWeight = 0;
+        if (m_current.status == EquipStatus.Equip)
+        {
+            targetWeight = 1;
+        }
+        else if (m_current.status == EquipStatus.Unequip)
+        {
+            targetWeight = 0;
+        }
+        else
+        {
+            return;
+        }
+
+        if (targetWeight == 1)
+        {
+            m_current.weight.value = Mathf.MoveTowards(m_current.weight.value,
+                targetWeight, m_current.equipSpeed * Time.deltaTime);
+
+            if (m_current.weight.value == targetWeight)
+            {
+                m_current.status = EquipStatus.Equipped;
+            }
+        }
+        else if (targetWeight == 0)
+        {
+            m_current.weight.value = Mathf.MoveTowards(m_current.weight.value,
+                targetWeight, m_current.unequipSpeed * Time.deltaTime);
+
+            if (m_current.weight.value == targetWeight)
+            {
+                m_current.status = EquipStatus.Unequipped;
+            }
+        }
+
+        // if current is equipped
+        if (m_current.status == EquipStatus.Equipped)
+        {
+            GameObject equipableObject = m_current.equipableObject;
+            if (equipableObject != null)
+            {
+                equipableObject.transform.SetParent(m_source.transform, false);
+                equipableObject.transform.localPosition = m_current.positionOnEquip;
+                equipableObject.transform.localRotation = m_current.rotationOnEquip;
+            }
+
+            return;
+        }
+
+        // if current is unequipped, set next to equip
+        if (m_current.status == EquipStatus.Unequipped)
+        {
+            GameObject equipableObject = m_current.equipableObject;
+            if (equipableObject != null)
+            {
+                equipableObject.transform.SetParent(m_current.parentOnUnequip, false);
+                equipableObject.transform.localPosition = m_current.positionOnUnequip;
+                equipableObject.transform.localRotation = m_current.rotationOnUnequip;
+            }
+
+            m_current = CharacterEquipData.empty;
+
+            if (m_next.equipable != null)
+            {
+                m_current = m_next;
+                m_current.status = EquipStatus.Equip;
+                m_next = CharacterEquipData.empty;
+            }
+        }
+    }
 }
 
 [Serializable]
-public struct EquipData
+public struct CharacterEquipData
 {
-    public Action<IEquipable, EquipStatus, float> OnUpdate;
+    public static readonly CharacterEquipData empty;
 
-    public IEquipable equipable;
-    public GameObject equipableObject;
+    private IEquipable m_equipable;
+    public IEquipable equipable
+    {
+        get => m_equipable;
+        set
+        {
+            m_equipable = value;
+            m_equipableObject = value == null ? null : value.gameObject;
+        }
+    }
+
+    [SerializeField] private GameObject m_equipableObject;
+    public GameObject equipableObject
+    {
+        get => equipable == null ? null : equipable.gameObject;
+    }
+
     public EquipStatus status;
-    public float weight;
+    public bool isEquipping => status == EquipStatus.Equip;
+    public bool isEquipped => status == EquipStatus.Equipped;
+    public bool isUnequipping => status == EquipStatus.Unequip;
+    public bool isUnequipped => status == EquipStatus.Unequipped;
+
+    public weight weight;
     public float equipSpeed;
     public float unequipSpeed;
-    public Vector3 localPositionOnEquip;
-    public Quaternion localRotationOnEquip;
-    public Vector3 localPositionOnUnequip;
-    public Quaternion localRotationOnUnequip;
-    public GameObject parentOnUnequip;
+    public Vector3 positionOnEquip;
+    public Quaternion rotationOnEquip;
+    public Vector3 positionOnUnequip;
+    public Quaternion rotationOnUnequip;
+    public Transform parentOnUnequip;
 
     [SerializeField] private Weapon m_weapon;
+    [SerializeField] private Grenade m_grenade;
+    [SerializeField] private uint m_slot;
+
     public Weapon weapon
     {
         get => m_weapon;
@@ -276,8 +304,12 @@ public struct EquipData
             m_grenade = null;
         }
     }
+    public uint weaponSlot
+    {
+        get => weapon ? m_slot : 0;
+        set => m_slot = weapon ? value : 0;
+    }
 
-    [SerializeField] private Grenade m_grenade;
     public Grenade grenade
     {
         get => m_grenade;
@@ -287,22 +319,9 @@ public struct EquipData
             m_grenade = value;
         }
     }
-
-    public GameObject gameObject => equipable == null ? null : equipable.gameObject;
-
-    public void Clear()
+    public uint grenadeSlot
     {
-        this = default;
-    }
-
-    public bool isNull
-    {
-        get
-        {
-            if (equipable == null)
-                return true;
-
-            return false;
-        }
+        get => grenade ? m_slot : 0;
+        set => m_slot = grenade ? value : 0;
     }
 }

@@ -431,7 +431,7 @@ public class CharacterInteraction : CharacterBehaviour
         Weapon weapon = interactable.GetComponent<Weapon>();
         if (weapon != null)
         {
-            charEquip.OnWeaponFound(weapon);
+            charEquip.OnWeaponFound(scanResult, weapon);
             return;
         }
     }

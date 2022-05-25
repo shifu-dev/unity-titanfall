@@ -55,12 +55,12 @@ public class CharacterInventory : CharacterBehaviour
         return 0;
     }
 
-    public bool AddWeaponAtSlot(int slot, Weapon weapon)
+    public bool AddWeaponAtSlot(uint slot, Weapon weapon)
     {
         return m_weaponSlots[slot - 1].Store(weapon);
     }
 
-    public Weapon GetWeaponAtSlot(int slot)
+    public Weapon GetWeaponAtSlot(uint slot)
     {
         if (slot < 1 || slot > m_weaponSlots.Length)
         {
@@ -78,7 +78,7 @@ public class CharacterInventory : CharacterBehaviour
     {
     }
 
-    public Grenade GetGrenadeAtSlot(int slot)
+    public Grenade GetGrenadeAtSlot(uint slot)
     {
         if (slot < 1 || slot > m_grenadeSlots.Length)
         {

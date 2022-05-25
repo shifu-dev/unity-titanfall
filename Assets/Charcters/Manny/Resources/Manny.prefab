@@ -79,6 +79,37 @@ Transform:
   m_Father: {fileID: 6081539459817332691}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2333311038443935233
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8801453827726266181}
+  m_Layer: 0
+  m_Name: WeaponSlot 2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8801453827726266181
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2333311038443935233}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5130046698628662828}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2685017277922627661
 GameObject:
   m_ObjectHideFlags: 0
@@ -108,7 +139,10 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 3070141978124218766}
+  - {fileID: 8801453827726266181}
+  - {fileID: 8115276785642817472}
   m_Father: {fileID: 6081539459817332691}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -224,6 +258,37 @@ Transform:
   m_Father: {fileID: 6081539459817332691}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4556067464484935897
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3070141978124218766}
+  m_Layer: 0
+  m_Name: WeaponSlot 1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3070141978124218766
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4556067464484935897}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5130046698628662828}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6526974782931169490
 GameObject:
   m_ObjectHideFlags: 0
@@ -306,7 +371,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   autoPickup: 1
-  m_weaponSlots: []
+  m_weaponSlots:
+  - category: 496
+    slot: {fileID: 3070141978124218766}
+    weapon: {fileID: 0}
+  - category: 496
+    slot: {fileID: 8801453827726266181}
+    weapon: {fileID: 0}
+  - category: 12
+    slot: {fileID: 8115276785642817472}
+    weapon: {fileID: 0}
   m_grenadeSlots: []
 --- !u!114 &3335872080112416175
 MonoBehaviour:
@@ -379,7 +453,7 @@ MonoBehaviour:
   m_SkinWidth: 0.01
   m_LayerMask:
     serializedVersion: 2
-    m_Bits: 4294967291
+    m_Bits: 4294967163
   m_TriggerQuery: 1
 --- !u!114 &7993160800140144679
 MonoBehaviour:
@@ -395,11 +469,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_interactables:
   - interactable: {fileID: 0}
-    flags: 0
+    manualFrame: 0
+    raycastFrame: 0
+    overlapFrame: 0
   - interactable: {fileID: 0}
-    flags: 0
+    manualFrame: 0
+    raycastFrame: 0
+    overlapFrame: 0
   - interactable: {fileID: 0}
-    flags: 0
+    manualFrame: 0
+    raycastFrame: 0
+    overlapFrame: 0
   m_interactablesCount: 0
   m_updateInterval: 2
   m_layerMask:
@@ -428,7 +508,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_leftHand:
-    m_id: -1
     m_source: {fileID: 3973714730083592506}
     locked: 0
     m_current:
@@ -444,6 +523,7 @@ MonoBehaviour:
       parentOnUnequip: {fileID: 0}
       m_weapon: {fileID: 0}
       m_grenade: {fileID: 0}
+      m_slot: 0
     m_next:
       equipableObject: {fileID: 0}
       status: 0
@@ -457,8 +537,8 @@ MonoBehaviour:
       parentOnUnequip: {fileID: 0}
       m_weapon: {fileID: 0}
       m_grenade: {fileID: 0}
+      m_slot: 0
   m_rightHand:
-    m_id: 1
     m_source: {fileID: 1926329094455811431}
     locked: 0
     m_current:
@@ -474,6 +554,7 @@ MonoBehaviour:
       parentOnUnequip: {fileID: 0}
       m_weapon: {fileID: 0}
       m_grenade: {fileID: 0}
+      m_slot: 0
     m_next:
       equipableObject: {fileID: 0}
       status: 0
@@ -487,6 +568,7 @@ MonoBehaviour:
       parentOnUnequip: {fileID: 0}
       m_weapon: {fileID: 0}
       m_grenade: {fileID: 0}
+      m_slot: 0
 --- !u!114 &6932028184359725518
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -542,6 +624,37 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!1 &7144612311280039868
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8115276785642817472}
+  m_Layer: 0
+  m_Name: WeaponSlot 3
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8115276785642817472
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7144612311280039868}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5130046698628662828}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7517987932898350020
 GameObject:
   m_ObjectHideFlags: 0

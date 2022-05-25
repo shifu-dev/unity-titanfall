@@ -1,11 +1,12 @@
-using UnityEngine;
-
-public static class TransformExtensions
+namespace UnityEngine
 {
-    public static void SetWorldScale(this Transform transform, Vector3 globalScale)
+    public static class TransformExtensions
     {
-        Vector3 worldScale = transform.lossyScale;
-        transform.localScale = new Vector3(globalScale.x / worldScale.x,
-            globalScale.y / worldScale.y, globalScale.z / worldScale.z);
+        public static void SetWorldScale(this Transform transform, Vector3 globalScale)
+        {
+            Vector3 worldScale = transform.lossyScale;
+            transform.localScale = new Vector3(globalScale.x / worldScale.x,
+                globalScale.y / worldScale.y, globalScale.z / worldScale.z);
+        }
     }
 }
