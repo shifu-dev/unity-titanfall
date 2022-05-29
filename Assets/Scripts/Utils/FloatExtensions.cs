@@ -68,4 +68,14 @@ public static class FloatExtensions
     {
         return number - Mathf.Floor(number);
     }
+
+    public static bool IsInRange(this float thisFloat, float min, float max)
+    {
+        return thisFloat >= min && thisFloat <= max;
+    }
+
+    public static bool IsInsideRange(this float thisFloat, float min, float max)
+    {
+        return thisFloat > min && thisFloat < max;
+    }
 }

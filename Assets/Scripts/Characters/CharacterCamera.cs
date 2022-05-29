@@ -49,9 +49,9 @@ public class CharacterCamera : CharacterBehaviour
         if (Camera && LookAtSource)
         {
             Vector3 lookAt = LookAtSource.transform.position + LookAtSourceOffset;
-            Vector3 lookDir = CharacterCapsule.GetForwardVector;
+            Vector3 lookDir = CharacterCapsule.forward;
             Vector3 camPos = Camera.transform.position;
-            Quaternion camRot = Quaternion.LookRotation(lookDir, CharacterCapsule.GetUpVector);
+            Quaternion camRot = Quaternion.LookRotation(lookDir, CharacterCapsule.up);
 
             bool hit = Physics.Raycast(lookAt, lookDir * -1, out RaycastHit hitInfo, MaxDistanceFromLookSource);
             if (hit)

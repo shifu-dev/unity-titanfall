@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace System
 {
     public static class ArrayExtensions
@@ -79,6 +81,28 @@ namespace System
         public static void Clear<T>(this T[] arr, int index, int length)
         {
             Array.Clear(arr, index, length);
+        }
+
+        public static T[] FilterUnique<T>(T[] arr1, T[] arr2)
+        {
+            if (arr1 == null || arr2 == null)
+                return null;
+
+            T[] tmpArr1 = arr1;
+            List<T> filterList = new List<T>(arr2);
+
+            filterList.RemoveAll((T element) =>
+            {
+                for (int i = 0; i < tmpArr1.Length; i++)
+                {
+                    if (tmpArr1[i].Equals(element))
+                        return true;
+                }
+
+                return false;
+            });
+
+            return filterList.ToArray();
         }
     }
 }

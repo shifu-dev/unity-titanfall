@@ -31,4 +31,16 @@ public static class Vector3Extensions
         var diff = vectorA - vectorB;
         return diff.sqrMagnitude;
     }
+
+    public static Vector3 MultiplyEach(this Vector3 vectorA, Vector3 vectorB)
+    {
+        return new Vector3(vectorA.x * vectorB.x,
+            vectorA.y * vectorB.y, vectorA.z * vectorB.z);
+    }
+
+    public static Vector3 DivideEach(this Vector3 vectorA, Vector3 vectorB)
+    {
+        return new Vector3(vectorA.x / vectorB.x,
+            vectorA.y / vectorB.y, vectorA.z / vectorB.z);
+    }
 }

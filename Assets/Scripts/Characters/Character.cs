@@ -32,13 +32,13 @@ public class Character : MonoBehaviour
         set => Mass = value / transform.lossyScale.magnitude;
     }
 
-    public Quaternion GetRotation => transform.rotation;
-    public Vector3 GetForward => transform.forward;
-    public Vector3 GetBack => -transform.forward;
-    public Vector3 GetRight => transform.right;
-    public Vector3 GetLeft => -transform.right;
-    public Vector3 GetUp => transform.up;
-    public Vector3 GetDown => -transform.up;
+    public Quaternion rotation => transform.rotation;
+    public Vector3 forward => transform.forward;
+    public Vector3 back => -transform.forward;
+    public Vector3 right => transform.right;
+    public Vector3 left => -transform.right;
+    public Vector3 up => transform.up;
+    public Vector3 down => -transform.up;
 
     void Awake()
     {

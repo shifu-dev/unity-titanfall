@@ -36,10 +36,12 @@ public class PlayerInputs : MonoBehaviour
 
     public void UpdateImpl()
     {
-        float moveInput_x = Input.GetAxis("move x");
-        float moveInput_y = Input.GetAxis("move y");
-        float moveInput_z = 0;
-        move = new Vector3(moveInput_x, moveInput_y, moveInput_z);
+        Vector3 tmpMove = Vector3.zero;
+        tmpMove.y += Input.GetKey(KeyCode.W) ? 1 : 0;
+        tmpMove.x += Input.GetKey(KeyCode.A) ? -1 : 0;
+        tmpMove.y += Input.GetKey(KeyCode.S) ? -1 : 0;
+        tmpMove.x += Input.GetKey(KeyCode.D) ? 1 : 0;
+        move = tmpMove;
 
         moveAngle = Vector3.SignedAngle(move, new Vector3(0, 1, 0), new Vector3(0, 0, 1));
 

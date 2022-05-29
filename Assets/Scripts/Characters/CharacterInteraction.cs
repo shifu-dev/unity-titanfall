@@ -191,7 +191,7 @@ public class CharacterInteraction : CharacterBehaviour
         {
             /// @todo calculate halfExtents with respect to character size
             Vector3 halfExtents = m_overlapSize * .5f;
-            Vector3 center = charCapsule.GetBasePosition + (charCapsule.GetUpVector * halfExtents.y) + m_overlapCenterOffset;
+            Vector3 center = charCapsule.basePosition + (charCapsule.up * halfExtents.y) + m_overlapCenterOffset;
             Collider[] overlapResults = overlapResults = Physics.OverlapBox(center, halfExtents, Quaternion.identity,
                     m_layerMask, m_triggerQuery);
 

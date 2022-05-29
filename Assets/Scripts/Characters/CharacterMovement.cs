@@ -7,32 +7,34 @@ public class CharacterMovement : CharacterBehaviour
     /// Constants
     //////////////////////////////////////////////////////////////////
 
-    protected const float k_MinGroundStandStepUpPercent = 0f;
-    protected const float k_MaxGroundStandStepUpPercent = 49f;
-    protected const float k_MinGroundStandStepDownPercent = 0f;
-    protected const float k_MaxGroundStandStepDownPercent = 50f;
-    protected const float k_MinGroundStandSlopeUpAngle = 0f;
-    protected const float k_MaxGroundStandSlopeUpAngle = 89f;
-    protected const float k_MinGroundStandSlopeDownAngle = 0f;
-    protected const float k_MaxGroundStandSlopeDownAngle = -89f;
+    protected const float k_collisionOffset = 0;
 
-    protected const float k_MinGroundCrouchStepUpPercent = 0f;
-    protected const float k_MaxGroundCrouchStepUpPercent = 49f;
-    protected const float k_MinGroundCrouchStepDownPercent = 0f;
-    protected const float k_MaxGroundCrouchStepDownPercent = 50f;
-    protected const float k_MinGroundCrouchSlopeUpAngle = 0f;
-    protected const float k_MaxGroundCrouchSlopeUpAngle = 89f;
-    protected const float k_MinGroundCrouchSlopeDownAngle = 0f;
-    protected const float k_MaxGroundCrouchSlopeDownAngle = -89f;
+    protected const float k_minGroundStandStepUpPercent = 0f;
+    protected const float k_maxGroundStandStepUpPercent = 49f;
+    protected const float k_minGroundStandStepDownPercent = 0f;
+    protected const float k_maxGroundStandStepDownPercent = 49f;
+    protected const float k_minGroundStandSlopeUpAngle = 0f;
+    protected const float k_maxGroundStandSlopeUpAngle = 89f;
+    protected const float k_minGroundStandSlopeDownAngle = 0f;
+    protected const float k_maxGroundStandSlopeDownAngle = -89f;
 
-    protected const float k_MinGroundProneSlopeUpAngle = 0f;
-    protected const float k_MaxGroundProneSlopeUpAngle = 89f;
-    protected const float k_MinGroundProneSlopeDownAngle = 0f;
-    protected const float k_MaxGroundProneSlopeDownAngle = -89f;
+    protected const float k_minGroundCrouchStepUpPercent = 0f;
+    protected const float k_maxGroundCrouchStepUpPercent = 49f;
+    protected const float k_minGroundCrouchStepDownPercent = 0f;
+    protected const float k_maxGroundCrouchStepDownPercent = 50f;
+    protected const float k_minGroundCrouchSlopeUpAngle = 0f;
+    protected const float k_maxGroundCrouchSlopeUpAngle = 89f;
+    protected const float k_minGroundCrouchSlopeDownAngle = 0f;
+    protected const float k_maxGroundCrouchSlopeDownAngle = -89f;
 
-    protected const float k_MinGroundTestDepth = 0.01f;
-    protected const float k_MaxGroundTestDepth = 0.1f;
-    protected const uint k_MaxMoveIterations = 10;
+    protected const float k_minGroundProneSlopeUpAngle = 0f;
+    protected const float k_maxGroundProneSlopeUpAngle = 89f;
+    protected const float k_minGroundProneSlopeDownAngle = 0f;
+    protected const float k_maxGroundProneSlopeDownAngle = -89f;
+
+    protected const float k_minGroundTestDepth = 0.01f;
+    protected const float k_maxGroundTestDepth = 0.5f;
+    protected const uint k_maxMoveIterations = 10;
 
     //////////////////////////////////////////////////////////////////
     /// Variables
@@ -41,248 +43,248 @@ public class CharacterMovement : CharacterBehaviour
     //////////////////////////////////////////////////////////////////
     /// Character Data
 
-    protected CharacterCapsule CharacterCapsule { get => character.characterCapsule; }
-    protected CharacterInputs CharacterInputs { get => character.characterInputs; }
+    protected CharacterCapsule charCapsule { get => character.characterCapsule; }
+    protected CharacterInputs charInputs { get => character.characterInputs; }
 
     //////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////
     /// Movement State
 
-    public CharacterMovementState MovementState { get; protected set; }
-    public bool PhysIsOnGround { get; protected set; }
+    public CharacterMovementState movementState { get; protected set; }
+    public bool physIsOnGround { get; protected set; }
 
     //////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////
     /// GroundData
 
-    [Range(k_MinGroundTestDepth, k_MaxGroundTestDepth)]
-    [SerializeField] protected float m_GroundCheckDepth;
+    [Range(k_minGroundTestDepth, k_maxGroundTestDepth)]
+    [SerializeField] protected float m_groundCheckDepth;
 
-    [SerializeField] protected LayerMask m_GroundLayer;
+    [SerializeField] protected LayerMask m_groundLayer;
 
     [Min(0f)]
-    [SerializeField] protected float m_GroundMinMoveDistance;
+    [SerializeField] protected float m_groundMinMoveDistance;
 
     //////////////////////////////////////////////////////////////////
     /// Ground Stand Data
 
-    [SerializeField] protected float m_GroundStandWalkSpeed;
-    public float GroundStandWalkSpeed => m_GroundStandWalkSpeed;
+    [SerializeField] protected float m_groundStandWalkSpeed;
+    public float groundStandWalkSpeed => m_groundStandWalkSpeed;
 
-    [SerializeField] protected float m_GroundStandRunSpeed;
-    public float GroundStandRunSpeed => m_GroundStandRunSpeed;
+    [SerializeField] protected float m_groundStandRunSpeed;
+    public float groundStandRunSpeed => m_groundStandRunSpeed;
 
-    [SerializeField] protected float m_GroundStandSprintSpeed;
-    public float GroundStandSprintSpeed => m_GroundStandSprintSpeed;
+    [SerializeField] protected float m_groundStandSprintSpeed;
+    public float groundStandSprintSpeed => m_groundStandSprintSpeed;
 
-    [SerializeField] protected float m_GroundStandSprintLeftAngleMax;
-    public float GroundStandSprintLeftAngleMax => m_GroundStandSprintLeftAngleMax;
+    [SerializeField, Range(-90, 0)] protected float m_groundStandSprintLeftAngleMax;
+    public float groundStandSprintLeftAngleMax => m_groundStandSprintLeftAngleMax;
 
-    [SerializeField] protected float m_GroundStandSprintRightAngleMax;
-    public float GroundStandSprintRightAngleMax => m_GroundStandSprintRightAngleMax;
+    [SerializeField, Range(0, 90)] protected float m_groundStandSprintRightAngleMax;
+    public float groundStandSprintRightAngleMax => m_groundStandSprintRightAngleMax;
 
-    [SerializeField] protected float m_GroundStandJumpSpeed;
-    public float GroundStandJumpSpeed => m_GroundStandJumpSpeed;
+    [SerializeField] protected float m_groundStandJumpSpeed;
+    public float groundStandJumpSpeed => m_groundStandJumpSpeed;
 
     // Ground Stand StepUp
-    [Range(k_MinGroundStandStepUpPercent, k_MaxGroundStandStepUpPercent)]
-    [SerializeField] protected float m_GroundStandStepUpPercent;
-    public float GroundStandStepUpPercent
+    [Range(k_minGroundStandStepUpPercent, k_maxGroundStandStepUpPercent)]
+    [SerializeField] protected float m_groundStandStepUpPercent;
+    public float groundStandStepUpPercent
     {
-        get => m_GroundStandStepUpPercent;
+        get => m_groundStandStepUpPercent;
         set
         {
-            m_GroundStandStepUpPercent = Math.Clamp(value,
-                k_MinGroundStandStepUpPercent, k_MaxGroundStandStepUpPercent);
+            m_groundStandStepUpPercent = Math.Clamp(value,
+                k_minGroundStandStepUpPercent, k_maxGroundStandStepUpPercent);
         }
     }
-    public float GroundStandStepUpHeight
+    public float groundStandStepUpHeight
     {
-        get => CharacterCapsule.GetHeight * (m_GroundStandStepUpPercent / 100);
+        get => charCapsule.height * (m_groundStandStepUpPercent / 100);
         set
         {
-            GroundStandStepUpPercent = (value / CharacterCapsule.GetHeight) * 100;
+            groundStandStepUpPercent = (value / charCapsule.height) * 100;
         }
     }
 
     // Ground Stand StepDown
-    [Range(k_MinGroundStandStepDownPercent, k_MaxGroundStandStepDownPercent)]
-    [SerializeField] protected float m_GroundStandStepDownPercent;
-    public float GroundStandStepDownPercent
+    [Range(k_minGroundStandStepDownPercent, k_maxGroundStandStepDownPercent)]
+    [SerializeField] protected float m_groundStandStepDownPercent;
+    public float groundStandStepDownPercent
     {
-        get => m_GroundStandStepDownPercent;
+        get => m_groundStandStepDownPercent;
         set
         {
-            m_GroundStandStepDownPercent = Math.Clamp(value,
-                k_MinGroundStandStepDownPercent, k_MaxGroundStandStepDownPercent);
+            m_groundStandStepDownPercent = Math.Clamp(value,
+                k_minGroundStandStepDownPercent, k_maxGroundStandStepDownPercent);
         }
     }
-    public float GroundStandStepDownDepth
+    public float groundStandStepDownDepth
     {
-        get => CharacterCapsule.GetHeight * (m_GroundStandStepDownPercent / 100);
+        get => charCapsule.height * (m_groundStandStepDownPercent / 100);
         set
         {
-            GroundStandStepDownPercent = (value / CharacterCapsule.GetHeight) * 100;
+            groundStandStepDownPercent = (value / charCapsule.height) * 100;
         }
     }
 
     // Ground Stand SlopeUp
-    [Range(k_MinGroundStandSlopeUpAngle, k_MaxGroundStandSlopeUpAngle)]
-    [SerializeField] protected float m_GroundStandSlopeUpAngle;
-    public float GroundStandSlopeUpAngle
+    [Range(k_minGroundStandSlopeUpAngle, k_maxGroundStandSlopeUpAngle)]
+    [SerializeField] protected float m_groundStandSlopeUpAngle;
+    public float groundStandSlopeUpAngle
     {
-        get => m_GroundStandSlopeUpAngle;
+        get => m_groundStandSlopeUpAngle;
         set
         {
-            m_GroundStandSlopeUpAngle = Math.Clamp(value,
-                k_MinGroundStandSlopeUpAngle, k_MaxGroundStandSlopeUpAngle);
+            m_groundStandSlopeUpAngle = Math.Clamp(value,
+                k_minGroundStandSlopeUpAngle, k_maxGroundStandSlopeUpAngle);
         }
     }
 
     // Ground Stand SlopeDown
-    [Range(k_MinGroundStandSlopeDownAngle, k_MaxGroundStandSlopeDownAngle)]
-    [SerializeField] protected float m_GroundStandSlopeDownAngle;
-    public float GroundStandSlopeDownAngle
+    [Range(k_minGroundStandSlopeDownAngle, k_maxGroundStandSlopeDownAngle)]
+    [SerializeField] protected float m_groundStandSlopeDownAngle;
+    public float groundStandSlopeDownAngle
     {
-        get => m_GroundStandSlopeDownAngle;
+        get => m_groundStandSlopeDownAngle;
         set
         {
-            m_GroundStandSlopeDownAngle = Math.Clamp(value,
-                k_MinGroundStandSlopeDownAngle, k_MaxGroundStandSlopeDownAngle);
+            m_groundStandSlopeDownAngle = Math.Clamp(value,
+                k_minGroundStandSlopeDownAngle, k_maxGroundStandSlopeDownAngle);
         }
     }
 
-    [SerializeField] protected bool m_GroundStandMaintainVelocityOnSlopes;
-    [SerializeField] protected bool m_GroundStandMaintainVelocityOnWallSlides;
+    [SerializeField] protected bool m_groundStandMaintainVelocityOnSurface;
+    [SerializeField] protected bool m_groundStandMaintainVelocityAlongSurface;
 
     //////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////
     /// Ground Crouch Data
 
-    [SerializeField] protected float m_GroundCrouchWalkSpeed;
-    [SerializeField] protected float m_GroundCrouchRunSpeed;
-    [SerializeField] protected float m_GroundCrouchJumpSpeed;
+    [SerializeField] protected float m_groundCrouchWalkSpeed;
+    [SerializeField] protected float m_groundCrouchRunSpeed;
+    [SerializeField] protected float m_groundCrouchJumpSpeed;
 
     // Ground Crouch StepUp
-    [Range(k_MinGroundCrouchStepUpPercent, k_MaxGroundCrouchStepUpPercent)]
-    [SerializeField] protected float m_GroundCrouchStepUpPercent;
-    public float GroundCrouchStepUpPercent
+    [Range(k_minGroundCrouchStepUpPercent, k_maxGroundCrouchStepUpPercent)]
+    [SerializeField] protected float m_groundCrouchStepUpPercent;
+    public float groundCrouchStepUpPercent
     {
-        get => m_GroundCrouchStepUpPercent;
+        get => m_groundCrouchStepUpPercent;
         set
         {
-            m_GroundCrouchStepUpPercent = Math.Clamp(value,
-                k_MinGroundCrouchStepUpPercent, k_MaxGroundCrouchStepUpPercent);
+            m_groundCrouchStepUpPercent = Math.Clamp(value,
+                k_minGroundCrouchStepUpPercent, k_maxGroundCrouchStepUpPercent);
         }
     }
-    public float GroundCrouchStepUpHeight
+    public float groundCrouchStepUpHeight
     {
-        get => CharacterCapsule.GetHeight * (m_GroundCrouchStepUpPercent / 100);
+        get => charCapsule.height * (m_groundCrouchStepUpPercent / 100);
         set
         {
-            GroundCrouchStepUpPercent = (value / CharacterCapsule.GetHeight) * 100;
+            groundCrouchStepUpPercent = (value / charCapsule.height) * 100;
         }
     }
 
     // Ground Crouch StepDown
-    [Range(k_MinGroundCrouchStepDownPercent, k_MaxGroundCrouchStepDownPercent)]
-    [SerializeField] protected float m_GroundCrouchStepDownPercent;
-    public float GroundCrouchStepDownPercent
+    [Range(k_minGroundCrouchStepDownPercent, k_maxGroundCrouchStepDownPercent)]
+    [SerializeField] protected float m_groundCrouchStepDownPercent;
+    public float groundCrouchStepDownPercent
     {
-        get => m_GroundCrouchStepDownPercent;
+        get => m_groundCrouchStepDownPercent;
         set
         {
-            m_GroundCrouchStepDownPercent = Math.Clamp(value,
-                k_MinGroundCrouchStepDownPercent, k_MaxGroundCrouchStepDownPercent);
+            m_groundCrouchStepDownPercent = Math.Clamp(value,
+                k_minGroundCrouchStepDownPercent, k_maxGroundCrouchStepDownPercent);
         }
     }
-    public float GroundCrouchStepDownDepth
+    public float groundCrouchStepDownDepth
     {
-        get => CharacterCapsule.GetHeight * (m_GroundCrouchStepDownPercent / 100);
+        get => charCapsule.height * (m_groundCrouchStepDownPercent / 100);
         set
         {
-            GroundCrouchStepDownPercent = (value / CharacterCapsule.GetHeight) * 100;
+            groundCrouchStepDownPercent = (value / charCapsule.height) * 100;
         }
     }
 
     // Ground Crouch SlopeUp
-    [Range(k_MinGroundCrouchSlopeUpAngle, k_MaxGroundCrouchSlopeUpAngle)]
-    [SerializeField] protected float m_GroundCrouchSlopeUpAngle;
-    public float GroundCrouchSlopeUpAngle
+    [Range(k_minGroundCrouchSlopeUpAngle, k_maxGroundCrouchSlopeUpAngle)]
+    [SerializeField] protected float m_groundCrouchSlopeUpAngle;
+    public float groundCrouchSlopeUpAngle
     {
-        get => m_GroundCrouchSlopeUpAngle;
+        get => m_groundCrouchSlopeUpAngle;
         set
         {
-            m_GroundCrouchSlopeUpAngle = Math.Clamp(value,
-                k_MinGroundCrouchSlopeUpAngle, k_MaxGroundCrouchSlopeUpAngle);
+            m_groundCrouchSlopeUpAngle = Math.Clamp(value,
+                k_minGroundCrouchSlopeUpAngle, k_maxGroundCrouchSlopeUpAngle);
         }
     }
 
     // Ground Crouch SlopeDown
-    [Range(k_MinGroundCrouchSlopeDownAngle, k_MaxGroundCrouchSlopeDownAngle)]
-    [SerializeField] protected float m_GroundCrouchSlopeDownAngle;
-    public float GroundCrouchSlopeDownAngle
+    [Range(k_minGroundCrouchSlopeDownAngle, k_maxGroundCrouchSlopeDownAngle)]
+    [SerializeField] protected float m_groundCrouchSlopeDownAngle;
+    public float groundCrouchSlopeDownAngle
     {
-        get => m_GroundCrouchSlopeDownAngle;
+        get => m_groundCrouchSlopeDownAngle;
         set
         {
-            m_GroundCrouchSlopeDownAngle = Math.Clamp(value,
-                k_MinGroundCrouchSlopeDownAngle, k_MaxGroundCrouchSlopeDownAngle);
+            m_groundCrouchSlopeDownAngle = Math.Clamp(value,
+                k_minGroundCrouchSlopeDownAngle, k_maxGroundCrouchSlopeDownAngle);
         }
     }
 
-    [SerializeField] protected bool m_GroundCrouchMaintainVelocityOnSlopes;
-    [SerializeField] protected bool m_GroundCrouchMaintainVelocityOnWallSlides;
-    [SerializeField] protected bool m_GroundCrouchAutoRiseToStandSprint;
+    [SerializeField] protected bool m_groundCrouchMaintainVelocityOnSurface;
+    [SerializeField] protected bool m_groundCrouchMaintainVelocityAlongSurface;
+    [SerializeField] protected bool m_groundCrouchAutoRiseToStandSprint;
 
     //////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////
     /// Ground Prone Data
 
-    [SerializeField] protected float m_GroundProneMoveSpeed;
+    [SerializeField] protected float m_groundProneMoveSpeed;
 
     // Ground Prone SlopeUp
-    [Range(k_MinGroundProneSlopeUpAngle, k_MaxGroundProneSlopeUpAngle)]
-    [SerializeField] protected float m_GroundProneSlopeUpAngle;
-    public float GroundProneSlopeUpAngle
+    [Range(k_minGroundProneSlopeUpAngle, k_maxGroundProneSlopeUpAngle)]
+    [SerializeField] protected float m_groundProneSlopeUpAngle;
+    public float groundProneSlopeUpAngle
     {
-        get => m_GroundProneSlopeUpAngle;
+        get => m_groundProneSlopeUpAngle;
         set
         {
-            m_GroundProneSlopeUpAngle = Math.Clamp(value,
-                k_MinGroundProneSlopeUpAngle, k_MaxGroundProneSlopeUpAngle);
+            m_groundProneSlopeUpAngle = Math.Clamp(value,
+                k_minGroundProneSlopeUpAngle, k_maxGroundProneSlopeUpAngle);
         }
     }
 
     // Ground Prone SlopeDown
-    [Range(k_MinGroundProneSlopeDownAngle, k_MaxGroundProneSlopeDownAngle)]
-    [SerializeField] protected float m_GroundProneSlopeDownAngle;
-    public float GroundProneSlopeDownAngle
+    [Range(k_minGroundProneSlopeDownAngle, k_maxGroundProneSlopeDownAngle)]
+    [SerializeField] protected float m_groundProneSlopeDownAngle;
+    public float groundProneSlopeDownAngle
     {
-        get => m_GroundProneSlopeDownAngle;
+        get => m_groundProneSlopeDownAngle;
         set
         {
-            m_GroundProneSlopeDownAngle = Math.Clamp(value,
-                k_MinGroundProneSlopeDownAngle, k_MaxGroundProneSlopeDownAngle);
+            m_groundProneSlopeDownAngle = Math.Clamp(value,
+                k_minGroundProneSlopeDownAngle, k_maxGroundProneSlopeDownAngle);
         }
     }
 
-    [SerializeField] protected bool m_GroundProneMaintainVelocityOnSlopes;
-    [SerializeField] protected bool m_GroundProneMaintainVelocityOnWallSlides;
-    [SerializeField] protected bool m_GroundProneAutoRiseToStandSprint;
+    [SerializeField] protected bool m_groundProneMaintainVelocityOnSurface;
+    [SerializeField] protected bool m_groundProneMaintainVelocityAlongSurface;
+    [SerializeField] protected bool m_groundProneAutoRiseToStandSprint;
 
     //////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////
     /// Air Data
 
-    [SerializeField] protected float m_AirHelperSpeed;
-    [SerializeField] protected Vector3 m_AirGravityDirection;
-    [SerializeField] protected float m_AirGravityAcceleration;
+    [SerializeField] protected float m_airHelperSpeed;
+    [SerializeField] protected Vector3 m_airGravityDirection;
+    [SerializeField] protected float m_airGravityAcceleration;
 
     //////////////////////////////////////////////////////////////////
     // Constructors
@@ -290,52 +292,52 @@ public class CharacterMovement : CharacterBehaviour
 
     public CharacterMovement()
     {
-        MovementState = new CharacterMovementState(CharacterMovementState.Enum.UNKNOWN);
-        PhysIsOnGround = false;
+        movementState = new CharacterMovementState(CharacterMovementState.Enum.UNKNOWN);
+        physIsOnGround = false;
 
         /// GroundData
-        m_GroundCheckDepth = 0.05f;
-        m_GroundLayer = 0;
-        m_GroundMinMoveDistance = 0.001f;
+        m_groundCheckDepth = 0.05f;
+        m_groundLayer = 0;
+        m_groundMinMoveDistance = 0.001f;
 
         /// Ground Stand Data
-        m_GroundStandWalkSpeed = 10;
-        m_GroundStandRunSpeed = 15;
-        m_GroundStandSprintSpeed = 25;
-        m_GroundStandSprintLeftAngleMax = -45;
-        m_GroundStandSprintRightAngleMax = 45;
-        m_GroundStandJumpSpeed = 40;
-        m_GroundStandStepUpPercent = 10;
-        m_GroundStandStepDownPercent = 10;
-        m_GroundStandSlopeUpAngle = 45;
-        m_GroundStandSlopeDownAngle = 55;
-        m_GroundStandMaintainVelocityOnSlopes = false;
-        m_GroundStandMaintainVelocityOnWallSlides = false;
+        m_groundStandWalkSpeed = 10;
+        m_groundStandRunSpeed = 15;
+        m_groundStandSprintSpeed = 25;
+        m_groundStandSprintLeftAngleMax = -45;
+        m_groundStandSprintRightAngleMax = 45;
+        m_groundStandJumpSpeed = 40;
+        m_groundStandStepUpPercent = 10;
+        m_groundStandStepDownPercent = 10;
+        m_groundStandSlopeUpAngle = 45;
+        m_groundStandSlopeDownAngle = 55;
+        m_groundStandMaintainVelocityOnSurface = false;
+        m_groundStandMaintainVelocityAlongSurface = false;
 
         /// Ground Crouch Data
-        m_GroundCrouchWalkSpeed = 8;
-        m_GroundCrouchRunSpeed = 12;
-        m_GroundCrouchJumpSpeed = 50;
-        m_GroundCrouchStepUpPercent = 5;
-        m_GroundCrouchStepDownPercent = 5;
-        m_GroundCrouchSlopeUpAngle = 55;
-        m_GroundCrouchSlopeDownAngle = 65;
-        m_GroundCrouchMaintainVelocityOnSlopes = false;
-        m_GroundCrouchMaintainVelocityOnWallSlides = false;
-        m_GroundCrouchAutoRiseToStandSprint = true;
+        m_groundCrouchWalkSpeed = 8;
+        m_groundCrouchRunSpeed = 12;
+        m_groundCrouchJumpSpeed = 50;
+        m_groundCrouchStepUpPercent = 5;
+        m_groundCrouchStepDownPercent = 5;
+        m_groundCrouchSlopeUpAngle = 55;
+        m_groundCrouchSlopeDownAngle = 65;
+        m_groundCrouchMaintainVelocityOnSurface = false;
+        m_groundCrouchMaintainVelocityAlongSurface = false;
+        m_groundCrouchAutoRiseToStandSprint = true;
 
         /// Ground Prone Data
-        m_GroundProneMoveSpeed = 4;
-        m_GroundProneSlopeUpAngle = 15;
-        m_GroundProneSlopeDownAngle = 25;
-        m_GroundProneMaintainVelocityOnSlopes = false;
-        m_GroundProneMaintainVelocityOnWallSlides = false;
-        m_GroundProneAutoRiseToStandSprint = true;
+        m_groundProneMoveSpeed = 4;
+        m_groundProneSlopeUpAngle = 15;
+        m_groundProneSlopeDownAngle = 25;
+        m_groundProneMaintainVelocityOnSurface = false;
+        m_groundProneMaintainVelocityAlongSurface = false;
+        m_groundProneAutoRiseToStandSprint = true;
 
         /// Air Data
-        m_AirHelperSpeed = 1f;
-        m_AirGravityDirection = Vector3.zero;
-        m_AirGravityAcceleration = 9.8f;
+        m_airHelperSpeed = 1f;
+        m_airGravityDirection = Vector3.zero;
+        m_airGravityAcceleration = 9.8f;
     }
 
     //////////////////////////////////////////////////////////////////
@@ -355,33 +357,33 @@ public class CharacterMovement : CharacterBehaviour
 
     protected virtual void UpdatePhysicsData()
     {
-        CheckForGround();
+        GroundCheck();
     }
 
     protected virtual void UpdateMovementState()
     {
-        var state = MovementState;
+        var state = movementState;
 
-        if (PhysIsOnGround)
+        if (physIsOnGround)
         {
-            if (CharacterInputs.crouch)
+            if (charInputs.crouch)
             {
             }
-            else if (CharacterInputs.prone)
+            else if (charInputs.prone)
             {
             }
             else    // Standing
             {
-                if (CharacterInputs.move.normalized.magnitude == 0)
+                if (charInputs.move.normalized.magnitude == 0)
                 {
                     state.State = CharacterMovementState.Enum.GROUND_STAND_IDLE;
                 }
-                else if (CharacterInputs.walk)
+                else if (charInputs.walk)
                 {
                     state.State = CharacterMovementState.Enum.GROUND_STAND_WALK;
                 }
-                else if (CharacterInputs.sprint && CharacterInputs.moveAngle > GroundStandSprintLeftAngleMax
-                                                      && CharacterInputs.moveAngle < GroundStandSprintRightAngleMax)
+                else if (charInputs.sprint && charInputs.moveAngle > groundStandSprintLeftAngleMax
+                                                      && charInputs.moveAngle < groundStandSprintRightAngleMax)
                 {
                     state.State = CharacterMovementState.Enum.GROUND_STAND_SPRINT;
                 }
@@ -396,12 +398,12 @@ public class CharacterMovement : CharacterBehaviour
             state.State = CharacterMovementState.Enum.AIR_IDLE;
         }
 
-        MovementState = state;
+        movementState = state;
     }
 
     protected virtual void UpdatePhysicsState()
     {
-        if (MovementState.IsGrounded())
+        if (movementState.IsGrounded())
         {
             PhysGround();
         }
@@ -409,6 +411,35 @@ public class CharacterMovement : CharacterBehaviour
         {
             PhysAir();
         }
+    }
+
+    //////////////////////////////////////////////////////////////////
+    /// Capsule API
+    //////////////////////////////////////////////////////////////////
+
+    protected Collider[] SmallCapsuleOverlap()
+    {
+        return charCapsule.SmallCapsuleOverlap();
+    }
+
+    protected RaycastHit SmallCapsuleCast(Vector3 move)
+    {
+        return charCapsule.SmallCapsuleCast(move);
+    }
+
+    protected RaycastHit SmallBaseSphereCast(Vector3 move)
+    {
+        return charCapsule.SmallBaseSphereCast(move);
+    }
+
+    protected RaycastHit SmallCapsuleMove(Vector3 move)
+    {
+        return charCapsule.CapsuleMove(move, 0);
+    }
+
+    protected Vector3 ResolvePenetrationForSmallCapsule()
+    {
+        return charCapsule.ResolvePenetrationForSmallCapsule(k_collisionOffset);
     }
 
     //////////////////////////////////////////////////////////////////
@@ -420,185 +451,184 @@ public class CharacterMovement : CharacterBehaviour
         // Calculate speed
         float speed = 0;
 
-        if (CharacterInputs.crouch)
+        if (charInputs.crouch)
         {
-            speed = m_GroundCrouchRunSpeed;
+            speed = m_groundCrouchRunSpeed;
         }
-        else if (CharacterInputs.prone)
+        else if (charInputs.prone)
         {
-            speed = m_GroundProneMoveSpeed;
+            speed = m_groundProneMoveSpeed;
         }
         else    // Standing
         {
-            if (CharacterInputs.move.normalized.magnitude == 0)
+            if (charInputs.move.normalized.magnitude == 0)
             {
                 speed = 0;
             }
-            else if (CharacterInputs.walk)
+            else if (charInputs.walk)
             {
-                speed = m_GroundStandWalkSpeed;
+                speed = m_groundStandWalkSpeed;
             }
-            else if (CharacterInputs.sprint && CharacterInputs.moveAngle > GroundStandSprintLeftAngleMax
-                                                  && CharacterInputs.moveAngle < GroundStandSprintRightAngleMax)
+            else if (charInputs.sprint && charInputs.moveAngle.IsInRange(
+                groundStandSprintLeftAngleMax, groundStandSprintRightAngleMax))
             {
-                speed = m_GroundStandSprintSpeed;
+                speed = m_groundStandSprintSpeed;
             }
             else
             {
-                speed = m_GroundStandRunSpeed;
+                speed = m_groundStandRunSpeed;
             }
         }
         speed = speed / 4;
 
         // Calculate Movement
-        Vector3 moveInputVector = new Vector3(CharacterInputs.move.x, 0, CharacterInputs.move.y);
+        Vector3 moveInputVector = new Vector3(charInputs.move.x, 0, charInputs.move.y);
         Vector3 normalizedMoveInputVector = moveInputVector.normalized;
-        Vector3 directionalMoveVector = Quaternion.Euler(0, 0, 0) * normalizedMoveInputVector;
+        Vector3 directionalMoveVector = Quaternion.Euler(0, character.rotation.eulerAngles.y, 0) * normalizedMoveInputVector;
         Vector3 deltaMove = directionalMoveVector * speed * Time.deltaTime;
 
         // Perform move
         GroundMove(deltaMove);
     }
 
-    protected virtual void CheckForGround()
+    protected virtual void GroundCheck()
     {
-        RaycastHit hit = CharacterCapsule.SmallBaseSphereCast(character.GetDown * m_GroundCheckDepth);
-        if (hit.collider == null)
-        {
-            PhysIsOnGround = false;
-            return;
-        }
+        physIsOnGround = true;
+        // RaycastHit hit = SmallBaseSphereCast(character.down * m_groundCheckDepth);
+        // if (hit.collider == null)
+        // {
+        //     physIsOnGround = false;
+        //     return;
+        // }
 
-        var hitLayer = hit.collider.gameObject.layer;
-        PhysIsOnGround = m_GroundLayer.Contains(hitLayer);
+        // var hitLayer = hit.collider.gameObject.layer;
+        // physIsOnGround = m_groundLayer.Contains(hitLayer);
     }
 
     protected virtual void GroundMove(Vector3 originalMove)
     {
         Vector3 remainingMove = originalMove;
 
-        bool canRunIteration(uint it) => it < k_MaxMoveIterations ||
-            remainingMove.magnitude == 0 || remainingMove.magnitude < m_GroundMinMoveDistance;
+        bool canRunIteration(uint it) => it < k_maxMoveIterations ||
+            remainingMove.magnitude == 0 || remainingMove.magnitude < m_groundMinMoveDistance;
 
         for (uint it = 0; canRunIteration(it); it++)
         {
-            RaycastHit sweepHit = CharacterCapsule.CapsuleMove(remainingMove, 0f);
+            ResolvePenetrationForSmallCapsule();
+            RaycastHit sweepHit = SmallCapsuleMove(remainingMove);
             if (sweepHit.collider == null)
             {
-                CharacterCapsule.ResolvePenetrationForSmallCapsule();
-                remainingMove = Vector3.zero;
                 break;
             }
 
             // pending move vector after we collided with something
             remainingMove = remainingMove - (originalMove.normalized * sweepHit.distance);
 
-            // try stepup
-            if (GroundStepUp(originalMove, ref remainingMove, sweepHit))
+            // treat obstacle as slope first
+            if (GroundMoveOnSurface(originalMove, ref remainingMove, sweepHit))
             {
-                // Perform the rest of the move in the next loop
-                // This way we can step up again
                 continue;
             }
 
-            GroundMoveAlongSurface(originalMove, ref remainingMove, sweepHit);
-            CharacterCapsule.ResolvePenetrationForSmallCapsule(0f);
+            float stepUp = GroundStepUp(originalMove, ref remainingMove, sweepHit);
+
+            if (GroundMoveAlongSurface(originalMove, ref remainingMove, sweepHit))
+            {
+                SmallCapsuleMove(charCapsule.down * stepUp);
+                continue;
+            }
+
+            SmallCapsuleMove(charCapsule.down * stepUp);
         }
+
+        GroundStepDown(originalMove, ref remainingMove);
+        ResolvePenetrationForSmallCapsule();
     }
 
-    protected virtual bool GroundStepUp(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit)
+    protected virtual float GroundStepUp(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit)
     {
         if (hit.collider == null || remainingMove == Vector3.zero)
-            return false;
+            return 0;
+
+        Vector3 capCenter_HitPoint = Vector3.ProjectOnPlane(hit.point - charCapsule.center, charCapsule.right);
+        float hitAngleFromCapCenter = Vector3.SignedAngle(charCapsule.forward, capCenter_HitPoint.normalized, charCapsule.right);
 
         // check if hit point is below than capsule center
-        Vector3 capCenter_HitPoint = Vector3.ProjectOnPlane(hit.point - CharacterCapsule.GetCenter, CharacterCapsule.GetRightVector);
-        float hitAngleFromCapCenter = Vector3.SignedAngle(CharacterCapsule.GetForwardVector, capCenter_HitPoint.normalized, CharacterCapsule.GetRightVector);
-        if (hitAngleFromCapCenter >= 0)
+        if (hitAngleFromCapCenter < 0)
         {
-            return false;
+            return 0;
         }
 
-        Vector3 basePoint = CharacterCapsule.GetBasePosition;
+        Vector3 basePoint = charCapsule.basePosition;
         Vector3 basePoint_ObstacleTop = hit.point - basePoint;
-        Vector3 obstacleHeightVector = Vector3.ProjectOnPlane(basePoint_ObstacleTop, CharacterCapsule.GetUpVector);
+        Vector3 obstacleHeightVector = Vector3.ProjectOnPlane(basePoint_ObstacleTop, charCapsule.up);
         float obstacleHeight = obstacleHeightVector.magnitude;
 
-        float stepUpHeightPercent = Math.Clamp(GroundStandStepUpPercent,
-            k_MinGroundStandStepUpPercent, k_MaxGroundStandStepUpPercent);
-
-        float stepUpHeight = CharacterCapsule.GetHeight * (stepUpHeightPercent / 100);
-
+        float stepUpHeight = groundStandStepUpHeight;
         if (obstacleHeight > stepUpHeight)
-            return false;
+            return 0;
 
-        Vector3 stepUpVector = CharacterCapsule.GetUpVector * obstacleHeight;
-        RaycastHit stepUpHit = CharacterCapsule.SmallCapsuleCast(stepUpVector);
+        Vector3 stepUpVector = charCapsule.up * obstacleHeight;
+        RaycastHit stepUpHit = SmallCapsuleCast(stepUpVector);
 
         if (stepUpHit.collider == null)
         {
-            CharacterCapsule.Move(stepUpVector);
-            Debug.Log($"Ground StepUp | StepUpCapacity: {stepUpHeight} | ObstacleHeight: {obstacleHeight} | StepUpHeight: {stepUpVector.y}");
-
-            return true;
+            charCapsule.Move(stepUpVector);
+            return stepUpVector.magnitude;
         }
 
-        return false;
+        return 0;
     }
 
-    protected virtual bool GroundStepDown(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit)
+    protected virtual bool GroundStepDown(Vector3 originalMove, ref Vector3 remainingMove)
     {
-        if (hit.collider == null)
-            return false;
-
-        float stepDownDepth = GroundStandStepDownDepth;
-        if (stepDownDepth >= 0)
-            return false;
-
-        RaycastHit stepDownHit = CharacterCapsule.SmallBaseSphereCast(character.GetDown * stepDownDepth);
+        float stepDown = groundStandStepDownDepth;
+        Vector3 down = charCapsule.down;
+        RaycastHit stepDownHit = SmallCapsuleCast(down * stepDown);
         if (stepDownHit.collider == null)
         {
             return false;
         }
 
-        CharacterCapsule.Move(character.GetDown * hit.distance);
-
-        // Debug.Log("GroundStepDown" + " | StepDownDepth: " + stepDownDepth +
-        //     " | CurrentStepDown: " + Character.GetDown * hit.distance);
-
+        charCapsule.Move(down * (stepDownHit.distance - 0.025f));
         return true;
     }
 
-    protected virtual void GroundMoveAlongSurface(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit)
+    protected virtual bool GroundMoveOnSurface(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit)
     {
         Vector3 moveVectorLeft = (Quaternion.Euler(0, -90, 0) * remainingMove).normalized;
         Vector3 obstacleForward = Vector3.ProjectOnPlane(-hit.normal, moveVectorLeft).normalized;
         float slopeAngle = 90f - Vector3.SignedAngle(remainingMove.normalized, obstacleForward, -moveVectorLeft);
         slopeAngle = Math.Max(slopeAngle, 0);
 
-        float walkableAngle = m_GroundStandSlopeUpAngle;
-        if (slopeAngle <= walkableAngle)
+        float walkableAngle = m_groundStandSlopeUpAngle;
+        if (slopeAngle > walkableAngle)
         {
-            // walk
-            Vector3 slopeMove = Vector3.ProjectOnPlane(originalMove.normalized * remainingMove.magnitude, hit.normal);
-            bool maintainVelocityOnSlopes = m_GroundStandMaintainVelocityOnSlopes;
-            if (maintainVelocityOnSlopes)
-            {
-                slopeMove = slopeMove.normalized * remainingMove.magnitude;
-            }
-
-            remainingMove = slopeMove;
-            return;
+            return false;
         }
 
+        Vector3 slopeMove = Vector3.ProjectOnPlane(originalMove.normalized * remainingMove.magnitude, hit.normal);
+        bool maintainVelocityOnSlopes = m_groundStandMaintainVelocityOnSurface;
+        if (maintainVelocityOnSlopes)
+        {
+            slopeMove = slopeMove.normalized * remainingMove.magnitude;
+        }
+
+        remainingMove = slopeMove;
+        return true;
+    }
+
+    protected virtual bool GroundMoveAlongSurface(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit)
+    {
         Vector3 slideMove = Vector3.ProjectOnPlane(originalMove.normalized * remainingMove.magnitude, hit.normal);
-        bool maintainVelocityOnWallSlides = m_GroundStandMaintainVelocityOnSlopes;
+        bool maintainVelocityOnWallSlides = m_groundStandMaintainVelocityOnSurface;
         if (maintainVelocityOnWallSlides)
         {
             slideMove = slideMove.normalized * remainingMove.magnitude;
         }
 
         remainingMove = slideMove;
+        return true;
     }
 
     //////////////////////////////////////////////////////////////////
@@ -608,10 +638,10 @@ public class CharacterMovement : CharacterBehaviour
     protected virtual void PhysAir()
     {
         // Calculate speed
-        float speed = m_AirHelperSpeed;
+        float speed = m_airHelperSpeed;
 
         // Calculate Movement
-        Vector3 moveInputVector = new Vector3(CharacterInputs.move.x, 0, CharacterInputs.move.y);
+        Vector3 moveInputVector = new Vector3(charInputs.move.x, 0, charInputs.move.y);
         Vector3 directionalMoveVector = Quaternion.Euler(0, 0, 0) * moveInputVector;
         Vector3 deltaMove = directionalMoveVector * speed * Time.deltaTime;
 
@@ -621,15 +651,13 @@ public class CharacterMovement : CharacterBehaviour
 
     protected virtual void AirMove(Vector3 originalMove)
     {
-        GroundMove(originalMove);
-
         float mass = character.ScaledMass;
-        float speed = m_AirGravityAcceleration * Time.deltaTime;
-        speed = CharacterCapsule.Velocity.y + speed;
-        // Vector3 gravityDirection = Quaternion.Euler(Character.GetDown) * m_AirGravityDirection;
-        Vector3 gravityDirection = character.GetDown;
+        float speed = m_airGravityAcceleration * Time.deltaTime * mass * 0.02f;
+        speed = charCapsule.velocity.y + speed;
 
-        CharacterCapsule.CapsuleMove(gravityDirection * speed);
-        CharacterCapsule.ResolvePenetrationForSmallCapsule();
+        Vector3 gravityDirection = character.down;
+
+        SmallCapsuleMove(gravityDirection * speed);
+        ResolvePenetrationForSmallCapsule();
     }
 }
