@@ -22,7 +22,7 @@ public class CharacterInventory : CharacterBehaviour
     {
         base.OnInitCharacter(character, initializer);
 
-        charInputs = character.characterInputs;
+        charInputs = character.charInputs;
     }
 
     //////////////////////////////////////////////////////////////////

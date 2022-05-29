@@ -135,9 +135,9 @@ public class CharacterInteraction : CharacterBehaviour
     {
         base.OnInitCharacter(character, initializer);
 
-        charInputs = character.characterInputs;
-        charCapsule = character.characterCapsule;
-        charEquip = character.characterEquip;
+        charInputs = character.charInputs;
+        charCapsule = character.charCapsule;
+        charEquip = character.charEquip;
     }
 
     public override void OnUpdateCharacter()

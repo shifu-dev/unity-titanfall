@@ -19,8 +19,8 @@ public class CharacterEquip : CharacterBehaviour
     {
         base.OnInitCharacter(character, initializer);
 
-        charInputs = character.characterInputs;
-        charInventory = character.characterInventory;
+        charInputs = character.charInputs;
+        charInventory = character.charInventory;
     }
 
     public override void OnUpdateCharacter()

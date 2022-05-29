@@ -258,7 +258,7 @@ GameObject:
   - component: {fileID: 1210957656046409178}
   - component: {fileID: 7993160800140144679}
   - component: {fileID: 2890709128893624832}
-  - component: {fileID: 6932028184359725518}
+  - component: {fileID: 5399984233667666123}
   - component: {fileID: 115547698234889312}
   - component: {fileID: 2017536350101832689}
   - component: {fileID: 6443474156247494111}
@@ -347,7 +347,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7262304a2f5a754bb05b7e89d850f58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  k_collisionOffset: 0.025
   m_groundCheckDepth: 0.5
   m_groundLayer:
     serializedVersion: 2
@@ -363,8 +362,8 @@ MonoBehaviour:
   m_groundStandStepDownPercent: 49
   m_groundStandSlopeUpAngle: 89
   m_groundStandSlopeDownAngle: -89
-  m_groundStandMaintainVelocityOnSlopes: 1
-  m_groundStandMaintainVelocityOnWallSlides: 1
+  m_groundStandMaintainVelocityOnSurface: 0
+  m_groundStandMaintainVelocityAlongSurface: 0
   m_groundCrouchWalkSpeed: 8
   m_groundCrouchRunSpeed: 12
   m_groundCrouchJumpSpeed: 50
@@ -372,14 +371,14 @@ MonoBehaviour:
   m_groundCrouchStepDownPercent: 5
   m_groundCrouchSlopeUpAngle: 55
   m_groundCrouchSlopeDownAngle: 65
-  m_groundCrouchMaintainVelocityOnSlopes: 0
-  m_groundCrouchMaintainVelocityOnWallSlides: 0
+  m_groundCrouchMaintainVelocityOnSurface: 0
+  m_groundCrouchMaintainVelocityAlongSurface: 0
   m_groundCrouchAutoRiseToStandSprint: 1
   m_groundProneMoveSpeed: 4
   m_groundProneSlopeUpAngle: 15
   m_groundProneSlopeDownAngle: 25
-  m_groundProneMaintainVelocityOnSlopes: 0
-  m_groundProneMaintainVelocityOnWallSlides: 0
+  m_groundProneMaintainVelocityOnSurface: 0
+  m_groundProneMaintainVelocityAlongSurface: 0
   m_groundProneAutoRiseToStandSprint: 1
   m_airHelperSpeed: 1
   m_airGravityDirection: {x: 0, y: 0, z: 0}
@@ -523,7 +522,7 @@ MonoBehaviour:
       m_weapon: {fileID: 0}
       m_grenade: {fileID: 0}
       m_slot: 0
---- !u!114 &6932028184359725518
+--- !u!114 &5399984233667666123
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -532,7 +531,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6526974782931169490}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e39345ad2e49968428c4f2a55373ec64, type: 3}
+  m_Script: {fileID: 11500000, guid: 0a06096b59bf0a845bc7ae186dceb333, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   AlwaysUpdate: 0

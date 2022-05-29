@@ -7,7 +7,7 @@ using System.Collections.Generic;
 [RequireComponent(typeof(CharacterMovement))]
 [RequireComponent(typeof(CharacterInteraction))]
 [RequireComponent(typeof(CharacterEquip))]
-[RequireComponent(typeof(CharacterCamera))]
+[RequireComponent(typeof(CharacterView))]
 [RequireComponent(typeof(CharacterCapsule))]
 [RequireComponent(typeof(CharacterAnimation))]
 public class Character : MonoBehaviour
@@ -15,15 +15,15 @@ public class Character : MonoBehaviour
     //////////////////////////////////////////////////////////////////
     /// Variables
     //////////////////////////////////////////////////////////////////
-    public CharacterBehaviour[] characterBehaviours { get; protected set; }
-    public CharacterInputs characterInputs { get; protected set; }
-    public CharacterInventory characterInventory { get; protected set; }
-    public CharacterMovement characterMovement { get; protected set; }
-    public CharacterInteraction characterInteraction { get; protected set; }
-    public CharacterEquip characterEquip { get; protected set; }
-    public CharacterCamera characterCamera { get; protected set; }
-    public CharacterCapsule characterCapsule { get; protected set; }
-    public CharacterAnimation characterAnimation { get; protected set; }
+    public CharacterBehaviour[] charBehaviours { get; protected set; }
+    public CharacterInputs charInputs { get; protected set; }
+    public CharacterInventory charInventory { get; protected set; }
+    public CharacterMovement charMovement { get; protected set; }
+    public CharacterInteraction charInteraction { get; protected set; }
+    public CharacterEquip charEquip { get; protected set; }
+    public CharacterView charView { get; protected set; }
+    public CharacterCapsule charCapsule { get; protected set; }
+    public CharacterAnimation charAnimation { get; protected set; }
 
     public float Mass { get; set; } = 80f;
     public float ScaledMass
@@ -44,14 +44,14 @@ public class Character : MonoBehaviour
     {
         CollectBehaviours();
 
-        characterInputs = GetBehaviour<CharacterInputs>();
-        characterInventory = GetBehaviour<CharacterInventory>();
-        characterMovement = GetBehaviour<CharacterMovement>();
-        characterInteraction = GetBehaviour<CharacterInteraction>();
-        characterEquip = GetBehaviour<CharacterEquip>();
-        characterCamera = GetBehaviour<CharacterCamera>();
-        characterCapsule = GetBehaviour<CharacterCapsule>();
-        characterAnimation = GetBehaviour<CharacterAnimation>();
+        charInputs = GetBehaviour<CharacterInputs>();
+        charInventory = GetBehaviour<CharacterInventory>();
+        charMovement = GetBehaviour<CharacterMovement>();
+        charInteraction = GetBehaviour<CharacterInteraction>();
+        charEquip = GetBehaviour<CharacterEquip>();
+        charView = GetBehaviour<CharacterView>();
+        charCapsule = GetBehaviour<CharacterCapsule>();
+        charAnimation = GetBehaviour<CharacterAnimation>();
 
         var initializer = GetComponent<CharacterInitializer>();
         InitBehaviours(initializer);
@@ -80,7 +80,7 @@ public class Character : MonoBehaviour
     public virtual T GetBehaviour<T>()
         where T : CharacterBehaviour
     {
-        foreach (var behaviour in characterBehaviours)
+        foreach (var behaviour in charBehaviours)
         {
             T customBehaviour = behaviour as T;
             if (customBehaviour != null)
@@ -118,12 +118,12 @@ public class Character : MonoBehaviour
             });
         }
 
-        characterBehaviours = weaponBehavioursList.ToArray();
+        charBehaviours = weaponBehavioursList.ToArray();
     }
 
     protected virtual void InitBehaviours(CharacterInitializer initializer)
     {
-        foreach (var behaviour in characterBehaviours)
+        foreach (var behaviour in charBehaviours)
         {
             behaviour.OnInitCharacter(this, initializer);
         }
@@ -131,7 +131,7 @@ public class Character : MonoBehaviour
 
     protected virtual void UpdateBehaviours()
     {
-        foreach (var behaviour in characterBehaviours)
+        foreach (var behaviour in charBehaviours)
         {
             behaviour.OnUpdateCharacter();
         }
@@ -139,7 +139,7 @@ public class Character : MonoBehaviour
 
     protected virtual void FixedUpdateBehaviours()
     {
-        foreach (var behaviour in characterBehaviours)
+        foreach (var behaviour in charBehaviours)
         {
             behaviour.OnFixedUpdateCharacter();
         }
@@ -147,7 +147,7 @@ public class Character : MonoBehaviour
 
     protected virtual void DestroyBehaviours()
     {
-        foreach (var behaviour in characterBehaviours)
+        foreach (var behaviour in charBehaviours)
         {
             behaviour.OnDestroyCharacter();
         }
@@ -158,7 +158,7 @@ public class Character : MonoBehaviour
         if (Player == null)
             return;
 
-        foreach (var behaviour in characterBehaviours)
+        foreach (var behaviour in charBehaviours)
         {
             behaviour.OnPossessed(Player);
         }
@@ -166,7 +166,7 @@ public class Character : MonoBehaviour
 
     public void OnUnPossessed()
     {
-        foreach (var behaviour in characterBehaviours)
+        foreach (var behaviour in charBehaviours)
         {
             behaviour.OnUnPossessed();
         }

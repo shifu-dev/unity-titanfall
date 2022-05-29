@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-public enum CharacterCameraModes
+public enum CharacterViewModes
 {
     None,
     Eyes,
@@ -13,13 +13,13 @@ public enum CharacterCameraModes
 }
 
 [DisallowMultipleComponent]
-public class CharacterCamera : CharacterBehaviour
+public class CharacterView : CharacterBehaviour
 {
     public CharacterInputs CharacterInputs { get; protected set; }
     public CharacterCapsule CharacterCapsule { get; protected set; }
 
     public bool AlwaysUpdate = false;
-    public CharacterCameraModes CameraMode;
+    public CharacterViewModes CameraMode;
     public Camera Camera;
     public GameObject LookAtSource;
     public Vector3 LookAtSourceOffset;
@@ -32,10 +32,10 @@ public class CharacterCamera : CharacterBehaviour
 
     public override void OnInitCharacter(Character character, CharacterInitializer initializer)
     {
-        CharacterInputs = character.characterInputs;
-        CharacterCapsule = character.characterCapsule;
+        CharacterInputs = character.charInputs;
+        CharacterCapsule = character.charCapsule;
 
-        CameraMode = CharacterCameraModes.None;
+        CameraMode = CharacterViewModes.None;
     }
 
     public override void OnUpdateCharacter()
@@ -93,7 +93,7 @@ public class CharacterCamera : CharacterBehaviour
         Camera = null;
     }
 
-    public virtual void SetCameraMode(CharacterCameraModes NewMode)
+    public virtual void SetCameraMode(CharacterViewModes NewMode)
     {
     }
 }
