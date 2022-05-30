@@ -45,6 +45,7 @@ public class CharacterMovement : CharacterBehaviour
 
     protected CharacterCapsule charCapsule { get => character.charCapsule; }
     protected CharacterInputs charInputs { get => character.charInputs; }
+    protected CharacterView charView { get => character.charView; }
 
     //////////////////////////////////////////////////////////////////
 
@@ -484,7 +485,7 @@ public class CharacterMovement : CharacterBehaviour
         // Calculate Movement
         Vector3 moveInputVector = new Vector3(charInputs.move.x, 0, charInputs.move.y);
         Vector3 normalizedMoveInputVector = moveInputVector.normalized;
-        Vector3 directionalMoveVector = Quaternion.Euler(0, character.rotation.eulerAngles.y, 0) * normalizedMoveInputVector;
+        Vector3 directionalMoveVector = Quaternion.Euler(0, charView.turnAngle, 0) * normalizedMoveInputVector;
         Vector3 deltaMove = directionalMoveVector * speed * Time.deltaTime;
 
         // Perform move

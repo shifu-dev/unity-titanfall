@@ -30,12 +30,17 @@ public class PlayerInputs : MonoBehaviour
     [field: SerializeField, ReadOnly] public bool use3 { get; protected set; }
     [field: SerializeField, ReadOnly] public bool reload { get; protected set; }
 
+    [field: SerializeField] public VectorBool invertLook { get; protected set; }
+    [field: SerializeField] public Vector3 lookSensitivity { get; protected set; }
+
     public void Init(Player character)
     {
     }
 
     public void UpdateImpl()
     {
+        //////////////////////////////////////////////////////////////////
+        /// move
         Vector3 tmpMove = Vector3.zero;
         tmpMove.y += Input.GetKey(KeyCode.W) ? 1 : 0;
         tmpMove.x += Input.GetKey(KeyCode.A) ? -1 : 0;
@@ -51,14 +56,33 @@ public class PlayerInputs : MonoBehaviour
         crouch = Input.GetKey(KeyCode.C);
         prone = Input.GetKey(KeyCode.V);
 
-        float lookInput_x = Input.GetAxis("look x");
-        float lookInput_y = -Input.GetAxis("look y");
-        float lookInput_z = 0;
-        look = new Vector3(lookInput_x, lookInput_y, lookInput_z);
+        //////////////////////////////////////////////////////////////////
+
+        //////////////////////////////////////////////////////////////////
+        /// look
+
+        float look_x = Input.GetAxis("look x");
+        float look_y = -Input.GetAxis("look y");
+        float look_z = 0;
+
+        look_x = invertLook.x ? -look_x : look_x;
+        look_y = invertLook.y ? -look_y : look_y;
+        look_z = invertLook.z ? -look_z : look_z;
+
+        look_x *= lookSensitivity.x;
+        look_y *= lookSensitivity.y;
+        look_z *= lookSensitivity.z;
+
+        look = new Vector3(look_y, look_x, look_z);
+
+        //////////////////////////////////////////////////////////////////
 
         peekLeft = Input.GetKey(KeyCode.Q);
         peekRight = Input.GetKey(KeyCode.E);
         action = Input.GetKey(KeyCode.Tab);
+
+        //////////////////////////////////////////////////////////////////
+        /// weapons
 
         weapon1 = Input.GetKeyDown(KeyCode.Alpha1);
         weapon2 = Input.GetKeyDown(KeyCode.Alpha2);
@@ -66,6 +90,11 @@ public class PlayerInputs : MonoBehaviour
 
         grenade1 = Input.GetKey(KeyCode.Alpha4);
         grenade2 = Input.GetKey(KeyCode.Alpha5);
+
+        //////////////////////////////////////////////////////////////////
+
+        //////////////////////////////////////////////////////////////////
+        /// actions
 
         use1 = Input.GetMouseButton(0);
         use2 = Input.GetMouseButton(1);

@@ -48,6 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a4743cbae5b32042968e0465c02a768, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _Character: {fileID: 0}
 --- !u!114 &-3990577457366357526
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -60,8 +61,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c122ed70fe182794dbf1470aa8b67b06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _MoveInputVector: {x: 0, y: 0, z: 0}
-  _MoveInputAngle: 0
+  <move>k__BackingField: {x: 0, y: 0, z: 0}
+  <moveAngle>k__BackingField: 0
+  <walk>k__BackingField: 0
+  <sprint>k__BackingField: 0
+  <jump>k__BackingField: 0
+  <crouch>k__BackingField: 0
+  <prone>k__BackingField: 0
+  <peekLeft>k__BackingField: 0
+  <peekRight>k__BackingField: 0
+  <look>k__BackingField: {x: 0, y: 0, z: 0}
+  <action>k__BackingField: 0
+  <grenade1>k__BackingField: 0
+  <grenade2>k__BackingField: 0
+  <weapon1>k__BackingField: 0
+  <weapon2>k__BackingField: 0
+  <weapon3>k__BackingField: 0
+  <use1>k__BackingField: 0
+  <use2>k__BackingField: 0
+  <use3>k__BackingField: 0
+  <reload>k__BackingField: 0
+  <invertLook>k__BackingField:
+    x: 0
+    y: 1
+    z: 0
+  <lookSensitivity>k__BackingField: {x: 4, y: 4, z: 0}
 --- !u!114 &-357432040839500588
 MonoBehaviour:
   m_ObjectHideFlags: 0

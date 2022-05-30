@@ -242,6 +242,37 @@ Transform:
   m_Father: {fileID: 5130046698628662828}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5734048124573034585
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4664480511656950999}
+  m_Layer: 0
+  m_Name: FirstPersonSource
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4664480511656950999
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5734048124573034585}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.556, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6081539459817332691}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6526974782931169490
 GameObject:
   m_ObjectHideFlags: 0
@@ -284,6 +315,7 @@ Transform:
   - {fileID: 5130046698628662828}
   - {fileID: 5708646729824629318}
   - {fileID: 4563553562970752242}
+  - {fileID: 4664480511656950999}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -534,17 +566,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a06096b59bf0a845bc7ae186dceb333, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AlwaysUpdate: 0
-  CameraMode: 0
-  Camera: {fileID: 0}
-  LookAtSource: {fileID: 4440613002245149115}
-  LookAtSourceOffset: {x: 0, y: 0, z: 0}
-  Acceleration: {x: 0, y: 0, z: 0}
-  Deceleration: {x: 0, y: 0, z: 0}
-  MinRotation: {x: -89.9, y: 0, z: 0}
-  MaxRotation: {x: 89.9, y: 0, z: 0}
-  MaxDistanceFromLookSource: 10
-  MinDistanceFromLookSource: 2
+  m_camera: {fileID: 0}
+  m_viewMode: 2
+  m_nextViewMode: 0
+  m_weight:
+    m_value: 0
+  m_FirstPersonData:
+    pos: {fileID: 4664480511656950999}
+    look: {x: 0, y: 0, z: 0}
+    minRotation: {x: -89, y: -181, z: 0}
+    maxRotation: {x: 89, y: 181, z: 0}
+  m_ThirdPersonData:
+    alwaysUpdate: 0
+    lookAtSource: {fileID: 0}
+    lookAtSourceOffset: {x: 0, y: 0, z: 0}
+    acceleration: {x: 0, y: 0, z: 0}
+    deceleration: {x: 0, y: 0, z: 0}
+    minRotation: {x: 0, y: 0, z: 0}
+    maxRotation: {x: 0, y: 0, z: 0}
+    minDistanceFromLookSource: 0
+    maxDistanceFromLookSource: 0
+  m_lookVector: {x: 0, y: 0, z: 0}
 --- !u!114 &115547698234889312
 MonoBehaviour:
   m_ObjectHideFlags: 0

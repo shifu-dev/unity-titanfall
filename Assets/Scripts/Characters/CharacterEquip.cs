@@ -282,7 +282,7 @@ public struct CharacterEquipData
     public bool isUnequipping => status == EquipStatus.Unequip;
     public bool isUnequipped => status == EquipStatus.Unequipped;
 
-    public weight weight;
+    public Weight weight;
     public float equipSpeed;
     public float unequipSpeed;
     public Vector3 positionOnEquip;
