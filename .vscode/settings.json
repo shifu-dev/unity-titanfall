@@ -60,6 +60,7 @@
     ],
     "cSpell.ignoreWords": [
         "ilogtarget",
-        "tradius"
+        "tradius",
+        "wscale"
     ]
 }

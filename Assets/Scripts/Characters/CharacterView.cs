@@ -1,40 +1,97 @@
 ﻿using System;
 using UnityEngine;
 
-public enum CharacterViewModes
-{
-    None,
-    Eyes,
-    FirstPerson,
-    ThirdPerson,
-    ThirdPersonLeftShoulder,
-    ThirdPersonRightShoulder,
-    Cinematic
-}
-
 [DisallowMultipleComponent]
 public class CharacterView : CharacterBehaviour
 {
+    //////////////////////////////////////////////////////////////////
+    /// Types
+    //////////////////////////////////////////////////////////////////
+
+    public enum Mode
+    {
+        None,
+        Eyes,
+        FirstPerson,
+        ThirdPerson
+    }
+
+    [Serializable]
+    protected struct EyesData
+    {
+        public Transform eyes;
+    }
+
+    [Serializable]
+    protected struct FirstPersonData
+    {
+        public Vector3 standPos;
+        [Label("Stand-Crouch Transition")] public AnimationClip standCrouchTransition;
+        public Vector3 crouchPos;
+        public Vector3 minRotation;
+        public Vector3 maxRotation;
+    }
+
+    [Serializable]
+    protected struct ThirdPersonData
+    {
+        public bool alwaysUpdate;
+        public GameObject lookAtSource;
+        public Vector3 lookAtSourceOffset;
+        public Vector3 acceleration;
+        public Vector3 deceleration;
+        public Vector3 minRotation;
+        public Vector3 maxRotation;
+        public float minDistanceFromLookSource;
+        public float maxDistanceFromLookSource;
+    }
+
+    //////////////////////////////////////////////////////////////////
+    /// Variables
+    //////////////////////////////////////////////////////////////////
+
     public CharacterInputs charInputs { get; protected set; }
     public CharacterCapsule charCapsule { get; protected set; }
     public CharacterMovement charMovement { get; protected set; }
 
     [SerializeField] protected Camera m_camera;
-    [SerializeField] protected CharacterViewModes m_viewMode;
-    [SerializeField] protected CharacterViewModes m_nextViewMode;
-    [SerializeField] protected Weight m_weight;
-
-    [SerializeField] protected CharViewModeData_Eyes m_EyesData;
-    [SerializeField] protected CharViewModeData_FirstPerson m_FirstPersonData;
-    [SerializeField] protected CharViewModeData_ThirdPerson m_ThirdPersonData;
-    [SerializeField] protected CharViewModeData_ThirdPersonLeftShoulder m_ThirdPersonLeftShoulderData;
-    [SerializeField] protected CharViewModeData_ThirdPersonRightShoulder m_ThirdPersonRightShoulderData;
-    [SerializeField] protected CharViewModeData_Cinematic m_CinematicData;
+    public new Camera camera
+    {
+        get => m_camera;
+        set => m_camera = value;
+    }
 
     [SerializeField, ReadOnly] protected Vector3 m_lookVector;
     public Vector2 lookVector => m_lookVector;
 
-    public float turnAngle => m_lookVector.y;
+    public Mode mode
+    {
+        get => m_stateMachine.currentState;
+        set => m_stateMachine.Switch(value);
+    }
+
+    [Header("View Modes Data"), Space]
+    [SerializeField] protected EyesData m_eyesData;
+    [SerializeField] protected FirstPersonData m_firstPersonData;
+    [SerializeField] protected ThirdPersonData m_thirdPersonData;
+
+    protected StateMachine<Mode> m_stateMachine;
+
+    public float turnAngle => m_lookVector.x;
+
+    public CharacterView()
+    {
+        m_stateMachine = new StateMachine<Mode>();
+        m_stateMachine.Add(Mode.None, null, null, null);
+        m_stateMachine.Add(Mode.Eyes, EnterViewMode_Eyes, UpdateViewMode_Eyes, ExitViewMode_Eyes);
+        m_stateMachine.Add(Mode.FirstPerson, EnterViewMode_FirstPerson, UpdateViewMode_FirstPerson, ExitViewMode_FirstPerson);
+        m_stateMachine.Add(Mode.ThirdPerson, EnterViewMode_ThirdPerson, UpdateViewMode_ThirdPerson, ExitViewMode_ThirdPerson);
+        m_stateMachine.Switch(Mode.None);
+    }
+
+    //////////////////////////////////////////////////////////////////
+    /// Updates
+    //////////////////////////////////////////////////////////////////
 
     public override void OnInitCharacter(Character character, CharacterInitializer initializer)
     {
@@ -43,71 +100,83 @@ public class CharacterView : CharacterBehaviour
         charInputs = character.charInputs;
         charCapsule = character.charCapsule;
         charMovement = character.charMovement;
-
-        if (m_nextViewMode == CharacterViewModes.None)
-            m_weight.value = 1;
     }
 
     public override void OnUpdateCharacter()
     {
-        switch (m_viewMode)
-        {
-            case CharacterViewModes.Eyes: UpdateViewMode_Eyes(m_weight); break;
-            case CharacterViewModes.FirstPerson: UpdateViewMode_FirstPerson(m_weight); break;
-            case CharacterViewModes.ThirdPerson: UpdateViewMode_ThirdPerson(m_weight); break;
-            case CharacterViewModes.ThirdPersonLeftShoulder: UpdateViewMode_ThirdPersonLeftShoulder(m_weight); break;
-            case CharacterViewModes.ThirdPersonRightShoulder: UpdateViewMode_ThirdPersonRightShoulder(m_weight); break;
-            case CharacterViewModes.Cinematic: UpdateViewMode_Cinematic(m_weight); break;
-            default: break;
-        }
+        m_stateMachine.Update();
     }
 
-    public void SetCamera(Camera camera)
+    public virtual void SwitchView(Mode mode)
     {
-        if (camera == null)
+        m_stateMachine.Switch(mode);
+    }
+
+    //////////////////////////////////////////////////////////////////
+    /// ViewMode States
+    //////////////////////////////////////////////////////////////////
+
+    protected virtual void EnterViewMode_Eyes()
+    {
+    }
+    protected virtual void UpdateViewMode_Eyes()
+    {
+        if (m_camera == null || m_eyesData.eyes == null)
             return;
 
-        this.m_camera = camera;
+        m_camera.transform.position = m_eyesData.eyes.transform.position;
+        m_camera.transform.rotation = m_eyesData.eyes.transform.rotation;
     }
-
-    public void UnsetCamera()
-    {
-        m_camera = null;
-    }
-
-    public virtual void SetViewMode(CharacterViewModes NewMode)
+    protected virtual void ExitViewMode_Eyes()
     {
     }
 
-    protected virtual void UpdateViewMode_Eyes(Weight weight)
+    protected virtual void EnterViewMode_FirstPerson()
     {
     }
-
-    protected virtual void UpdateViewMode_FirstPerson(Weight weight)
+    protected virtual void UpdateViewMode_FirstPerson()
     {
-        ref var data = ref m_FirstPersonData;
-        if (m_camera == null || data.pos == null)
+        if (m_camera == null)
         {
-            SetViewMode(CharacterViewModes.None);
             return;
         }
 
-        Vector3 input = charInputs.look;
-        data.look.x = Math.Clamp(data.look.x + input.x, data.minRotation.x, data.maxRotation.x);
-        data.look.y = Math.Clamp(data.look.y + input.y, data.minRotation.y, data.maxRotation.y);
-        data.look.z = Math.Clamp(data.look.z + input.z, data.minRotation.z, data.maxRotation.z);
-        m_lookVector = data.look;
+        m_lookVector += charInputs.look;
+        m_lookVector.x = m_lookVector.x < -180 || m_lookVector.x > 180 ? -m_lookVector.x : m_lookVector.x;
+        m_lookVector.y = m_lookVector.y < -180 || m_lookVector.y > 180 ? -m_lookVector.y : m_lookVector.y;
+        m_lookVector.z = m_lookVector.z < -180 || m_lookVector.z > 180 ? -m_lookVector.z : m_lookVector.z;
 
-        m_camera.transform.position = data.pos.position;
-        m_camera.transform.rotation = Quaternion.Euler(data.look);
+        m_lookVector.x = Math.Clamp(m_lookVector.x, m_firstPersonData.minRotation.x, m_firstPersonData.maxRotation.x);
+        m_lookVector.y = Math.Clamp(m_lookVector.y, m_firstPersonData.minRotation.y, m_firstPersonData.maxRotation.y);
+        m_lookVector.z = Math.Clamp(m_lookVector.z, m_firstPersonData.minRotation.z, m_firstPersonData.maxRotation.z);
+
+        Vector3 camPos = Vector3.zero;
+        Quaternion camRot = Quaternion.identity;
+
+        // calculate position
+        camPos = m_firstPersonData.standPos;
+        camPos = charCapsule.GetPositionInVolume(camPos);
+
+        // calculate rotation
+        camRot = Quaternion.Euler(new Vector3(m_lookVector.y, m_lookVector.x, m_lookVector.z));
+
+        // apply position and rotation
+        m_camera.transform.position = camPos;
+        m_camera.transform.rotation = camRot;
+    }
+    protected virtual void ExitViewMode_FirstPerson()
+    {
     }
 
-    protected virtual void UpdateViewMode_ThirdPerson(Weight weight)
+    protected virtual void EnterViewMode_ThirdPerson()
     {
-        var data = m_ThirdPersonData;
+    }
+    protected virtual void UpdateViewMode_ThirdPerson()
+    {
+        var data = m_thirdPersonData;
         if (m_camera == null || data.lookAtSource == null)
         {
-            SetViewMode(CharacterViewModes.None);
+            SwitchView(Mode.None);
             return;
         }
 
@@ -139,59 +208,7 @@ public class CharacterView : CharacterBehaviour
             m_camera.transform.rotation = camRot;
         }
     }
-
-    protected virtual void UpdateViewMode_ThirdPersonLeftShoulder(Weight weight)
+    protected virtual void ExitViewMode_ThirdPerson()
     {
     }
-
-    protected virtual void UpdateViewMode_ThirdPersonRightShoulder(Weight weight)
-    {
-    }
-
-    protected virtual void UpdateViewMode_Cinematic(Weight weight)
-    {
-    }
-}
-
-[Serializable]
-public struct CharViewModeData_Eyes
-{
-}
-
-[Serializable]
-public struct CharViewModeData_FirstPerson
-{
-    public Transform pos;
-    public Vector3 look;
-    public Vector3 minRotation;
-    public Vector3 maxRotation;
-}
-
-[Serializable]
-public struct CharViewModeData_ThirdPerson
-{
-    public bool alwaysUpdate;
-    public GameObject lookAtSource;
-    public Vector3 lookAtSourceOffset;
-    public Vector3 acceleration;
-    public Vector3 deceleration;
-    public Vector3 minRotation;
-    public Vector3 maxRotation;
-    public float minDistanceFromLookSource;
-    public float maxDistanceFromLookSource;
-}
-
-[Serializable]
-public struct CharViewModeData_ThirdPersonLeftShoulder
-{
-}
-
-[Serializable]
-public struct CharViewModeData_ThirdPersonRightShoulder
-{
-}
-
-[Serializable]
-public struct CharViewModeData_Cinematic
-{
 }

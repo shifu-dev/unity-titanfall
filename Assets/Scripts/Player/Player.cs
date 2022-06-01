@@ -9,9 +9,9 @@ public class Player : MonoBehaviour
 {
     public PlayerInputs playerInputs { get; protected set; }
     public PlayerState PlayerState { get; protected set; }
-    public PlayerCamera PlayerCamera { get; protected set; }
-    public PlayerHUD PlayerHUD { get; protected set; }
-    public Character Chararcter { get; protected set; }
+    public PlayerCamera playerCamera { get; protected set; }
+    public PlayerHUD playerHUD { get; protected set; }
+    public Character character { get; protected set; }
 
     [ReadOnly]
     [SerializeField]
@@ -20,14 +20,14 @@ public class Player : MonoBehaviour
     void Awake()
     {
         playerInputs = GetComponent<PlayerInputs>();
-        PlayerCamera = GetComponent<PlayerCamera>();
+        playerCamera = GetComponent<PlayerCamera>();
         PlayerState = GetComponent<PlayerState>();
-        PlayerHUD = GetComponent<PlayerHUD>();
+        playerHUD = GetComponent<PlayerHUD>();
 
         playerInputs.Init(this);
-        PlayerCamera.Init(this);
+        playerCamera.Init(this);
         PlayerState.Init(this);
-        PlayerHUD.Init(this);
+        playerHUD.Init(this);
     }
 
     void Start()
@@ -37,9 +37,9 @@ public class Player : MonoBehaviour
     void Update()
     {
         playerInputs.UpdateImpl();
-        PlayerCamera.UpdateImpl();
+        playerCamera.UpdateImpl();
         PlayerState.UpdateImpl();
-        PlayerHUD.UpdateImpl();
+        playerHUD.UpdateImpl();
     }
 
     public virtual void Possess(Character character)
@@ -48,7 +48,7 @@ public class Player : MonoBehaviour
         _Character.OnPossessed(this);
 
         this.OnPossessed(_Character);
-        PlayerCamera.OnPossessed(character);
+        playerCamera.OnPossessed(character);
     }
 
     protected virtual void OnPossessed(Character character)

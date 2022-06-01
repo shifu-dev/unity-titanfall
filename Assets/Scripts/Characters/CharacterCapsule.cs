@@ -274,7 +274,70 @@ public class CharacterCapsule : CharacterBehaviour
         }
     }
 
-    /// Calculate Geometry (Space)
+    //////////////////////////////////////////////////////////////////
+    /// Geometry
+    //////////////////////////////////////////////////////////////////
+
+    public Vector3 GetPositionInVolume(Vector3 pos, bool scale = true, bool clamp = true)
+    {
+        if (scale)
+        {
+            pos.MultiplyEach(this.scale);
+        }
+
+        pos += center;
+
+        if (clamp)
+        {
+            pos = ClampPositionInsideVolume(pos);
+        }
+
+        return pos;
+    }
+
+    public Vector3 ClampRelativePositionInsideVolume(Vector3 pos)
+    {
+        return ClampPositionInsideVolume(this.center + pos);
+    }
+
+    public Vector3 ClampPositionInsideVolume(Vector3 pos)
+    {
+        var center = this.center;
+        CalculateSmallCapsuleGeometry(out var topSphere, out var baseSphere, out var radius);
+
+        var topSphere_to_pos = pos - topSphere;
+        if (Vector3.Angle(up, topSphere_to_pos) <= 90)
+        {
+            if (topSphere_to_pos.magnitude > radius)
+            {
+                pos += -topSphere_to_pos.normalized * (topSphere_to_pos.magnitude - radius);
+            }
+
+            return pos;
+        }
+
+        var baseSphere_to_pos = pos - baseSphere;
+        if (Vector3.Angle(down, pos - baseSphere) <= 90)
+        {
+            if (baseSphere_to_pos.magnitude > radius)
+            {
+                pos += -baseSphere_to_pos.normalized * (baseSphere_to_pos.magnitude - radius);
+            }
+
+            return pos;
+        }
+
+        var center_to_pos_projected = Vector3.ProjectOnPlane(pos - center, up);
+        if (center_to_pos_projected.magnitude > radius)
+        {
+            var length = center_to_pos_projected.magnitude - radius;
+            var correction = -center_to_pos_projected.normalized * length;
+            pos += correction;
+        }
+
+        return pos;
+    }
+
     public void CalculateSmallCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius)
     {
         InternalCalculateCapsuleGeometry(out topSphere, out baseSphere, out radius, 0f);
@@ -287,16 +350,20 @@ public class CharacterCapsule : CharacterBehaviour
 
     protected virtual void InternalCalculateCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius, float skinWidth)
     {
-        Vector3 worldCenter = center;
-        Vector3 worldScale = scale;
+        InternalCalculateCapsuleGeometry(out var scale, out var center, out topSphere, out baseSphere, out var cylinderHeight, out radius, skinWidth);
+    }
 
-        float worldHeight = m_height * worldScale.y;
-        float worldRadius = m_radius * Mathf.Max(worldScale.x, worldScale.z) + skinWidth;
-        float cylinderHeight = worldHeight - worldRadius - worldRadius;
+    protected virtual void InternalCalculateCapsuleGeometry(out Vector3 scale, out Vector3 center, out Vector3 topSphere, out Vector3 baseSphere, out float cylinderHeight, out float radius, float skinWidth)
+    {
+        scale = this.scale;
+        radius = m_radius * Mathf.Max(scale.x, scale.z) + skinWidth;
 
-        topSphere = worldCenter + (up * (cylinderHeight / 2));
-        baseSphere = worldCenter + (down * (cylinderHeight / 2));
-        radius = worldRadius;
+        float worldHeight = m_height * scale.y;
+        cylinderHeight = worldHeight - radius - radius;
+
+        center = this.center;
+        topSphere = center + (up * (cylinderHeight / 2));
+        baseSphere = center + (down * (cylinderHeight / 2));
     }
 
     //////////////////////////////////////////////////////////////////

@@ -26,44 +26,98 @@ public struct CharacterMovementState
         AIR_IDLE,
     }
 
-    public Enum State;
+    public Enum state;
 
-    public CharacterMovementState(Enum State_In)
+    public CharacterMovementState(Enum state)
     {
-        State = State_In;
+        this.state = state;
     }
 
-    public uint ToIndex()
+    public uint index
     {
-        return ((uint)State);
+        get
+        {
+            return ((uint)state);
+        }
     }
 
-    public override String ToString()
+    public bool isCustom
     {
-        return State.ToString();
+        get
+        {
+            return false;
+        }
+    }
+    public bool isGrounded
+    {
+        get
+        {
+            return state == Enum.GROUND_STAND_JUMP ||
+                   state == Enum.GROUND_STAND_IDLE ||
+                   state == Enum.GROUND_STAND_WALK ||
+                   state == Enum.GROUND_STAND_RUN ||
+                   state == Enum.GROUND_STAND_SPRINT ||
+                   state == Enum.GROUND_CROUCH_JUMP ||
+                   state == Enum.GROUND_CROUCH_IDLE ||
+                   state == Enum.GROUND_CROUCH_WALK ||
+                   state == Enum.GROUND_CROUCH_RUN ||
+                   state == Enum.GROUND_PRONE_IDLE ||
+                   state == Enum.GROUND_PRONE_MOVE ||
+                   state == Enum.GROUND_PRONE_ROLL;
+        }
+    }
+    public bool isGroundStanding
+    {
+        get
+        {
+            return false;
+        }
+    }
+    public bool isGroundCrouching
+    {
+        get
+        {
+            return false;
+        }
+    }
+    public bool isGroundProne
+    {
+        get
+        {
+            return false;
+        }
+    }
+    public bool isAir
+    {
+        get
+        {
+            return false;
+        }
+    }
+    public bool isAirRising
+    {
+        get
+        {
+            return false;
+        }
+    }
+    public bool isAirIdle
+    {
+        get
+        {
+            return false;
+        }
+    }
+    public bool isAirFalling
+    {
+        get
+        {
+            return false;
+        }
     }
 
-    public bool IsCustom() => false;
-    public bool IsGrounded()
+    public override string ToString()
     {
-        return State == Enum.GROUND_STAND_JUMP ||
-               State == Enum.GROUND_STAND_IDLE ||
-               State == Enum.GROUND_STAND_WALK ||
-               State == Enum.GROUND_STAND_RUN ||
-               State == Enum.GROUND_STAND_SPRINT ||
-               State == Enum.GROUND_CROUCH_JUMP ||
-               State == Enum.GROUND_CROUCH_IDLE ||
-               State == Enum.GROUND_CROUCH_WALK ||
-               State == Enum.GROUND_CROUCH_RUN ||
-               State == Enum.GROUND_PRONE_IDLE ||
-               State == Enum.GROUND_PRONE_MOVE ||
-               State == Enum.GROUND_PRONE_ROLL;
+        return state.ToString();
     }
-    public bool IsGroundStanding() => false;
-    public bool IsGroundCrouching() => false;
-    public bool IsGroundProne() => false;
-    public bool IsAir() => false;
-    public bool IsAirRising() => false;
-    public bool IsAirIdle() => false;
-    public bool IsAirFalling() => false;
 }

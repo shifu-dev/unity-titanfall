@@ -73,7 +73,7 @@ public class PlayerInputs : MonoBehaviour
         look_y *= lookSensitivity.y;
         look_z *= lookSensitivity.z;
 
-        look = new Vector3(look_y, look_x, look_z);
+        look = new Vector3(look_x, look_y, look_z);
 
         //////////////////////////////////////////////////////////////////
 

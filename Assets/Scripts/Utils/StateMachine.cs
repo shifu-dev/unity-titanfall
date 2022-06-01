@@ -46,7 +46,7 @@ public class StateMachine<T>
         m_currentState = null;
     }
 
-    public void SwitchTo(T state)
+    public void Switch(T state)
     {
         var newState = m_states[state];
 

@@ -124,7 +124,7 @@ public class CharacterMovementEditor : Editor
     {
         GUI.enabled = false;
 
-        EditorGUILayout.EnumPopup("Movement State", target.movementState.State);
+        EditorGUILayout.EnumPopup("Movement State", target.movementState.state);
         EditorGUILayout.Toggle("Is On Ground", target.physIsOnGround);
 
         GUI.enabled = true;

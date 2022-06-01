@@ -377,26 +377,26 @@ public class CharacterMovement : CharacterBehaviour
             {
                 if (charInputs.move.normalized.magnitude == 0)
                 {
-                    state.State = CharacterMovementState.Enum.GROUND_STAND_IDLE;
+                    state.state = CharacterMovementState.Enum.GROUND_STAND_IDLE;
                 }
                 else if (charInputs.walk)
                 {
-                    state.State = CharacterMovementState.Enum.GROUND_STAND_WALK;
+                    state.state = CharacterMovementState.Enum.GROUND_STAND_WALK;
                 }
                 else if (charInputs.sprint && charInputs.moveAngle > groundStandSprintLeftAngleMax
                                                       && charInputs.moveAngle < groundStandSprintRightAngleMax)
                 {
-                    state.State = CharacterMovementState.Enum.GROUND_STAND_SPRINT;
+                    state.state = CharacterMovementState.Enum.GROUND_STAND_SPRINT;
                 }
                 else
                 {
-                    state.State = CharacterMovementState.Enum.GROUND_STAND_RUN;
+                    state.state = CharacterMovementState.Enum.GROUND_STAND_RUN;
                 }
             }
         }
         else
         {
-            state.State = CharacterMovementState.Enum.AIR_IDLE;
+            state.state = CharacterMovementState.Enum.AIR_IDLE;
         }
 
         movementState = state;
@@ -404,7 +404,7 @@ public class CharacterMovement : CharacterBehaviour
 
     protected virtual void UpdatePhysicsState()
     {
-        if (movementState.IsGrounded())
+        if (movementState.isGrounded)
         {
             PhysGround();
         }

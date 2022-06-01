@@ -384,9 +384,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   m_groundMinMoveDistance: 0
-  m_groundStandWalkSpeed: 10
-  m_groundStandRunSpeed: 18
-  m_groundStandSprintSpeed: 30
+  m_groundStandWalkSpeed: 12
+  m_groundStandRunSpeed: 25
+  m_groundStandSprintSpeed: 45
   m_groundStandSprintLeftAngleMax: -46
   m_groundStandSprintRightAngleMax: 46
   m_groundStandJumpSpeed: 40
@@ -567,16 +567,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_camera: {fileID: 0}
-  m_viewMode: 2
-  m_nextViewMode: 0
-  m_weight:
-    m_value: 0
-  m_FirstPersonData:
-    pos: {fileID: 4664480511656950999}
-    look: {x: 0, y: 0, z: 0}
-    minRotation: {x: -89, y: -181, z: 0}
-    maxRotation: {x: 89, y: 181, z: 0}
-  m_ThirdPersonData:
+  m_lookVector: {x: 0, y: 0, z: 0}
+  m_eyesData:
+    eyes: {fileID: 0}
+  m_firstPersonData:
+    standPos: {x: 0, y: 0.75, z: 0.2}
+    standCrouchTransition: {fileID: 0}
+    crouchPos: {x: 0, y: 0, z: 0.2}
+    minRotation: {x: -180, y: -89.9, z: 0}
+    maxRotation: {x: 180, y: 89.9, z: 0}
+  m_thirdPersonData:
     alwaysUpdate: 0
     lookAtSource: {fileID: 0}
     lookAtSourceOffset: {x: 0, y: 0, z: 0}
@@ -586,7 +586,6 @@ MonoBehaviour:
     maxRotation: {x: 0, y: 0, z: 0}
     minDistanceFromLookSource: 0
     maxDistanceFromLookSource: 0
-  m_lookVector: {x: 0, y: 0, z: 0}
 --- !u!114 &115547698234889312
 MonoBehaviour:
   m_ObjectHideFlags: 0
