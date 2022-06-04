@@ -412,17 +412,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_movementState:
-    state: 0
-    weight:
-      m_value: 0
+    m_previous: 0
+    m_current: 0
+    m_weight: 1
   m_groundCheckDepth: 0.5
   m_groundLayer:
     serializedVersion: 2
     m_Bits: 64
   m_groundMinMoveDistance: 0
-  m_groundStandCapsuleHeight: 0
-  m_groundStandCapsuleRadius: 0
-  m_groundStandCapsuleCenter: {x: 0, y: 0, z: 0}
   m_groundStandWalkSpeed: 12
   m_groundStandRunSpeed: 25
   m_groundStandSprintSpeed: 45
@@ -435,8 +432,9 @@ MonoBehaviour:
   m_groundStandSlopeDownAngle: -89
   m_groundStandMaintainVelocityOnSurface: 0
   m_groundStandMaintainVelocityAlongSurface: 0
-  m_groundStandToCrouchSpeed: 20
-  m_groundCrouchToStandSpeed: 10
+  m_groundStandCapsuleHeight: 2
+  m_groundStandCapsuleRadius: 0.5
+  m_groundStandCapsuleCenter: {x: 0, y: 0, z: 0}
   m_groundStandToCrouchTransition:
     curve:
       serializedVersion: 2
@@ -462,9 +460,6 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  m_groundCrouchCapsuleHeight: 0
-  m_groundCrouchCapsuleRadius: 0
-  m_groundCrouchCapsuleCenter: {x: 0, y: 0, z: 0}
   m_groundCrouchWalkSpeed: 8
   m_groundCrouchRunSpeed: 12
   m_groundCrouchJumpSpeed: 50
@@ -475,6 +470,9 @@ MonoBehaviour:
   m_groundCrouchMaintainVelocityOnSurface: 0
   m_groundCrouchMaintainVelocityAlongSurface: 0
   m_groundCrouchAutoRiseToStandSprint: 1
+  m_groundCrouchCapsuleHeight: 1
+  m_groundCrouchCapsuleRadius: 0.5
+  m_groundCrouchCapsuleCenter: {x: 0, y: 0, z: 0}
   m_groundCrouchToStandTransition:
     curve:
       serializedVersion: 2

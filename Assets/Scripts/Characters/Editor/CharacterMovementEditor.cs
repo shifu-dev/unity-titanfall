@@ -27,7 +27,10 @@ public class CharacterMovementEditor : Editor
     SerializedProperty sp_groundStandSlopeDownAngle;
     SerializedProperty sp_groundStandMaintainVelocityOnSurface;
     SerializedProperty sp_groundStandMaintainVelocityAlongSurface;
-    SerializedProperty sp_groundStandToCrouchTransition;
+    SerializedProperty sp_groundStandCapsuleHeight;
+    SerializedProperty sp_groundStandCapsuleRadius;
+    SerializedProperty sp_groundStandCapsuleCenter;
+    SerializedProperty sp_groundStandToCrouchTransitionSpeed;
 
     // Ground Crouch Data
     SerializedProperty sp_groundCrouchWalkSpeed;
@@ -40,15 +43,10 @@ public class CharacterMovementEditor : Editor
     SerializedProperty sp_groundCrouchMaintainVelocityOnSurface;
     SerializedProperty sp_groundCrouchMaintainVelocityAlongSurface;
     SerializedProperty sp_groundCrouchAutoRiseToStandSprint;
-    SerializedProperty sp_groundCrouchToStandTransition;
-
-    // Ground Prone Data
-    SerializedProperty sp_groundProneMoveSpeed;
-    SerializedProperty sp_groundProneSlopeUpAngle;
-    SerializedProperty sp_groundProneSlopeDownAngle;
-    SerializedProperty sp_groundProneMaintainVelocityOnSurface;
-    SerializedProperty sp_groundProneMaintainVelocityAlongSurface;
-    SerializedProperty sp_groundProneAutoRiseToStandSprint;
+    SerializedProperty sp_groundCrouchCapsuleHeight;
+    SerializedProperty sp_groundCrouchCapsuleRadius;
+    SerializedProperty sp_groundCrouchCapsuleCenter;
+    SerializedProperty sp_groundCrouchToStandTransitionSpeed;
 
     // Air Data
     SerializedProperty sp_airHelperSpeed;
@@ -79,8 +77,10 @@ public class CharacterMovementEditor : Editor
         sp_groundStandSlopeDownAngle = serializedObject.FindProperty("m_groundStandSlopeDownAngle");
         sp_groundStandMaintainVelocityOnSurface = serializedObject.FindProperty("m_groundStandMaintainVelocityOnSurface");
         sp_groundStandMaintainVelocityAlongSurface = serializedObject.FindProperty("m_groundStandMaintainVelocityAlongSurface");
-        sp_groundStandToCrouchTransition = serializedObject.FindProperty("m_groundStandToCrouchTransition");
-        sp_groundCrouchToStandTransition = serializedObject.FindProperty("m_groundCrouchToStandTransition");
+        sp_groundStandToCrouchTransitionSpeed = serializedObject.FindProperty("m_groundStandToCrouchTransitionSpeed");
+        sp_groundStandCapsuleHeight = serializedObject.FindProperty("m_groundStandCapsuleHeight");
+        sp_groundStandCapsuleRadius = serializedObject.FindProperty("m_groundStandCapsuleRadius");
+        sp_groundStandCapsuleCenter = serializedObject.FindProperty("m_groundStandCapsuleCenter");
 
         // Ground Crouch Properties
         sp_groundCrouchWalkSpeed = serializedObject.FindProperty("m_groundCrouchWalkSpeed");
@@ -93,14 +93,10 @@ public class CharacterMovementEditor : Editor
         sp_groundCrouchMaintainVelocityOnSurface = serializedObject.FindProperty("m_groundCrouchMaintainVelocityOnSurface");
         sp_groundCrouchMaintainVelocityAlongSurface = serializedObject.FindProperty("m_groundCrouchMaintainVelocityAlongSurface");
         sp_groundCrouchAutoRiseToStandSprint = serializedObject.FindProperty("m_groundCrouchAutoRiseToStandSprint");
-
-        // Ground Prone Properties
-        sp_groundProneMoveSpeed = serializedObject.FindProperty("m_groundProneMoveSpeed");
-        sp_groundProneSlopeUpAngle = serializedObject.FindProperty("m_groundProneSlopeUpAngle");
-        sp_groundProneSlopeDownAngle = serializedObject.FindProperty("m_groundProneSlopeDownAngle");
-        sp_groundProneMaintainVelocityOnSurface = serializedObject.FindProperty("m_groundProneMaintainVelocityOnSurface");
-        sp_groundProneMaintainVelocityAlongSurface = serializedObject.FindProperty("m_groundProneMaintainVelocityAlongSurface");
-        sp_groundProneAutoRiseToStandSprint = serializedObject.FindProperty("m_groundProneAutoRiseToStandSprint");
+        sp_groundCrouchCapsuleHeight = serializedObject.FindProperty("m_groundCrouchCapsuleHeight");
+        sp_groundCrouchCapsuleRadius = serializedObject.FindProperty("m_groundCrouchCapsuleRadius");
+        sp_groundCrouchCapsuleCenter = serializedObject.FindProperty("m_groundCrouchCapsuleCenter");
+        sp_groundCrouchToStandTransitionSpeed = serializedObject.FindProperty("m_groundCrouchToStandTransitionSpeed");
 
         // Air Data
         sp_airHelperSpeed = serializedObject.FindProperty("m_airHelperSpeed");
@@ -174,7 +170,12 @@ public class CharacterMovementEditor : Editor
             EditorGUILayout.PropertyField(sp_groundStandSlopeDownAngle, new GUIContent("Slope Down Angle"));
             EditorGUILayout.PropertyField(sp_groundStandMaintainVelocityOnSurface, new GUIContent("Maintain Velocity On Surface"));
             EditorGUILayout.PropertyField(sp_groundStandMaintainVelocityAlongSurface, new GUIContent("Maintain Velocity Along Surface"));
-            EditorGUILayout.PropertyField(sp_groundStandToCrouchTransition, new GUIContent("Crouch Transition"));
+
+            EditorGUILayout.Space();
+            EditorGUILayout.PropertyField(sp_groundStandCapsuleCenter, new GUIContent("Capsule Center"));
+            EditorGUILayout.PropertyField(sp_groundStandCapsuleHeight, new GUIContent("Capsule Height"));
+            EditorGUILayout.PropertyField(sp_groundStandCapsuleRadius, new GUIContent("Capsule Radius"));
+            EditorGUILayout.PropertyField(sp_groundStandToCrouchTransitionSpeed, new GUIContent("Crouch TransitionSpeed"));
 
             //////////////////////////////////////////////////////////////////
             /// Ground Crouch Data
@@ -201,19 +202,12 @@ public class CharacterMovementEditor : Editor
             EditorGUILayout.PropertyField(sp_groundCrouchMaintainVelocityOnSurface, new GUIContent("Maintain Velocity On Surface"));
             EditorGUILayout.PropertyField(sp_groundCrouchMaintainVelocityAlongSurface, new GUIContent("Maintain Velocity Along Surface"));
             EditorGUILayout.PropertyField(sp_groundCrouchAutoRiseToStandSprint, new GUIContent("AutoRise To StandSprint"));
-            EditorGUILayout.PropertyField(sp_groundCrouchToStandTransition, new GUIContent("Stand Transition"));
 
-            //////////////////////////////////////////////////////////////////
-            /// Ground Prone Data
-            //////////////////////////////////////////////////////////////////
-            EditorGUILayout.Separator();
-            EditorGUILayout.LabelField("Ground Prone Data", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(sp_groundProneMoveSpeed, new GUIContent("MoveSpeed"));
-            EditorGUILayout.PropertyField(sp_groundProneSlopeUpAngle, new GUIContent("Slope Up Angle"));
-            EditorGUILayout.PropertyField(sp_groundProneSlopeDownAngle, new GUIContent("Slope Down Angle"));
-            EditorGUILayout.PropertyField(sp_groundProneMaintainVelocityOnSurface, new GUIContent("Maintain Velocity On Surface"));
-            EditorGUILayout.PropertyField(sp_groundProneMaintainVelocityAlongSurface, new GUIContent("Maintain Velocity Along Surface"));
-            EditorGUILayout.PropertyField(sp_groundProneAutoRiseToStandSprint, new GUIContent("AutoRise To StandSprint"));
+            EditorGUILayout.Space();
+            EditorGUILayout.PropertyField(sp_groundCrouchCapsuleCenter, new GUIContent("Capsule Center"));
+            EditorGUILayout.PropertyField(sp_groundCrouchCapsuleHeight, new GUIContent("Capsule Height"));
+            EditorGUILayout.PropertyField(sp_groundCrouchCapsuleRadius, new GUIContent("Capsule Radius"));
+            EditorGUILayout.PropertyField(sp_groundCrouchToStandTransitionSpeed, new GUIContent("Stand TransitionSpeed"));
         }
 
         EditorGUILayout.EndFoldoutHeaderGroup();

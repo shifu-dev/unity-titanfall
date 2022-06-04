@@ -46,6 +46,7 @@ public class PlayerInputs : MonoBehaviour
         tmpMove.x += Input.GetKey(KeyCode.A) ? -1 : 0;
         tmpMove.y += Input.GetKey(KeyCode.S) ? -1 : 0;
         tmpMove.x += Input.GetKey(KeyCode.D) ? 1 : 0;
+        // tmpMove.y = 1;
         move = tmpMove;
 
         moveAngle = Vector3.SignedAngle(move, new Vector3(0, 1, 0), new Vector3(0, 0, 1));

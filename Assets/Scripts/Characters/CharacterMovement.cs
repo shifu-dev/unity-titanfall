@@ -1,12 +1,22 @@
 ﻿using System;
 using UnityEngine;
 
+using System.Reflection;
+
 public class CharacterMovement : CharacterBehaviour
 {
     #region EDITOR
 #if UNITY_EDITOR
 
-    public void OnEditorEnable()
+    public void ClearLog()
+    {
+        var assembly = Assembly.GetAssembly(typeof(UnityEditor.Editor));
+        var type = assembly.GetType("UnityEditor.LogEntries");
+        var method = type.GetMethod("Clear");
+        method.Invoke(new object(), null);
+    }
+
+    public virtual void OnEditorEnable()
     {
         charCapsule = GetComponent<CharacterCapsule>();
     }
@@ -87,15 +97,6 @@ public class CharacterMovement : CharacterBehaviour
 
     //////////////////////////////////////////////////////////////////
     /// Ground Stand Data
-
-    [SerializeField] protected float m_groundStandCapsuleHeight;
-    public float groundStandCapsuleHeight => m_groundStandCapsuleHeight;
-
-    [SerializeField] protected float m_groundStandCapsuleRadius;
-    public float groundStandCapsuleRadius => m_groundStandCapsuleRadius;
-
-    [SerializeField] protected Vector3 m_groundStandCapsuleCenter;
-    public Vector3 groundStandCapsuleCenter => m_groundStandCapsuleCenter;
 
     [SerializeField] protected float m_groundStandWalkSpeed;
     public float groundStandWalkSpeed => m_groundStandWalkSpeed;
@@ -186,23 +187,19 @@ public class CharacterMovement : CharacterBehaviour
     [SerializeField] protected bool m_groundStandMaintainVelocityOnSurface;
     [SerializeField] protected bool m_groundStandMaintainVelocityAlongSurface;
 
-    //////////////////////////////////////////////////////////////////
+    [SerializeField] protected float m_groundStandCapsuleHeight;
+    public float groundStandCapsuleHeight => m_groundStandCapsuleHeight;
 
-    [SerializeField] protected float m_groundStandToCrouchSpeed = 20;
-    [SerializeField] protected float m_groundCrouchToStandSpeed = 10;
-    [SerializeField] protected Transition m_groundStandToCrouchTransition;
+    [SerializeField] protected float m_groundStandCapsuleRadius;
+    public float groundStandCapsuleRadius => m_groundStandCapsuleRadius;
+
+    [SerializeField] protected Vector3 m_groundStandCapsuleCenter;
+    public Vector3 groundStandCapsuleCenter => m_groundStandCapsuleCenter;
+
+    [SerializeField, Min(0)] protected float m_groundStandToCrouchTransitionSpeed;
 
     //////////////////////////////////////////////////////////////////
     /// Ground Crouch Data
-
-    [SerializeField] protected float m_groundCrouchCapsuleHeight;
-    public float groundCrouchCapsuleHeight => m_groundCrouchCapsuleHeight;
-
-    [SerializeField] protected float m_groundCrouchCapsuleRadius;
-    public float groundCrouchCapsuleRadius => m_groundCrouchCapsuleRadius;
-
-    [SerializeField] protected Vector3 m_groundCrouchCapsuleCenter;
-    public Vector3 groundCrouchCapsuleCenter => m_groundCrouchCapsuleCenter;
 
     [SerializeField] protected float m_groundCrouchWalkSpeed;
     [SerializeField] protected float m_groundCrouchRunSpeed;
@@ -279,44 +276,17 @@ public class CharacterMovement : CharacterBehaviour
     [SerializeField] protected bool m_groundCrouchMaintainVelocityOnSurface;
     [SerializeField] protected bool m_groundCrouchMaintainVelocityAlongSurface;
     [SerializeField] protected bool m_groundCrouchAutoRiseToStandSprint;
-    [SerializeField] protected Transition m_groundCrouchToStandTransition;
 
-    //////////////////////////////////////////////////////////////////
+    [SerializeField] protected float m_groundCrouchCapsuleHeight;
+    public float groundCrouchCapsuleHeight => m_groundCrouchCapsuleHeight;
 
-    //////////////////////////////////////////////////////////////////
-    /// Ground Prone Data
+    [SerializeField] protected float m_groundCrouchCapsuleRadius;
+    public float groundCrouchCapsuleRadius => m_groundCrouchCapsuleRadius;
 
-    [SerializeField] protected float m_groundProneMoveSpeed;
+    [SerializeField] protected Vector3 m_groundCrouchCapsuleCenter;
+    public Vector3 groundCrouchCapsuleCenter => m_groundCrouchCapsuleCenter;
 
-    // Ground Prone SlopeUp
-    [Range(k_minGroundProneSlopeUpAngle, k_maxGroundProneSlopeUpAngle)]
-    [SerializeField] protected float m_groundProneSlopeUpAngle;
-    public float groundProneSlopeUpAngle
-    {
-        get => m_groundProneSlopeUpAngle;
-        set
-        {
-            m_groundProneSlopeUpAngle = Math.Clamp(value,
-                k_minGroundProneSlopeUpAngle, k_maxGroundProneSlopeUpAngle);
-        }
-    }
-
-    // Ground Prone SlopeDown
-    [Range(k_minGroundProneSlopeDownAngle, k_maxGroundProneSlopeDownAngle)]
-    [SerializeField] protected float m_groundProneSlopeDownAngle;
-    public float groundProneSlopeDownAngle
-    {
-        get => m_groundProneSlopeDownAngle;
-        set
-        {
-            m_groundProneSlopeDownAngle = Math.Clamp(value,
-                k_minGroundProneSlopeDownAngle, k_maxGroundProneSlopeDownAngle);
-        }
-    }
-
-    [SerializeField] protected bool m_groundProneMaintainVelocityOnSurface;
-    [SerializeField] protected bool m_groundProneMaintainVelocityAlongSurface;
-    [SerializeField] protected bool m_groundProneAutoRiseToStandSprint;
+    [SerializeField, Min(0)] protected float m_groundCrouchToStandTransitionSpeed;
 
     //////////////////////////////////////////////////////////////////
 
@@ -354,7 +324,7 @@ public class CharacterMovement : CharacterBehaviour
         m_groundStandSlopeDownAngle = 55;
         m_groundStandMaintainVelocityOnSurface = false;
         m_groundStandMaintainVelocityAlongSurface = false;
-        m_groundStandToCrouchTransition = new Transition(AnimationCurve.Constant(0, 1, 1));
+        m_groundStandToCrouchTransitionSpeed = 10;
 
         /// Ground Crouch Data
         m_groundCrouchWalkSpeed = 8;
@@ -367,15 +337,7 @@ public class CharacterMovement : CharacterBehaviour
         m_groundCrouchMaintainVelocityOnSurface = false;
         m_groundCrouchMaintainVelocityAlongSurface = false;
         m_groundCrouchAutoRiseToStandSprint = true;
-        m_groundCrouchToStandTransition = new Transition(AnimationCurve.Constant(0, 1, 1));
-
-        /// Ground Prone Data
-        m_groundProneMoveSpeed = 4;
-        m_groundProneSlopeUpAngle = 15;
-        m_groundProneSlopeDownAngle = 25;
-        m_groundProneMaintainVelocityOnSurface = false;
-        m_groundProneMaintainVelocityAlongSurface = false;
-        m_groundProneAutoRiseToStandSprint = true;
+        m_groundCrouchToStandTransitionSpeed = 10;
 
         /// Air Data
         m_airHelperSpeed = 1f;
@@ -459,24 +421,28 @@ public class CharacterMovement : CharacterBehaviour
             newState.current = CharacterMovementState.AIR_IDLE;
         }
 
-        if (movementState.isGrounded)
-        {
-            if (movementState.isGroundStanding)
-            {
-            }
-
-            return;
-        }
+        movementState = newState;
     }
 
-    protected virtual void SetMovementState(uint state, float weight = Weight.max)
+    protected virtual bool SetMovementState(uint state)
     {
-        if (movementState.current == state)
-            return;
+        if (state == movementState.current)
+            return false;
 
-        movementState = new CharacterMovementStateImpl(state, weight);
+        if (CanEnterMovementState(state))
+        {
+            movementState.current = state;
+            OnMovementStateUpdated();
 
-        OnMovementStateUpdated();
+            return true;
+        }
+
+        return false;
+    }
+
+    protected virtual bool CanEnterMovementState(uint state)
+    {
+        return true;
     }
 
     protected virtual void OnMovementStateUpdated()
@@ -498,7 +464,7 @@ public class CharacterMovement : CharacterBehaviour
         {
             PhysGround();
         }
-        else
+        else if (movementState.isAir)
         {
             PhysAir();
         }
@@ -546,10 +512,6 @@ public class CharacterMovement : CharacterBehaviour
         {
             speed = m_groundCrouchRunSpeed;
         }
-        else if (charInputs.prone)
-        {
-            speed = m_groundProneMoveSpeed;
-        }
         else    // Standing
         {
             if (charInputs.move.normalized.magnitude == 0)
@@ -576,6 +538,7 @@ public class CharacterMovement : CharacterBehaviour
         Vector3 moveInputVector = new Vector3(charInputs.move.x, 0, charInputs.move.y);
         Vector3 normalizedMoveInputVector = moveInputVector.normalized;
         Vector3 directionalMoveVector = Quaternion.Euler(0, charView.turnAngle, 0) * normalizedMoveInputVector;
+        // Vector3 directionalMoveVector = Quaternion.Euler(0, -90f, 0) * normalizedMoveInputVector;
         Vector3 deltaMove = directionalMoveVector * speed * Time.deltaTime;
 
         // Perform move
@@ -598,11 +561,11 @@ public class CharacterMovement : CharacterBehaviour
 
     protected virtual void GroundResizeCapsule()
     {
-        if (movementState.weight == 1)
-            return;
+        //     if (movementState.weight == 1)
+        //         return;
 
         float weight = movementState.weight;
-        float speed = 1 * Time.deltaTime;
+        float speed = 0;
         float targetHeight = 0;
         float targetRadius = 0;
         Vector3 targetCenter = Vector3.zero;
@@ -612,16 +575,17 @@ public class CharacterMovement : CharacterBehaviour
             targetCenter = m_groundCrouchCapsuleCenter;
             targetHeight = m_groundCrouchCapsuleHeight;
             targetRadius = m_groundCrouchCapsuleRadius;
-            speed = m_groundStandToCrouchTransition[weight];
+            speed = m_groundStandToCrouchTransitionSpeed * Time.deltaTime;
         }
         else
         {
             targetCenter = m_groundStandCapsuleCenter;
             targetHeight = m_groundStandCapsuleHeight;
             targetRadius = m_groundStandCapsuleRadius;
-            speed = m_groundCrouchToStandTransition[weight];
+            speed = m_groundCrouchToStandTransitionSpeed * Time.deltaTime;
         }
 
+        // charCapsule.localPosition += charCapsule.up * Mathf.MoveTowards(charCapsule.localHeight, targetHeight, speed);
         charCapsule.localCenter = Vector3.MoveTowards(charCapsule.localCenter, targetCenter, speed);
         charCapsule.localHeight = Mathf.MoveTowards(charCapsule.localHeight, targetHeight, speed);
         charCapsule.localRadius = Mathf.MoveTowards(charCapsule.localRadius, targetRadius, speed);
@@ -633,6 +597,7 @@ public class CharacterMovement : CharacterBehaviour
     protected virtual void GroundMove(Vector3 originalMove)
     {
         GroundResizeCapsule();
+        ClearLog();
 
         Vector3 remainingMove = originalMove;
 
@@ -642,6 +607,7 @@ public class CharacterMovement : CharacterBehaviour
         for (uint it = 0; canRunIteration(it); it++)
         {
             ResolvePenetrationForSmallCapsule();
+
             RaycastHit sweepHit = SmallCapsuleMove(remainingMove);
             if (sweepHit.collider == null)
             {

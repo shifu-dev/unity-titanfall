@@ -28,7 +28,7 @@ public interface CharacterMovementState
     public const uint AIR_IDLE = 16;
     public const uint CUSTOM = 17;
 
-    public static readonly string[] strings = new string[]
+    private static readonly string[] strings = new string[]
     {
         "NONE",
         "DEAD",
@@ -56,28 +56,15 @@ public interface CharacterMovementState
     /// Member Fields
     //////////////////////////////////////////////////////////////////
 
-    uint previous { get; set; }
-    uint current { get; set; }
-    // uint current
-    // {
-    //     get;
-    //     set
-    //     {
-    //         if (value != current)
-    //         {
-    //             previous = current;
-    //             current = value;
-    //             weight = 1;
-    //         }
-    //     }
-    // }
-    float weight { get; set; }
+    public uint previous { get; }
+    public uint current { get; set; }
+    public float weight { get; set; }
 
-    bool isCustom
+    public bool isCustom
     {
         get => current == CUSTOM;
     }
-    bool isGrounded
+    public bool isGrounded
     {
         get => current == GROUND_STAND_JUMP ||
                current == GROUND_STAND_IDLE ||
@@ -93,7 +80,7 @@ public interface CharacterMovementState
                current == GROUND_PRONE_ROLL;
 
     }
-    bool isGroundStanding
+    public bool isGroundStanding
     {
         get => current == GROUND_STAND_JUMP ||
                current == GROUND_STAND_IDLE ||
@@ -101,37 +88,37 @@ public interface CharacterMovementState
                current == GROUND_STAND_RUN ||
                current == GROUND_STAND_SPRINT;
     }
-    bool isGroundCrouching
+    public bool isGroundCrouching
     {
         get => current == GROUND_CROUCH_JUMP ||
                current == GROUND_CROUCH_IDLE ||
                current == GROUND_CROUCH_WALK ||
                current == GROUND_CROUCH_RUN;
     }
-    bool isGroundProne
+    public bool isGroundProne
     {
         get => current == GROUND_PRONE_IDLE ||
                current == GROUND_PRONE_MOVE ||
                current == GROUND_PRONE_ROLL;
     }
-    bool isAir
+    public bool isAir
     {
         get => false;
     }
-    bool isAirRising
+    public bool isAirRising
     {
         get => false;
     }
-    bool isAirIdle
+    public bool isAirIdle
     {
         get => false;
     }
-    bool isAirFalling
+    public bool isAirFalling
     {
         get => false;
     }
 
-    string getString
+    public string getString
     {
         get => strings[Math.Clamp(current, NONE, CUSTOM)];
     }
@@ -149,12 +136,19 @@ public struct CharacterMovementStateImpl : CharacterMovementState
     public uint previous
     {
         get => m_previous;
-        set => m_previous = value;
     }
     public uint current
     {
         get => m_current;
-        set => m_current = value;
+        set
+        {
+            if (value != m_current)
+            {
+                m_previous = m_current;
+                m_current = value;
+                m_weight = 1 - m_weight;
+            }
+        }
     }
     public float weight
     {

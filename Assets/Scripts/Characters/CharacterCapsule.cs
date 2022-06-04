@@ -28,11 +28,12 @@ public class CharacterCapsule : CharacterBehaviour
     [SerializeField, Label("Trigger Query")]
     public QueryTriggerInteraction triggerQuery;
 
-    public Vector3 localPosition { get; protected set; }
-    public Quaternion localRotation { get; protected set; }
-    public Vector3 localScale { get; protected set; }
-    public Vector3 lastPosition { get; protected set; }
-    public Quaternion lastRotation { get; protected set; }
+    public Vector3 localPosition { get; set; }
+    public Quaternion localRotation { get; set; }
+    public Vector3 localScale { get; set; }
+    public Vector3 lastLocalPosition { get; protected set; }
+    public Quaternion lastLocalRotation { get; protected set; }
+    public Vector3 lastLocalScale { get; protected set; }
     public Vector3 velocity { get; protected set; }
     public float speed => velocity.magnitude;
 
@@ -58,8 +59,13 @@ public class CharacterCapsule : CharacterBehaviour
     {
         base.OnInitCharacter(character, initializer);
 
-        localPosition = transform.position;
-        localRotation = collider.transform.rotation;
+        localPosition = collider.transform.localPosition;
+        localRotation = collider.transform.localRotation;
+        localScale = collider.transform.localScale;
+
+        lastLocalPosition = localPosition;
+        lastLocalRotation = localRotation;
+        lastLocalScale = localScale;
     }
 
     public override void OnUpdateCharacter()
@@ -73,19 +79,19 @@ public class CharacterCapsule : CharacterBehaviour
             return;
 
         // store previous values
-        lastPosition = transform.position;
-        lastRotation = collider.transform.rotation;
+        lastLocalPosition = collider.transform.localPosition;
+        lastLocalRotation = collider.transform.localRotation;
 
         // set new values
-        transform.position = localPosition;
-        collider.transform.rotation = localRotation;
+        collider.transform.localPosition = localPosition;
+        collider.transform.localRotation = localRotation;
         collider.transform.localScale = localScale;
         collider.center = localCenter;
         collider.height = localHeight;
         collider.radius = localRadius;
 
         // calculate velocity
-        velocity = (localPosition - lastPosition) / Time.deltaTime;
+        velocity = (localPosition - lastLocalPosition) / Time.deltaTime;
     }
 
     //////////////////////////////////////////////////////////////////
@@ -180,7 +186,7 @@ public class CharacterCapsule : CharacterBehaviour
     }
     public Vector3 center
     {
-        get => position + localCenter.MultiplyEach(scale);
+        get => position + localCenter;
     }
     public Vector3 topSpherePosition
     {
@@ -784,16 +790,19 @@ public class CharacterCapsule : CharacterBehaviour
         collider.radius = localRadius;
         collider.height = localHeight;
         collider.center = localCenter;
+        var thisCollider = this.collider;
+        var thisPosition = this.position;
+        var thisRotation = this.rotation;
 
         Vector3 finalMoveOut = Vector3.zero;
         foreach (var collider in overlaps)
         {
-            if (collider == null || this.collider == collider)
+            if (collider == null || thisCollider == collider)
             {
                 continue;
             }
 
-            bool computed = Physics.ComputePenetration(collider, localPosition, localRotation,
+            bool computed = Physics.ComputePenetration(thisCollider, thisPosition, thisRotation,
                 collider, collider.transform.position, collider.transform.rotation, out Vector3 direction, out float distance);
 
             Vector3 moveOut = direction * distance;
