@@ -56,7 +56,9 @@
         "cref",
         "Depenetrate",
         "Equipable",
-        "Mathf"
+        "lradius",
+        "Mathf",
+        "wposition"
     ],
     "cSpell.ignoreWords": [
         "ilogtarget",

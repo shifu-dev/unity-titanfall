@@ -10,6 +10,11 @@ public struct Weight
     public const float min = 0;
     public const float max = 1;
 
+    public static float Clamp(float value)
+    {
+        return Math.Clamp(value, min, max);
+    }
+
     [SerializeField, Range(min, max)]
     private float m_value;
 

@@ -242,6 +242,37 @@ Transform:
   m_Father: {fileID: 5130046698628662828}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4927978689546586765
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7662503284909734823}
+  m_Layer: 0
+  m_Name: RaycastSource
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7662503284909734823
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4927978689546586765}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.75, z: 0.2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6081539459817332691}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5734048124573034585
 GameObject:
   m_ObjectHideFlags: 0
@@ -316,6 +347,7 @@ Transform:
   - {fileID: 5708646729824629318}
   - {fileID: 4563553562970752242}
   - {fileID: 4664480511656950999}
+  - {fileID: 7662503284909734823}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -379,11 +411,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7262304a2f5a754bb05b7e89d850f58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_movementState:
+    state: 0
+    weight:
+      m_value: 0
   m_groundCheckDepth: 0.5
   m_groundLayer:
     serializedVersion: 2
     m_Bits: 64
   m_groundMinMoveDistance: 0
+  m_groundStandCapsuleHeight: 0
+  m_groundStandCapsuleRadius: 0
+  m_groundStandCapsuleCenter: {x: 0, y: 0, z: 0}
   m_groundStandWalkSpeed: 12
   m_groundStandRunSpeed: 25
   m_groundStandSprintSpeed: 45
@@ -396,6 +435,36 @@ MonoBehaviour:
   m_groundStandSlopeDownAngle: -89
   m_groundStandMaintainVelocityOnSurface: 0
   m_groundStandMaintainVelocityAlongSurface: 0
+  m_groundStandToCrouchSpeed: 20
+  m_groundCrouchToStandSpeed: 10
+  m_groundStandToCrouchTransition:
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 1
+        outSlope: 1
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 1
+        outSlope: 1
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  m_groundCrouchCapsuleHeight: 0
+  m_groundCrouchCapsuleRadius: 0
+  m_groundCrouchCapsuleCenter: {x: 0, y: 0, z: 0}
   m_groundCrouchWalkSpeed: 8
   m_groundCrouchRunSpeed: 12
   m_groundCrouchJumpSpeed: 50
@@ -406,6 +475,31 @@ MonoBehaviour:
   m_groundCrouchMaintainVelocityOnSurface: 0
   m_groundCrouchMaintainVelocityAlongSurface: 0
   m_groundCrouchAutoRiseToStandSprint: 1
+  m_groundCrouchToStandTransition:
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 1
+        outSlope: 1
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 1
+        outSlope: 1
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
   m_groundProneMoveSpeed: 4
   m_groundProneSlopeUpAngle: 15
   m_groundProneSlopeDownAngle: 25
@@ -427,15 +521,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f655a3c2231dfe4b9e6764ea9237497, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_collider: {fileID: 6443474156247494111}
-  m_center: {x: 0, y: 0, z: 0}
-  m_height: 2
-  m_radius: 0.5
-  m_skinWidth: 0.01
-  m_layerMask:
+  collider: {fileID: 6443474156247494111}
+  localCenter: {x: 0, y: 0, z: 0}
+  localHeight: 2
+  localRadius: 0.5
+  skinWidth: 0.01
+  layerMask:
     serializedVersion: 2
     m_Bits: 4294967291
-  m_triggerQuery: 1
+  triggerQuery: 1
 --- !u!114 &7993160800140144679
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -473,8 +567,8 @@ MonoBehaviour:
   m_performOverlaps: 1
   m_overlapSize: {x: 1.8, y: 1.5, z: 2}
   m_overlapCenterOffset: {x: 0, y: 0, z: 0.2}
-  m_performRaycasts: 0
-  m_raycastSource: {fileID: 0}
+  m_performRaycasts: 1
+  m_raycastSource: {fileID: 7662503284909734823}
   m_raycastLength: 3
 --- !u!114 &2890709128893624832
 MonoBehaviour:

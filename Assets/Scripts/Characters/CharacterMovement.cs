@@ -3,6 +3,17 @@ using UnityEngine;
 
 public class CharacterMovement : CharacterBehaviour
 {
+    #region EDITOR
+#if UNITY_EDITOR
+
+    public void OnEditorEnable()
+    {
+        charCapsule = GetComponent<CharacterCapsule>();
+    }
+
+#endif
+    #endregion
+
     //////////////////////////////////////////////////////////////////
     /// Constants
     //////////////////////////////////////////////////////////////////
@@ -43,16 +54,22 @@ public class CharacterMovement : CharacterBehaviour
     //////////////////////////////////////////////////////////////////
     /// Character Data
 
-    protected CharacterCapsule charCapsule { get => character.charCapsule; }
-    protected CharacterInputs charInputs { get => character.charInputs; }
-    protected CharacterView charView { get => character.charView; }
+    public CharacterCapsule charCapsule { get; protected set; }
+    public CharacterInputs charInputs { get; protected set; }
+    public CharacterView charView { get; protected set; }
 
     //////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////
     /// Movement State
 
-    public CharacterMovementState movementState { get; protected set; }
+    [SerializeField] private CharacterMovementStateImpl m_movementState;
+    public virtual CharacterMovementState movementState
+    {
+        get => m_movementState;
+        protected set => m_movementState = new CharacterMovementStateImpl(value.current, value.weight);
+    }
+
     public bool physIsOnGround { get; protected set; }
 
     //////////////////////////////////////////////////////////////////
@@ -70,6 +87,15 @@ public class CharacterMovement : CharacterBehaviour
 
     //////////////////////////////////////////////////////////////////
     /// Ground Stand Data
+
+    [SerializeField] protected float m_groundStandCapsuleHeight;
+    public float groundStandCapsuleHeight => m_groundStandCapsuleHeight;
+
+    [SerializeField] protected float m_groundStandCapsuleRadius;
+    public float groundStandCapsuleRadius => m_groundStandCapsuleRadius;
+
+    [SerializeField] protected Vector3 m_groundStandCapsuleCenter;
+    public Vector3 groundStandCapsuleCenter => m_groundStandCapsuleCenter;
 
     [SerializeField] protected float m_groundStandWalkSpeed;
     public float groundStandWalkSpeed => m_groundStandWalkSpeed;
@@ -162,8 +188,21 @@ public class CharacterMovement : CharacterBehaviour
 
     //////////////////////////////////////////////////////////////////
 
+    [SerializeField] protected float m_groundStandToCrouchSpeed = 20;
+    [SerializeField] protected float m_groundCrouchToStandSpeed = 10;
+    [SerializeField] protected Transition m_groundStandToCrouchTransition;
+
     //////////////////////////////////////////////////////////////////
     /// Ground Crouch Data
+
+    [SerializeField] protected float m_groundCrouchCapsuleHeight;
+    public float groundCrouchCapsuleHeight => m_groundCrouchCapsuleHeight;
+
+    [SerializeField] protected float m_groundCrouchCapsuleRadius;
+    public float groundCrouchCapsuleRadius => m_groundCrouchCapsuleRadius;
+
+    [SerializeField] protected Vector3 m_groundCrouchCapsuleCenter;
+    public Vector3 groundCrouchCapsuleCenter => m_groundCrouchCapsuleCenter;
 
     [SerializeField] protected float m_groundCrouchWalkSpeed;
     [SerializeField] protected float m_groundCrouchRunSpeed;
@@ -240,6 +279,7 @@ public class CharacterMovement : CharacterBehaviour
     [SerializeField] protected bool m_groundCrouchMaintainVelocityOnSurface;
     [SerializeField] protected bool m_groundCrouchMaintainVelocityAlongSurface;
     [SerializeField] protected bool m_groundCrouchAutoRiseToStandSprint;
+    [SerializeField] protected Transition m_groundCrouchToStandTransition;
 
     //////////////////////////////////////////////////////////////////
 
@@ -293,7 +333,7 @@ public class CharacterMovement : CharacterBehaviour
 
     public CharacterMovement()
     {
-        movementState = new CharacterMovementState(CharacterMovementState.Enum.UNKNOWN);
+        movementState = new CharacterMovementStateImpl(CharacterMovementState.NONE);
         physIsOnGround = false;
 
         /// GroundData
@@ -314,6 +354,7 @@ public class CharacterMovement : CharacterBehaviour
         m_groundStandSlopeDownAngle = 55;
         m_groundStandMaintainVelocityOnSurface = false;
         m_groundStandMaintainVelocityAlongSurface = false;
+        m_groundStandToCrouchTransition = new Transition(AnimationCurve.Constant(0, 1, 1));
 
         /// Ground Crouch Data
         m_groundCrouchWalkSpeed = 8;
@@ -326,6 +367,7 @@ public class CharacterMovement : CharacterBehaviour
         m_groundCrouchMaintainVelocityOnSurface = false;
         m_groundCrouchMaintainVelocityAlongSurface = false;
         m_groundCrouchAutoRiseToStandSprint = true;
+        m_groundCrouchToStandTransition = new Transition(AnimationCurve.Constant(0, 1, 1));
 
         /// Ground Prone Data
         m_groundProneMoveSpeed = 4;
@@ -345,6 +387,15 @@ public class CharacterMovement : CharacterBehaviour
     /// Update Calls
     //////////////////////////////////////////////////////////////////
 
+    public override void OnInitCharacter(Character character, CharacterInitializer initializer)
+    {
+        base.OnInitCharacter(character, initializer);
+
+        charInputs = character.charInputs;
+        charCapsule = character.charCapsule;
+        charView = character.charView;
+    }
+
     public override void OnUpdateCharacter()
     {
         UpdatePhysicsData();
@@ -353,53 +404,92 @@ public class CharacterMovement : CharacterBehaviour
     }
 
     //////////////////////////////////////////////////////////////////
-    /// Physics State
+    /// Movement State
     //////////////////////////////////////////////////////////////////
-
-    protected virtual void UpdatePhysicsData()
-    {
-        GroundCheck();
-    }
 
     protected virtual void UpdateMovementState()
     {
-        var state = movementState;
+        CharacterMovementState newState = new CharacterMovementStateImpl();
 
         if (physIsOnGround)
         {
             if (charInputs.crouch)
             {
-            }
-            else if (charInputs.prone)
-            {
-            }
-            else    // Standing
-            {
-                if (charInputs.move.normalized.magnitude == 0)
+                if (charInputs.move.magnitude == 0)
                 {
-                    state.state = CharacterMovementState.Enum.GROUND_STAND_IDLE;
+                    newState.current = CharacterMovementState.GROUND_CROUCH_IDLE;
                 }
                 else if (charInputs.walk)
                 {
-                    state.state = CharacterMovementState.Enum.GROUND_STAND_WALK;
+                    newState.current = CharacterMovementState.GROUND_CROUCH_WALK;
                 }
                 else if (charInputs.sprint && charInputs.moveAngle > groundStandSprintLeftAngleMax
                                                       && charInputs.moveAngle < groundStandSprintRightAngleMax)
                 {
-                    state.state = CharacterMovementState.Enum.GROUND_STAND_SPRINT;
+                    newState.current = CharacterMovementState.GROUND_STAND_SPRINT;
                 }
                 else
                 {
-                    state.state = CharacterMovementState.Enum.GROUND_STAND_RUN;
+                    newState.current = CharacterMovementState.GROUND_CROUCH_RUN;
+                }
+            }
+            else    // Standing
+            {
+                if (charInputs.move.magnitude == 0)
+                {
+                    newState.current = CharacterMovementState.GROUND_STAND_IDLE;
+                }
+                else if (charInputs.walk)
+                {
+                    newState.current = CharacterMovementState.GROUND_STAND_WALK;
+                }
+                else if (charInputs.sprint && charInputs.moveAngle > groundStandSprintLeftAngleMax
+                                                      && charInputs.moveAngle < groundStandSprintRightAngleMax)
+                {
+                    newState.current = CharacterMovementState.GROUND_STAND_SPRINT;
+                }
+                else
+                {
+                    newState.current = CharacterMovementState.GROUND_STAND_RUN;
                 }
             }
         }
         else
         {
-            state.state = CharacterMovementState.Enum.AIR_IDLE;
+            newState.current = CharacterMovementState.AIR_IDLE;
         }
 
-        movementState = state;
+        if (movementState.isGrounded)
+        {
+            if (movementState.isGroundStanding)
+            {
+            }
+
+            return;
+        }
+    }
+
+    protected virtual void SetMovementState(uint state, float weight = Weight.max)
+    {
+        if (movementState.current == state)
+            return;
+
+        movementState = new CharacterMovementStateImpl(state, weight);
+
+        OnMovementStateUpdated();
+    }
+
+    protected virtual void OnMovementStateUpdated()
+    {
+    }
+
+    //////////////////////////////////////////////////////////////////
+    /// Physics
+    //////////////////////////////////////////////////////////////////
+
+    protected virtual void UpdatePhysicsData()
+    {
+        GroundCheck();
     }
 
     protected virtual void UpdatePhysicsState()
@@ -506,8 +596,44 @@ public class CharacterMovement : CharacterBehaviour
         // physIsOnGround = m_groundLayer.Contains(hitLayer);
     }
 
+    protected virtual void GroundResizeCapsule()
+    {
+        if (movementState.weight == 1)
+            return;
+
+        float weight = movementState.weight;
+        float speed = 1 * Time.deltaTime;
+        float targetHeight = 0;
+        float targetRadius = 0;
+        Vector3 targetCenter = Vector3.zero;
+
+        if (movementState.isGroundCrouching)
+        {
+            targetCenter = m_groundCrouchCapsuleCenter;
+            targetHeight = m_groundCrouchCapsuleHeight;
+            targetRadius = m_groundCrouchCapsuleRadius;
+            speed = m_groundStandToCrouchTransition[weight];
+        }
+        else
+        {
+            targetCenter = m_groundStandCapsuleCenter;
+            targetHeight = m_groundStandCapsuleHeight;
+            targetRadius = m_groundStandCapsuleRadius;
+            speed = m_groundCrouchToStandTransition[weight];
+        }
+
+        charCapsule.localCenter = Vector3.MoveTowards(charCapsule.localCenter, targetCenter, speed);
+        charCapsule.localHeight = Mathf.MoveTowards(charCapsule.localHeight, targetHeight, speed);
+        charCapsule.localRadius = Mathf.MoveTowards(charCapsule.localRadius, targetRadius, speed);
+
+        weight = Mathf.MoveTowards(weight, Weight.max, speed);
+        movementState.weight = weight;
+    }
+
     protected virtual void GroundMove(Vector3 originalMove)
     {
+        GroundResizeCapsule();
+
         Vector3 remainingMove = originalMove;
 
         bool canRunIteration(uint it) => it < k_maxMoveIterations ||

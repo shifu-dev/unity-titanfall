@@ -9,6 +9,8 @@ public class CharacterMovementEditor : Editor
     bool showGroundData = false;
     bool showAirData = false;
 
+    SerializedProperty sp_movementState;
+
     // Ground Stand Data
     SerializedProperty sp_groundCheckDepth;
     SerializedProperty sp_groundLayer;
@@ -25,6 +27,7 @@ public class CharacterMovementEditor : Editor
     SerializedProperty sp_groundStandSlopeDownAngle;
     SerializedProperty sp_groundStandMaintainVelocityOnSurface;
     SerializedProperty sp_groundStandMaintainVelocityAlongSurface;
+    SerializedProperty sp_groundStandToCrouchTransition;
 
     // Ground Crouch Data
     SerializedProperty sp_groundCrouchWalkSpeed;
@@ -37,6 +40,7 @@ public class CharacterMovementEditor : Editor
     SerializedProperty sp_groundCrouchMaintainVelocityOnSurface;
     SerializedProperty sp_groundCrouchMaintainVelocityAlongSurface;
     SerializedProperty sp_groundCrouchAutoRiseToStandSprint;
+    SerializedProperty sp_groundCrouchToStandTransition;
 
     // Ground Prone Data
     SerializedProperty sp_groundProneMoveSpeed;
@@ -54,6 +58,10 @@ public class CharacterMovementEditor : Editor
     protected virtual void OnEnable()
     {
         this.target = base.target as CharacterMovement;
+        this.target.OnEditorEnable();
+
+        // Movement State
+        sp_movementState = serializedObject.FindProperty("m_movementState");
 
         // Ground Stand Properties
         sp_groundCheckDepth = serializedObject.FindProperty("m_groundCheckDepth");
@@ -71,6 +79,8 @@ public class CharacterMovementEditor : Editor
         sp_groundStandSlopeDownAngle = serializedObject.FindProperty("m_groundStandSlopeDownAngle");
         sp_groundStandMaintainVelocityOnSurface = serializedObject.FindProperty("m_groundStandMaintainVelocityOnSurface");
         sp_groundStandMaintainVelocityAlongSurface = serializedObject.FindProperty("m_groundStandMaintainVelocityAlongSurface");
+        sp_groundStandToCrouchTransition = serializedObject.FindProperty("m_groundStandToCrouchTransition");
+        sp_groundCrouchToStandTransition = serializedObject.FindProperty("m_groundCrouchToStandTransition");
 
         // Ground Crouch Properties
         sp_groundCrouchWalkSpeed = serializedObject.FindProperty("m_groundCrouchWalkSpeed");
@@ -123,10 +133,8 @@ public class CharacterMovementEditor : Editor
     private void ShowMovementState()
     {
         GUI.enabled = false;
-
-        EditorGUILayout.EnumPopup("Movement State", target.movementState.state);
+        EditorGUILayout.PropertyField(sp_movementState, new GUIContent("Movement State"));
         EditorGUILayout.Toggle("Is On Ground", target.physIsOnGround);
-
         GUI.enabled = true;
     }
 
@@ -153,19 +161,20 @@ public class CharacterMovementEditor : Editor
             EditorGUILayout.PropertyField(sp_groundStandJumpSpeed, new GUIContent("Jump Power"));
 
             EditorGUILayout.PropertyField(sp_groundStandStepUpPercent, new GUIContent("Step Up Percent"));
-            // GUI.enabled = false;
-            // EditorGUILayout.FloatField("Stand Up Height", target.GroundStandStepUpHeight);
-            // GUI.enabled = true;
+            GUI.enabled = false;
+            EditorGUILayout.FloatField("Stand Up Height", target.groundStandStepUpHeight);
+            GUI.enabled = true;
 
             EditorGUILayout.PropertyField(sp_groundStandStepDownPercent, new GUIContent("Step Down Percent"));
-            // GUI.enabled = false;
-            // EditorGUILayout.FloatField("Step Down Depth", target.GroundStandStepDownDepth);
-            // GUI.enabled = true;
+            GUI.enabled = false;
+            EditorGUILayout.FloatField("Step Down Depth", target.groundStandStepDownDepth);
+            GUI.enabled = true;
 
             EditorGUILayout.PropertyField(sp_groundStandSlopeUpAngle, new GUIContent("Slope Up Angle"));
             EditorGUILayout.PropertyField(sp_groundStandSlopeDownAngle, new GUIContent("Slope Down Angle"));
             EditorGUILayout.PropertyField(sp_groundStandMaintainVelocityOnSurface, new GUIContent("Maintain Velocity On Surface"));
             EditorGUILayout.PropertyField(sp_groundStandMaintainVelocityAlongSurface, new GUIContent("Maintain Velocity Along Surface"));
+            EditorGUILayout.PropertyField(sp_groundStandToCrouchTransition, new GUIContent("Crouch Transition"));
 
             //////////////////////////////////////////////////////////////////
             /// Ground Crouch Data
@@ -178,20 +187,21 @@ public class CharacterMovementEditor : Editor
             EditorGUILayout.PropertyField(sp_groundCrouchJumpSpeed, new GUIContent("Jump Power"));
 
             EditorGUILayout.PropertyField(sp_groundCrouchStepUpPercent, new GUIContent("Step Up Percent"));
-            // GUI.enabled = false;
-            // EditorGUILayout.FloatField("Crouch Up Height", target.GroundCrouchStepUpHeight);
-            // GUI.enabled = true;
+            GUI.enabled = false;
+            EditorGUILayout.FloatField("Crouch Up Height", target.groundCrouchStepUpHeight);
+            GUI.enabled = true;
 
             EditorGUILayout.PropertyField(sp_groundCrouchStepDownPercent, new GUIContent("Step Down Percent"));
-            // GUI.enabled = false;
-            // EditorGUILayout.FloatField("Step Down Depth", target.GroundCrouchStepDownDepth);
-            // GUI.enabled = true;
+            GUI.enabled = false;
+            EditorGUILayout.FloatField("Step Down Depth", target.groundCrouchStepDownDepth);
+            GUI.enabled = true;
 
             EditorGUILayout.PropertyField(sp_groundCrouchSlopeUpAngle, new GUIContent("Slope Up Angle"));
             EditorGUILayout.PropertyField(sp_groundCrouchSlopeDownAngle, new GUIContent("Slope Down Angle"));
             EditorGUILayout.PropertyField(sp_groundCrouchMaintainVelocityOnSurface, new GUIContent("Maintain Velocity On Surface"));
             EditorGUILayout.PropertyField(sp_groundCrouchMaintainVelocityAlongSurface, new GUIContent("Maintain Velocity Along Surface"));
             EditorGUILayout.PropertyField(sp_groundCrouchAutoRiseToStandSprint, new GUIContent("AutoRise To StandSprint"));
+            EditorGUILayout.PropertyField(sp_groundCrouchToStandTransition, new GUIContent("Stand Transition"));
 
             //////////////////////////////////////////////////////////////////
             /// Ground Prone Data
