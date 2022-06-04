@@ -479,9 +479,16 @@ public class CharacterMovement : CharacterBehaviour
         return charCapsule.SmallCapsuleOverlap();
     }
 
-    protected RaycastHit SmallCapsuleCast(Vector3 move)
+    protected RaycastHit SmallCapsuleCast(Vector3 move, float offsetValue = 0)
     {
-        return charCapsule.SmallCapsuleCast(move);
+        charCapsule.CalculateSmallCapsuleGeometry(out var topSphere, out var baseSphere, out var radius);
+        Vector3 offset = -move.normalized * offsetValue;
+        topSphere += offset;
+        baseSphere += offset;
+        move += -offset;
+
+        Physics.CapsuleCast(topSphere, baseSphere, radius, move.normalized, out RaycastHit hit, move.magnitude, charCapsule.layerMask, charCapsule.triggerQuery);
+        return hit;
     }
 
     protected RaycastHit SmallBaseSphereCast(Vector3 move)
@@ -538,7 +545,6 @@ public class CharacterMovement : CharacterBehaviour
         Vector3 moveInputVector = new Vector3(charInputs.move.x, 0, charInputs.move.y);
         Vector3 normalizedMoveInputVector = moveInputVector.normalized;
         Vector3 directionalMoveVector = Quaternion.Euler(0, charView.turnAngle, 0) * normalizedMoveInputVector;
-        // Vector3 directionalMoveVector = Quaternion.Euler(0, -90f, 0) * normalizedMoveInputVector;
         Vector3 deltaMove = directionalMoveVector * speed * Time.deltaTime;
 
         // Perform move
@@ -596,7 +602,7 @@ public class CharacterMovement : CharacterBehaviour
 
     protected virtual void GroundMove(Vector3 originalMove)
     {
-        GroundResizeCapsule();
+        // GroundResizeCapsule();
         ClearLog();
 
         Vector3 remainingMove = originalMove;
@@ -634,6 +640,7 @@ public class CharacterMovement : CharacterBehaviour
             SmallCapsuleMove(charCapsule.down * stepUp);
         }
 
+        ResolvePenetrationForSmallCapsule();
         GroundStepDown(originalMove, ref remainingMove);
         ResolvePenetrationForSmallCapsule();
     }
@@ -677,13 +684,13 @@ public class CharacterMovement : CharacterBehaviour
     {
         float stepDown = groundStandStepDownDepth;
         Vector3 down = charCapsule.down;
-        RaycastHit stepDownHit = SmallCapsuleCast(down * stepDown);
+        RaycastHit stepDownHit = SmallCapsuleCast(down * stepDown, 0.0001f);
         if (stepDownHit.collider == null)
         {
             return false;
         }
 
-        charCapsule.Move(down * (stepDownHit.distance - 0.025f));
+        charCapsule.Move(down * stepDownHit.distance);
         return true;
     }
 
