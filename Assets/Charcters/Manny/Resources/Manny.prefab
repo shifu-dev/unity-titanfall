@@ -363,6 +363,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52bd1b64252dfb244975e478bec0a6c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <charDataAsset>k__BackingField: {fileID: 11400000, guid: dab369d3de5b62a4da379f1d2e86bc3a, type: 2}
 --- !u!114 &8863942587269995025
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -420,39 +421,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   m_groundMinMoveDistance: 0
-  m_groundStandWalkSpeed: 12
-  m_groundStandRunSpeed: 25
-  m_groundStandSprintSpeed: 45
-  m_groundStandSprintLeftAngleMax: -46
-  m_groundStandSprintRightAngleMax: 46
-  m_groundStandJumpSpeed: 40
-  m_groundStandStepUpPercent: 49
-  m_groundStandStepDownPercent: 49
-  m_groundStandSlopeUpAngle: 89
-  m_groundStandSlopeDownAngle: -89
-  m_groundStandMaintainVelocityOnSurface: 0
-  m_groundStandMaintainVelocityAlongSurface: 0
-  m_groundStandCapsuleHeight: 2
-  m_groundStandCapsuleRadius: 0.5
-  m_groundStandCapsuleCenter: {x: 0, y: 0, z: 0}
-  m_groundStandToCrouchTransitionSpeed: 15
-  m_groundCrouchWalkSpeed: 8
-  m_groundCrouchRunSpeed: 12
-  m_groundCrouchJumpSpeed: 50
-  m_groundCrouchStepUpPercent: 5
-  m_groundCrouchStepDownPercent: 5
-  m_groundCrouchSlopeUpAngle: 55
-  m_groundCrouchSlopeDownAngle: 65
-  m_groundCrouchMaintainVelocityOnSurface: 0
-  m_groundCrouchMaintainVelocityAlongSurface: 0
-  m_groundCrouchAutoRiseToStandSprint: 1
-  m_groundCrouchCapsuleHeight: 1
-  m_groundCrouchCapsuleRadius: 0.5
-  m_groundCrouchCapsuleCenter: {x: 0, y: 0, z: 0}
-  m_groundCrouchToStandTransitionSpeed: 15
-  m_airHelperSpeed: 1
-  m_airGravityDirection: {x: 0, y: 0, z: 0}
-  m_airGravityAcceleration: 9.8
 --- !u!114 &1210957656046409178
 MonoBehaviour:
   m_ObjectHideFlags: 0

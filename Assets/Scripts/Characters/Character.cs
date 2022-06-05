@@ -15,6 +15,8 @@ public class Character : MonoBehaviour
     //////////////////////////////////////////////////////////////////
     /// Variables
     //////////////////////////////////////////////////////////////////
+    [field: Label("Data Asset"), SerializeField]
+    public CharacterDataAsset charDataAsset { get; protected set; }
     public CharacterBehaviour[] charBehaviours { get; protected set; }
     public CharacterInputs charInputs { get; protected set; }
     public CharacterInventory charInventory { get; protected set; }

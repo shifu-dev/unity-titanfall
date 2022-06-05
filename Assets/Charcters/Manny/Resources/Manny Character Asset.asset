@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff56eab6ca6150041bff6f6c012bd576, type: 3}
+  m_Name: Manny Character Asset
+  m_EditorClassIdentifier: 
+  m_characterName: 
+  m_groundCheckDepth: 0.05
+  m_groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  m_groundMinMoveDistance: 0.001
+  m_groundStandWalkSpeed: 10
+  m_groundStandWalkAcceleration: 1
+  m_groundStandRunSpeed: 15
+  m_groundStandRunAcceleration: 2
+  m_groundStandSprintSpeed: 25
+  m_groundStandSprintAcceleration: 3
+  m_groundStandSprintLeftAngleMax: -46
+  m_groundStandSprintRightAngleMax: 46
+  m_groundStandJumpForce: 40
+  m_groundStandStepUpPercent: 10
+  m_groundStandStepDownPercent: 10
+  m_groundStandSlopeUpAngle: 45
+  m_groundStandSlopeDownAngle: 55
+  m_groundStandMaintainVelocityOnSurface: 0
+  m_groundStandMaintainVelocityAlongSurface: 0
+  m_groundStandCapsuleCenter: {x: 0, y: 0, z: 0}
+  m_groundStandCapsuleHeight: 0
+  m_groundStandCapsuleRadius: 0
+  m_groundStandToCrouchTransitionSpeed: 10
+  m_groundCrouchWalkSpeed: 8
+  m_groundCrouchWalkAcceleration: 0
+  m_groundCrouchRunSpeed: 12
+  m_groundCrouchRunAcceleration: 0
+  m_groundCrouchAutoRiseToStandSprint: 0
+  m_groundCrouchJumpForce: 50
+  m_groundCrouchStepUpPercent: 5
+  m_groundCrouchStepDownPercent: 5
+  m_groundCrouchSlopeUpAngle: 55
+  m_groundCrouchSlopeDownAngle: 65
+  m_groundCrouchMaintainVelocityOnSurface: 0
+  m_groundCrouchMaintainVelocityAlongSurface: 0
+  m_groundCrouchCapsuleCenter: {x: 0, y: 0, z: 0}
+  m_groundCrouchCapsuleHeight: 0
+  m_groundCrouchCapsuleRadius: 0
+  m_groundCrouchToStandTransitionSpeed: 10
