@@ -13,11 +13,11 @@ public class CharacterMovementEditor : Editor
         CollectProperties();
     }
 
-    public override void OnInspectorGUI()
-    {
-        ShowScript();
-        ShowMovementState();
-    }
+    // public override void OnInspectorGUI()
+    // {
+    //     ShowScript();
+    //     ShowMovementState();
+    // }
 
     protected virtual void CollectProperties()
     {

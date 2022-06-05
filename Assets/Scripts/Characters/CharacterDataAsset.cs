@@ -31,8 +31,18 @@ public class CharacterDataAsset : ScriptableObject
     [Header("## GROUND STAND DATA"), Space]
 
     //////////////////////////////////////////////////////////////////
+    // Ground Stand Idle Speed & Acceleration
+    [Label("Idle Speed"), SerializeField, Min(0)]
+    protected float m_groundStandIdleSpeed;
+    public float groundStandIdleSpeed => m_groundStandIdleSpeed;
+
+    [Label("Idle Acceleration"), SerializeField, Min(0)]
+    protected float m_groundStandIdleAcceleration;
+    public float groundStandIdleAcceleration => m_groundStandIdleAcceleration;
+
+    //////////////////////////////////////////////////////////////////
     // Ground Stand Walk Speed & Acceleration
-    [Label("Walk Speed"), SerializeField, Min(0)]
+    [Label("Walk Speed"), SerializeField, Min(0), Space]
     protected float m_groundStandWalkSpeed;
     public float groundStandWalkSpeed => m_groundStandWalkSpeed;
 
@@ -135,8 +145,18 @@ public class CharacterDataAsset : ScriptableObject
     [Header("GROUND CROUCH DATA"), Space]
 
     //////////////////////////////////////////////////////////////////
+    // Ground Crouch Idle Speed & Acceleration
+    [Label("Idle Speed"), SerializeField, Min(0)]
+    protected float m_groundCrouchIdleSpeed;
+    public float groundCrouchIdleSpeed => m_groundCrouchIdleSpeed;
+
+    [Label("Idle Acceleration"), SerializeField, Min(0)]
+    protected float m_groundCrouchIdleAcceleration;
+    public float groundCrouchIdleAcceleration => m_groundCrouchIdleAcceleration;
+
+    //////////////////////////////////////////////////////////////////
     // Ground Crouch Walk Speed & Acceleration
-    [Label("Walk Speed"), SerializeField, Min(0)]
+    [Label("Walk Speed"), SerializeField, Min(0), Space]
     protected float m_groundCrouchWalkSpeed;
     public float groundCrouchWalkSpeed => m_groundCrouchWalkSpeed;
 

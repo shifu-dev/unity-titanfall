@@ -17,25 +17,12 @@ public class CharacterMovement : CharacterBehaviour
     protected const float k_collisionOffset = 0;
     protected const uint k_maxMoveIterations = 10;
 
-    //////////////////////////////////////////////////////////////////
-    /// Variables
-    //////////////////////////////////////////////////////////////////
-
-    //////////////////////////////////////////////////////////////////
-    /// Character Data
-
     public CharacterDataAsset charDataAsset { get; protected set; }
     public CharacterCapsule charCapsule { get; protected set; }
     public CharacterInputs charInputs { get; protected set; }
     public CharacterView charView { get; protected set; }
 
-    //////////////////////////////////////////////////////////////////
-
-    //////////////////////////////////////////////////////////////////
-    /// Movement State
-    //////////////////////////////////////////////////////////////////
-
-    [SerializeField] private CharacterMovementStateImpl m_movementState;
+    [SerializeField, ReadOnly] private CharacterMovementStateImpl m_movementState;
     public virtual CharacterMovementState movementState
     {
         get => m_movementState;
@@ -44,58 +31,10 @@ public class CharacterMovement : CharacterBehaviour
 
     public bool physIsOnGround { get; protected set; }
 
-    //////////////////////////////////////////////////////////////////
-    /// Ground Data
-    //////////////////////////////////////////////////////////////////
-
-    protected float groundCheckDepth;
-    protected LayerMask groundLayer;
-    protected float groundMinMoveDistance;
-
-    protected float groundStandWalkSpeed;
-    protected float groundStandWalkAcceleration;
-    protected float groundStandRunSpeed;
-    protected float groundStandRunAcceleration;
-    protected float groundStandSprintSpeed;
-    protected float groundStandSprintAcceleration;
-    protected float groundStandSprintLeftAngleMax;
-    protected float groundStandSprintRightAngleMax;
-    protected float groundStandJumpForce;
-    protected float groundStandStepUpPercent;
     protected float groundStandStepUpHeight => charCapsule.height * groundStandStepUpPercent / 100;
-    protected float groundStandStepDownPercent;
     protected float groundStandStepDownDepth => charCapsule.height * groundStandStepDownPercent / 100;
-    protected float groundStandSlopeUpAngle;
-    protected float groundStandSlopeDownAngle;
-    protected bool groundStandMaintainVelocityOnSurface;
-    protected bool groundStandMaintainVelocityAlongSurface;
-    protected Vector3 groundStandCapsuleCenter;
-    protected float groundStandCapsuleHeight;
-    protected float groundStandCapsuleRadius;
-    protected float groundStandToCrouchTransitionSpeed;
-
-    protected float groundCrouchWalkSpeed;
-    protected float groundCrouchWalkAcceleration;
-    protected float groundCrouchRunSpeed;
-    protected float groundCrouchRunAcceleration;
-    protected bool groundCrouchAutoRiseToStandSprint;
-    protected float groundCrouchJumpForce;
-    protected float groundCrouchStepUpPercent;
     protected float groundCrouchStepUpHeight => charCapsule.height * groundCrouchStepUpPercent / 100;
-    protected float groundCrouchStepDownPercent;
     protected float groundCrouchStepDownDepth => charCapsule.height * groundCrouchStepUpPercent / 100;
-    protected float groundCrouchSlopeUpAngle;
-    protected float groundCrouchSlopeDownAngle;
-    protected bool groundCrouchMaintainVelocityOnSurface;
-    protected bool groundCrouchMaintainVelocityAlongSurface;
-    protected Vector3 groundCrouchCapsuleCenter;
-    protected float groundCrouchCapsuleHeight;
-    protected float groundCrouchCapsuleRadius;
-    protected float groundCrouchToStandTransitionSpeed;
-
-    //////////////////////////////////////////////////////////////////
-    /// Current Data
-    //////////////////////////////////////////////////////////////////
 
     protected Vector3 m_velocity = Vector3.zero;
     protected Vector3 m_lastMove = Vector3.zero;
@@ -103,6 +42,31 @@ public class CharacterMovement : CharacterBehaviour
     protected float m_currentStepDownDepth = 0;
     protected float m_currentSlopeUpAngle = 0;
     protected float m_currentSlopeDownAngle = 0;
+
+    //////////////////////////////////////////////////////////////////
+    /// CharacterMovementData Copy
+    //////////////////////////////////////////////////////////////////
+
+    protected LayerMask groundLayer;
+
+    protected float groundStandWalkSpeed, groundStandWalkAcceleration, groundStandRunSpeed,
+        groundStandRunAcceleration, groundStandSprintSpeed, groundStandSprintAcceleration,
+        groundStandSprintLeftAngleMax, groundStandSprintRightAngleMax, groundStandJumpForce,
+         groundStandStepUpPercent, groundStandStepDownPercent, groundStandSlopeUpAngle,
+         groundStandSlopeDownAngle, groundStandCapsuleHeight, groundStandCapsuleRadius,
+         groundStandToCrouchTransitionSpeed, groundCrouchWalkSpeed, groundCrouchWalkAcceleration,
+        groundCrouchRunSpeed, groundCrouchRunAcceleration, groundCrouchJumpForce,
+        groundCrouchStepUpPercent, groundCrouchStepDownPercent, groundCrouchSlopeUpAngle,
+        groundCrouchSlopeDownAngle, groundCrouchCapsuleHeight, groundCrouchCapsuleRadius,
+        groundCrouchToStandTransitionSpeed, groundMinMoveDistance, groundCheckDepth,
+        groundStandIdleAcceleration, groundStandIdleSpeed, groundCrouchIdleSpeed,
+        groundCrouchIdleAcceleration;
+
+    protected bool groundStandMaintainVelocityOnSurface, groundStandMaintainVelocityAlongSurface,
+        groundCrouchAutoRiseToStandSprint, groundCrouchMaintainVelocityOnSurface,
+        groundCrouchMaintainVelocityAlongSurface;
+
+    protected Vector3 groundStandCapsuleCenter, groundCrouchCapsuleCenter;
 
     public CharacterMovement()
     {
@@ -128,6 +92,8 @@ public class CharacterMovement : CharacterBehaviour
         groundLayer = charDataAsset.groundLayer;
         groundMinMoveDistance = charDataAsset.groundMinMoveDistance;
 
+        groundStandIdleSpeed = charDataAsset.groundStandIdleSpeed;
+        groundStandIdleAcceleration = charDataAsset.groundStandIdleAcceleration;
         groundStandWalkSpeed = charDataAsset.groundStandWalkSpeed;
         groundStandWalkAcceleration = charDataAsset.groundStandWalkAcceleration;
         groundStandRunSpeed = charDataAsset.groundStandRunSpeed;
@@ -148,6 +114,8 @@ public class CharacterMovement : CharacterBehaviour
         groundStandCapsuleRadius = charDataAsset.groundStandCapsuleRadius;
         groundStandToCrouchTransitionSpeed = charDataAsset.groundStandToCrouchTransitionSpeed;
 
+        groundCrouchIdleSpeed = charDataAsset.groundCrouchIdleSpeed;
+        groundCrouchIdleAcceleration = charDataAsset.groundCrouchIdleAcceleration;
         groundCrouchWalkSpeed = charDataAsset.groundCrouchWalkSpeed;
         groundCrouchWalkAcceleration = charDataAsset.groundCrouchWalkAcceleration;
         groundCrouchRunSpeed = charDataAsset.groundCrouchRunSpeed;
@@ -322,81 +290,103 @@ public class CharacterMovement : CharacterBehaviour
     {
         // Calculate Speed
         float speed = 0;
+        float acceleration = 0;
+
         switch (movementState.current)
         {
             case CharacterMovementState.GROUND_STAND_JUMP:
                 m_currentStepUpHeight = groundStandStepUpHeight;
+                m_currentStepDownDepth = groundStandStepDownDepth;
                 m_currentSlopeUpAngle = groundStandSlopeUpAngle;
+                acceleration = groundStandJumpForce;
                 speed = groundStandJumpForce;
                 break;
 
             case CharacterMovementState.GROUND_STAND_IDLE:
                 m_currentStepUpHeight = groundStandStepUpHeight;
+                m_currentStepDownDepth = groundStandStepDownDepth;
                 m_currentSlopeUpAngle = groundStandSlopeUpAngle;
-                speed = 0;
+                acceleration = groundStandIdleAcceleration;
+                speed = groundStandIdleSpeed;
                 break;
 
             case CharacterMovementState.GROUND_STAND_WALK:
                 m_currentStepUpHeight = groundStandStepUpHeight;
+                m_currentStepDownDepth = groundStandStepDownDepth;
                 m_currentSlopeUpAngle = groundStandSlopeUpAngle;
+                acceleration = groundStandWalkAcceleration;
                 speed = groundStandWalkSpeed;
                 break;
 
             case CharacterMovementState.GROUND_STAND_RUN:
                 m_currentStepUpHeight = groundStandStepUpHeight;
+                m_currentStepDownDepth = groundStandStepDownDepth;
                 m_currentSlopeUpAngle = groundStandSlopeUpAngle;
+                acceleration = groundStandRunAcceleration;
                 speed = groundStandRunSpeed;
                 break;
 
             case CharacterMovementState.GROUND_STAND_SPRINT:
                 m_currentStepUpHeight = groundStandStepUpHeight;
+                m_currentStepDownDepth = groundStandStepDownDepth;
                 m_currentSlopeUpAngle = groundStandSlopeUpAngle;
+                acceleration = groundStandSprintAcceleration;
                 speed = groundStandSprintSpeed;
                 break;
 
             case CharacterMovementState.GROUND_CROUCH_JUMP:
                 m_currentStepUpHeight = groundCrouchStepUpHeight;
+                m_currentStepDownDepth = groundCrouchStepDownDepth;
                 m_currentSlopeUpAngle = groundCrouchSlopeUpAngle;
+                acceleration = groundCrouchJumpForce;
                 speed = groundCrouchJumpForce;
                 break;
 
             case CharacterMovementState.GROUND_CROUCH_IDLE:
                 m_currentStepUpHeight = groundCrouchStepUpHeight;
+                m_currentStepDownDepth = groundCrouchStepDownDepth;
                 m_currentSlopeUpAngle = groundCrouchSlopeUpAngle;
-                speed = 0;
+                acceleration = groundCrouchIdleAcceleration;
+                speed = groundCrouchIdleSpeed;
                 break;
 
             case CharacterMovementState.GROUND_CROUCH_WALK:
                 m_currentStepUpHeight = groundCrouchStepUpHeight;
+                m_currentStepDownDepth = groundCrouchStepDownDepth;
                 m_currentSlopeUpAngle = groundCrouchSlopeUpAngle;
+                acceleration = groundCrouchWalkAcceleration;
                 speed = groundCrouchWalkSpeed;
                 break;
 
             case CharacterMovementState.GROUND_CROUCH_RUN:
                 m_currentStepUpHeight = groundCrouchStepUpHeight;
+                m_currentStepDownDepth = groundCrouchStepDownDepth;
                 m_currentSlopeUpAngle = groundCrouchSlopeUpAngle;
+                acceleration = groundCrouchRunAcceleration;
                 speed = groundCrouchRunSpeed;
                 break;
 
             default:
                 m_currentStepUpHeight = 0;
+                m_currentStepDownDepth = 0;
                 m_currentSlopeUpAngle = 0;
+                acceleration = 0;
                 speed = 0;
                 break;
         }
 
-        speed /= 4;
-        // Calculate Movement
+        // Calculate move input
         Vector3 moveInput = new Vector3(charInputs.move.x, 0, charInputs.move.y);
         moveInput = Quaternion.Euler(0, charView.turnAngle, 0) * moveInput.normalized;
+
         Vector3 deltaMove = moveInput * speed * Time.deltaTime;
-        float acceleration = .45f;
-        deltaMove = Vector3.MoveTowards(m_lastMove, deltaMove, acceleration * Time.deltaTime);
+        deltaMove = Vector3.MoveTowards(m_velocity, deltaMove, acceleration * Time.deltaTime);
 
         // Perform move
         var previousPosition = charCapsule.position;
-        m_lastMove = deltaMove;
         GroundMove(deltaMove);
+
+        m_lastMove = deltaMove;
         m_velocity = charCapsule.position - previousPosition;
     }
 
@@ -453,6 +443,12 @@ public class CharacterMovement : CharacterBehaviour
     protected virtual void GroundMove(Vector3 originalMove)
     {
         GroundResizeCapsule();
+
+        if (originalMove.magnitude < groundMinMoveDistance)
+        {
+            ResolvePenetrationForSmallCapsule();
+            return;
+        }
 
         Vector3 remainingMove = originalMove;
 
