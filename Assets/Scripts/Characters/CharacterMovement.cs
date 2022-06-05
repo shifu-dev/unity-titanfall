@@ -1,20 +1,10 @@
 ﻿using System;
 using UnityEngine;
 
-using System.Reflection;
-
 public class CharacterMovement : CharacterBehaviour
 {
     #region EDITOR
 #if UNITY_EDITOR
-
-    public void ClearLog()
-    {
-        var assembly = Assembly.GetAssembly(typeof(UnityEditor.Editor));
-        var type = assembly.GetType("UnityEditor.LogEntries");
-        var method = type.GetMethod("Clear");
-        method.Invoke(new object(), null);
-    }
 
     public virtual void OnEditorEnable()
     {
@@ -23,6 +13,8 @@ public class CharacterMovement : CharacterBehaviour
 
 #endif
     #endregion
+
+    #region CONSTANTS
 
     //////////////////////////////////////////////////////////////////
     /// Constants
@@ -56,6 +48,10 @@ public class CharacterMovement : CharacterBehaviour
     protected const float k_minGroundTestDepth = 0.01f;
     protected const float k_maxGroundTestDepth = 0.5f;
     protected const uint k_maxMoveIterations = 10;
+
+    #endregion
+
+    #region VARIABLES
 
     //////////////////////////////////////////////////////////////////
     /// Variables
@@ -298,6 +294,18 @@ public class CharacterMovement : CharacterBehaviour
     [SerializeField] protected float m_airGravityAcceleration;
 
     //////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////
+    /// Current Data
+
+    protected Vector3 m_velocity = Vector3.zero;
+    protected Vector3 m_lastMove = Vector3.zero;
+
+    //////////////////////////////////////////////////////////////////
+
+    #endregion
+
+    //////////////////////////////////////////////////////////////////
     // Constructors
     //////////////////////////////////////////////////////////////////
 
@@ -512,43 +520,64 @@ public class CharacterMovement : CharacterBehaviour
 
     protected virtual void PhysGround()
     {
-        // Calculate speed
+        // Calculate Speed
         float speed = 0;
+        switch (movementState.current)
+        {
+            case CharacterMovementState.GROUND_STAND_JUMP:
+                speed = m_groundStandJumpSpeed;
+                break;
 
-        if (charInputs.crouch)
-        {
-            speed = m_groundCrouchRunSpeed;
-        }
-        else    // Standing
-        {
-            if (charInputs.move.normalized.magnitude == 0)
-            {
+            case CharacterMovementState.GROUND_STAND_IDLE:
                 speed = 0;
-            }
-            else if (charInputs.walk)
-            {
-                speed = m_groundStandWalkSpeed;
-            }
-            else if (charInputs.sprint && charInputs.moveAngle.IsInRange(
-                groundStandSprintLeftAngleMax, groundStandSprintRightAngleMax))
-            {
-                speed = m_groundStandSprintSpeed;
-            }
-            else
-            {
-                speed = m_groundStandRunSpeed;
-            }
-        }
-        speed = speed / 4;
+                break;
 
+            case CharacterMovementState.GROUND_STAND_WALK:
+                speed = m_groundStandWalkSpeed;
+                break;
+
+            case CharacterMovementState.GROUND_STAND_RUN:
+                speed = m_groundStandRunSpeed;
+                break;
+
+            case CharacterMovementState.GROUND_STAND_SPRINT:
+                speed = m_groundStandSprintSpeed;
+                break;
+
+            case CharacterMovementState.GROUND_CROUCH_JUMP:
+                speed = m_groundCrouchJumpSpeed;
+                break;
+
+            case CharacterMovementState.GROUND_CROUCH_IDLE:
+                speed = 0;
+                break;
+
+            case CharacterMovementState.GROUND_CROUCH_WALK:
+                speed = m_groundCrouchWalkSpeed;
+                break;
+
+            case CharacterMovementState.GROUND_CROUCH_RUN:
+                speed = m_groundCrouchRunSpeed;
+                break;
+
+            default:
+                speed = 0;
+                break;
+        }
+
+        speed /= 4;
         // Calculate Movement
-        Vector3 moveInputVector = new Vector3(charInputs.move.x, 0, charInputs.move.y);
-        Vector3 normalizedMoveInputVector = moveInputVector.normalized;
-        Vector3 directionalMoveVector = Quaternion.Euler(0, charView.turnAngle, 0) * normalizedMoveInputVector;
-        Vector3 deltaMove = directionalMoveVector * speed * Time.deltaTime;
+        Vector3 moveInput = new Vector3(charInputs.move.x, 0, charInputs.move.y);
+        moveInput = Quaternion.Euler(0, charView.turnAngle, 0) * moveInput.normalized;
+        Vector3 deltaMove = moveInput * speed * Time.deltaTime;
+        float acceleration = .45f;
+        deltaMove = Vector3.MoveTowards(m_lastMove, deltaMove, acceleration * Time.deltaTime);
 
         // Perform move
+        var previousPosition = charCapsule.position;
+        m_lastMove = deltaMove;
         GroundMove(deltaMove);
+        m_velocity = charCapsule.position - previousPosition;
     }
 
     protected virtual void GroundCheck()
@@ -567,9 +596,6 @@ public class CharacterMovement : CharacterBehaviour
 
     protected virtual void GroundResizeCapsule()
     {
-        //     if (movementState.weight == 1)
-        //         return;
-
         float weight = movementState.weight;
         float speed = 0;
         float targetHeight = 0;
@@ -592,18 +618,21 @@ public class CharacterMovement : CharacterBehaviour
         }
 
         // charCapsule.localPosition += charCapsule.up * Mathf.MoveTowards(charCapsule.localHeight, targetHeight, speed);
-        charCapsule.localCenter = Vector3.MoveTowards(charCapsule.localCenter, targetCenter, speed);
-        charCapsule.localHeight = Mathf.MoveTowards(charCapsule.localHeight, targetHeight, speed);
-        charCapsule.localRadius = Mathf.MoveTowards(charCapsule.localRadius, targetRadius, speed);
+        charCapsule.localCenter = Vector3.Lerp(charCapsule.localCenter, targetCenter, speed);
+        charCapsule.localHeight = Mathf.Lerp(charCapsule.localHeight, targetHeight, speed);
+        charCapsule.localRadius = Mathf.Lerp(charCapsule.localRadius, targetRadius, speed);
 
-        weight = Mathf.MoveTowards(weight, Weight.max, speed);
+        weight = Mathf.Lerp(weight, Weight.max, speed);
         movementState.weight = weight;
+    }
+
+    protected virtual void GroundJump(float height)
+    {
     }
 
     protected virtual void GroundMove(Vector3 originalMove)
     {
-        // GroundResizeCapsule();
-        ClearLog();
+        GroundResizeCapsule();
 
         Vector3 remainingMove = originalMove;
 
@@ -643,6 +672,8 @@ public class CharacterMovement : CharacterBehaviour
         ResolvePenetrationForSmallCapsule();
         GroundStepDown(originalMove, ref remainingMove);
         ResolvePenetrationForSmallCapsule();
+
+        charCapsule.PerformMove();
     }
 
     protected virtual float GroundStepUp(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit)

@@ -435,31 +435,7 @@ MonoBehaviour:
   m_groundStandCapsuleHeight: 2
   m_groundStandCapsuleRadius: 0.5
   m_groundStandCapsuleCenter: {x: 0, y: 0, z: 0}
-  m_groundStandToCrouchTransition:
-    curve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 1
-        outSlope: 1
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 1
-        inSlope: 1
-        outSlope: 1
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
+  m_groundStandToCrouchTransitionSpeed: 15
   m_groundCrouchWalkSpeed: 8
   m_groundCrouchRunSpeed: 12
   m_groundCrouchJumpSpeed: 50
@@ -473,37 +449,7 @@ MonoBehaviour:
   m_groundCrouchCapsuleHeight: 1
   m_groundCrouchCapsuleRadius: 0.5
   m_groundCrouchCapsuleCenter: {x: 0, y: 0, z: 0}
-  m_groundCrouchToStandTransition:
-    curve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 1
-        outSlope: 1
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 1
-        inSlope: 1
-        outSlope: 1
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-  m_groundProneMoveSpeed: 4
-  m_groundProneSlopeUpAngle: 15
-  m_groundProneSlopeDownAngle: 25
-  m_groundProneMaintainVelocityOnSurface: 0
-  m_groundProneMaintainVelocityAlongSurface: 0
-  m_groundProneAutoRiseToStandSprint: 1
+  m_groundCrouchToStandTransitionSpeed: 15
   m_airHelperSpeed: 1
   m_airGravityDirection: {x: 0, y: 0, z: 0}
   m_airGravityAcceleration: 9.8

@@ -1,6 +1,7 @@
-using UnityEngine;
 using System.IO;
+using System.Reflection;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace GameLog
 {
@@ -200,5 +201,16 @@ namespace GameLog
         public static void ForceFlush()
             => globalLogger.ForceFlush();
 
+#if UNITY_EDITOR
+
+        public static void ClearConsole()
+        {
+            var assembly = Assembly.GetAssembly(typeof(UnityEditor.Editor));
+            var type = assembly.GetType("UnityEditor.LogEntries");
+            var method = type.GetMethod("Clear");
+            method.Invoke(new object(), null);
+        }
+
+#endif
     }
 }

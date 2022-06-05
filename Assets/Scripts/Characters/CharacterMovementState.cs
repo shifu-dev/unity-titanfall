@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using System.Runtime.CompilerServices;
 
 public interface CharacterMovementState
 {
@@ -22,11 +23,11 @@ public interface CharacterMovementState
     public const uint GROUND_PRONE_IDLE = 12;
     public const uint GROUND_PRONE_MOVE = 13;
     public const uint GROUND_PRONE_ROLL = 14;
-    public const uint GROUND_SLIDE = 11;
-    public const uint GROUND_ROLL = 11;
-    public const uint AIR_JUMP = 15;
-    public const uint AIR_IDLE = 16;
-    public const uint CUSTOM = 17;
+    public const uint GROUND_SLIDE = 15;
+    public const uint GROUND_ROLL = 16;
+    public const uint AIR_JUMP = 17;
+    public const uint AIR_IDLE = 18;
+    public const uint CUSTOM = 19;
 
     private static readonly string[] strings = new string[]
     {
@@ -62,10 +63,12 @@ public interface CharacterMovementState
 
     public bool isCustom
     {
-        get => current == CUSTOM;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => current >= CUSTOM;
     }
     public bool isGrounded
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => current == GROUND_STAND_JUMP ||
                current == GROUND_STAND_IDLE ||
                current == GROUND_STAND_WALK ||
@@ -82,44 +85,97 @@ public interface CharacterMovementState
     }
     public bool isGroundStanding
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => current == GROUND_STAND_JUMP ||
                current == GROUND_STAND_IDLE ||
                current == GROUND_STAND_WALK ||
                current == GROUND_STAND_RUN ||
                current == GROUND_STAND_SPRINT;
     }
+    public bool isGroundStandIdle
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => current == GROUND_STAND_IDLE;
+    }
+    public bool isGroundStandJump
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => current == GROUND_STAND_JUMP;
+    }
+    public bool isGroundStandWalking
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => current == GROUND_STAND_WALK;
+    }
+    public bool isGroundStandRunning
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => current == GROUND_STAND_RUN;
+    }
+    public bool isGroundStandSprinting
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => current == GROUND_STAND_SPRINT;
+    }
     public bool isGroundCrouching
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => current == GROUND_CROUCH_JUMP ||
                current == GROUND_CROUCH_IDLE ||
                current == GROUND_CROUCH_WALK ||
                current == GROUND_CROUCH_RUN;
     }
+    public bool isGroundCrouchIdle
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => current == GROUND_CROUCH_IDLE;
+    }
+    public bool isGroundCrouchJump
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => current == GROUND_CROUCH_JUMP;
+    }
+    public bool isGroundCrouchWalking
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => current == GROUND_CROUCH_WALK;
+    }
+    public bool isGroundCrouchRunning
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => current == GROUND_CROUCH_RUN;
+    }
     public bool isGroundProne
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => current == GROUND_PRONE_IDLE ||
-               current == GROUND_PRONE_MOVE ||
-               current == GROUND_PRONE_ROLL;
+                   current == GROUND_PRONE_MOVE ||
+                   current == GROUND_PRONE_ROLL;
     }
     public bool isAir
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => false;
     }
     public bool isAirRising
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => false;
     }
     public bool isAirIdle
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => false;
     }
     public bool isAirFalling
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => false;
     }
 
     public string getString
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => strings[Math.Clamp(current, NONE, CUSTOM)];
     }
 }
@@ -135,11 +191,14 @@ public struct CharacterMovementStateImpl : CharacterMovementState
 
     public uint previous
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => m_previous;
     }
     public uint current
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => m_current;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         set
         {
             if (value != m_current)
@@ -152,10 +211,13 @@ public struct CharacterMovementStateImpl : CharacterMovementState
     }
     public float weight
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => m_weight;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         set => m_weight = value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public CharacterMovementStateImpl(uint state, float weight = 1)
     {
         this.m_previous = CharacterMovementState.NONE;
@@ -163,6 +225,7 @@ public struct CharacterMovementStateImpl : CharacterMovementState
         this.m_weight = weight;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override string ToString()
     {
         return pimpl.getString;
