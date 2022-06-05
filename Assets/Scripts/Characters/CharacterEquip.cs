@@ -82,6 +82,7 @@ public class CharacterEquip : CharacterBehaviour
             equipData.unequipSpeed = .5f;
             equipData.weapon = weapon;
             equipData.weaponSlot = slot;
+            equipData.callback = OnWeaponEquipped;
 
             return m_rightHand.Equip(equipData);
         }
@@ -106,15 +107,36 @@ public class CharacterEquip : CharacterBehaviour
             Debug.Log($"CharacterEquip | Weapon sent to inventory {{{weapon.name}, {{{slot}}}}}");
             CharacterEquipData equipData = new CharacterEquipData();
             equipData.equipable = weapon;
-            equipData.equipSpeed = .1f;
-            equipData.unequipSpeed = .1f;
+            equipData.equipSpeed = 1f;
+            equipData.unequipSpeed = 1f;
             equipData.weapon = weapon;
             equipData.weaponSlot = slot;
+            equipData.callback = OnWeaponEquipped;
 
             if (m_rightHand.Equip(equipData))
             {
+                weapon.OnPickup();
                 Debug.Log($"CharacterEquip | EquipWeapon {{{weapon.name}}}");
             }
+        }
+    }
+
+    public void OnWeaponEquipped(CharacterEquipData equipData)
+    {
+        var weapon = equipData.weapon;
+        if (weapon)
+        {
+            if (equipData.isEquipped)
+            {
+                weapon.OnEquip();
+            }
+
+            if (equipData.isUnequipped)
+            {
+                weapon.OnUnequip();
+            }
+
+            return;
         }
     }
 
@@ -227,8 +249,6 @@ public struct CharacterEquipHand
                 equipableObject.transform.localPosition = m_current.positionOnEquip;
                 equipableObject.transform.localRotation = m_current.rotationOnEquip;
             }
-
-            return;
         }
 
         // if current is unequipped, set next to equip
@@ -241,7 +261,16 @@ public struct CharacterEquipHand
                 equipableObject.transform.localPosition = m_current.positionOnUnequip;
                 equipableObject.transform.localRotation = m_current.rotationOnUnequip;
             }
+        }
 
+        if (m_current.callback != null)
+        {
+            m_current.callback(m_current);
+        }
+
+        // if current is unequipped, set next to equip
+        if (m_current.status == EquipStatus.Unequipped)
+        {
             m_current = CharacterEquipData.empty;
 
             if (m_next.equipable != null)
@@ -258,6 +287,8 @@ public struct CharacterEquipHand
 public struct CharacterEquipData
 {
     public static readonly CharacterEquipData empty;
+
+    public Action<CharacterEquipData> callback;
 
     private IEquipable m_equipable;
     public IEquipable equipable

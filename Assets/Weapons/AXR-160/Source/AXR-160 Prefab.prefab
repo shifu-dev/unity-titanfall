@@ -287,7 +287,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4511870531947677376}
-  - component: {fileID: -4122510072718417704}
+  - component: {fileID: 4537889726513756679}
   - component: {fileID: -8612772249472772819}
   - component: {fileID: 2673501343666352933}
   m_Layer: 7
@@ -315,7 +315,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &-4122510072718417704
+--- !u!114 &4537889726513756679
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -324,10 +324,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 8595054391902159044}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 25eab173aaedab64ab5e55070125e30f, type: 3}
+  m_Script: {fileID: 11500000, guid: e5286d121de32484f9214c409d93b3f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <category>k__BackingField: 0
   m_colliders:
   - {fileID: 48649554291540861}
 --- !u!114 &-8612772249472772819
@@ -342,11 +341,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8f6b44e82b741346a62df586592a51f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  primaryAttack: 0
-  secondaryAttack: 0
-  meleeAttack: 0
-  reload: 0
-  showOff: 0
 --- !u!114 &2673501343666352933
 MonoBehaviour:
   m_ObjectHideFlags: 0

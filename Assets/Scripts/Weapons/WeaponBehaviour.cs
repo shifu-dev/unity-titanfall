@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Weapon))]
+// [RequireComponent(typeof(Weapon))]
 public abstract class WeaponBehaviour : MonoBehaviour
 {
     public Weapon weapon { get; protected set; }

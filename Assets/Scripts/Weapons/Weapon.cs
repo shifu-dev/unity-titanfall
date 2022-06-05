@@ -17,123 +17,35 @@ public enum WeaponCategory
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(WeaponInputs))]
-public class Weapon : MonoBehaviour, IEquipable
+public abstract class Weapon : MonoBehaviour, IEquipable
 {
     //////////////////////////////////////////////////////////////////
     /// Variables
     //////////////////////////////////////////////////////////////////
 
     public WeaponInputs weaponInputs { get; protected set; }
-    public WeaponBehaviour[] weaponBehaviours { get; protected set; }
 
-    [field: SerializeField] public WeaponCategory category { get; protected set; }
+    public abstract WeaponCategory category { get; }
     [SerializeField] protected Collider[] m_colliders;
-
-    //////////////////////////////////////////////////////////////////
-    /// Updates
-    //////////////////////////////////////////////////////////////////
-
-    void Awake()
-    {
-        weaponInputs = GetComponent<WeaponInputs>();
-        var initializer = GetComponent<WeaponInitializer>();
-
-        CollectBehaviours(weaponInputs);
-        InitBehaviours(initializer);
-    }
-
-    void Update()
-    {
-        UpdateBehaviours();
-    }
-
-    void FixedUpdate()
-    {
-        FixedUpdateBehaviours();
-    }
-
-    void OnDestroy()
-    {
-        DestroyBehaviours();
-    }
-
-    //////////////////////////////////////////////////////////////////
-    /// Behaviours
-    //////////////////////////////////////////////////////////////////
-
-    protected virtual void CollectBehaviours(params WeaponBehaviour[] exceptions)
-    {
-        List<WeaponBehaviour> weaponBehavioursList = new List<WeaponBehaviour>();
-        GetComponents<WeaponBehaviour>(weaponBehavioursList);
-
-        // no need to check for exceptional behaviours
-        if (exceptions.Length > 0)
-        {
-            weaponBehavioursList.RemoveAll((WeaponBehaviour behaviour) =>
-            {
-                foreach (var exceptionBehaviour in exceptions)
-                {
-                    if (behaviour == exceptionBehaviour)
-                        return true;
-                }
-
-                return false;
-            });
-        }
-
-        weaponBehaviours = weaponBehavioursList.ToArray();
-    }
-
-    protected virtual void InitBehaviours(WeaponInitializer initializer)
-    {
-        weaponInputs.OnInitWeapon(this, initializer);
-
-        foreach (var behaviour in weaponBehaviours)
-        {
-            behaviour.OnInitWeapon(this, initializer);
-        }
-    }
-
-    protected virtual void UpdateBehaviours()
-    {
-        weaponInputs.OnUpdateWeapon();
-
-        foreach (var behaviour in weaponBehaviours)
-        {
-            behaviour.OnUpdateWeapon();
-        }
-    }
-
-    protected virtual void FixedUpdateBehaviours()
-    {
-        weaponInputs.OnFixedUpdateWeapon();
-
-        foreach (var behaviour in weaponBehaviours)
-        {
-            behaviour.OnFixedUpdateWeapon();
-        }
-    }
-
-    protected virtual void DestroyBehaviours()
-    {
-        weaponInputs.OnDestroyWeapon();
-
-        foreach (var behaviour in weaponBehaviours)
-        {
-            behaviour.OnDestroyWeapon();
-        }
-    }
 
     //////////////////////////////////////////////////////////////////
     /// Events
     //////////////////////////////////////////////////////////////////
 
+    protected virtual void Awake()
+    {
+        weaponInputs = GetComponent<WeaponInputs>();
+    }
+
     public virtual void OnPickup()
     {
+        Debug.Log("Weapon | OnPickup");
+        DisableColliders();
     }
 
     public virtual void OnDrop()
     {
+        EnableColliders();
     }
 
     public virtual void OnInventory()
@@ -142,6 +54,7 @@ public class Weapon : MonoBehaviour, IEquipable
 
     public virtual void OnEquip()
     {
+        Debug.Log("Weapon | OnEquip");
     }
 
     public virtual void OnEquipFinished()
@@ -150,6 +63,7 @@ public class Weapon : MonoBehaviour, IEquipable
 
     public virtual void OnUnequip()
     {
+        Debug.Log("Weapon | OnUnequip");
     }
 
     public virtual void OnUnequipFinished()
@@ -163,5 +77,31 @@ public class Weapon : MonoBehaviour, IEquipable
     public virtual void OnPrimaryFire()
     {
         Debug.Log("Weapon | OnPrimaryFire");
+    }
+
+    public virtual void OnSecondaryFire()
+    {
+        Debug.Log("Weapon | OnSecondaryFire");
+    }
+
+    public virtual void OnMelee()
+    {
+        Debug.Log("Weapon | OnMelee");
+    }
+
+    protected virtual void DisableColliders()
+    {
+        foreach (var collider in m_colliders)
+        {
+            collider.enabled = false;
+        }
+    }
+
+    protected virtual void EnableColliders()
+    {
+        foreach (var collider in m_colliders)
+        {
+            collider.enabled = true;
+        }
     }
 }

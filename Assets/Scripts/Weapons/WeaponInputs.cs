@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class WeaponInputs : WeaponBehaviour
 {
-    [ReadOnly] public bool primaryAttack;
-    [ReadOnly] public bool secondaryAttack;
-    [ReadOnly] public bool meleeAttack;
-    [ReadOnly] public bool reload;
-    [ReadOnly] public bool showOff;
+    public bool primaryAttack { get; set; }
+    public bool secondaryAttack { get; set; }
+    public bool meleeAttack { get; set; }
+    public bool reload { get; set; }
+    public bool showOff { get; set; }
 }
