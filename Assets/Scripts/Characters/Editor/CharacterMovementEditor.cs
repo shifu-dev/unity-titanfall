@@ -6,6 +6,7 @@ public class CharacterMovementEditor : Editor
 {
     private new CharacterMovement target;
     private SerializedProperty sp_movementState;
+    private SerializedProperty sp_groundResult;
 
     protected virtual void OnEnable()
     {
@@ -22,6 +23,7 @@ public class CharacterMovementEditor : Editor
     protected virtual void CollectProperties()
     {
         sp_movementState = serializedObject.FindProperty("m_movementState");
+        sp_groundResult = serializedObject.FindProperty("m_groundResult");
     }
 
     protected virtual void ShowScript()
@@ -40,7 +42,7 @@ public class CharacterMovementEditor : Editor
     {
         GUI.enabled = false;
         EditorGUILayout.PropertyField(sp_movementState, new GUIContent("Movement State"));
-        EditorGUILayout.Toggle("Is On Ground", target.physIsOnGround);
+        EditorGUILayout.PropertyField(sp_movementState, new GUIContent("Ground Result"));
         GUI.enabled = true;
     }
 }

@@ -416,11 +416,8 @@ MonoBehaviour:
     m_previous: 0
     m_current: 0
     m_weight: 1
-  m_groundCheckDepth: 0.5
-  m_groundLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  m_groundMinMoveDistance: 0
+  <physIsOnGround>k__BackingField: 0
+  gravityMultiplier: 1
 --- !u!114 &1210957656046409178
 MonoBehaviour:
   m_ObjectHideFlags: 0

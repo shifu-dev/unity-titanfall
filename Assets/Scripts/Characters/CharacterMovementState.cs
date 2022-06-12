@@ -155,7 +155,8 @@ public interface CharacterMovementState
     public bool isAir
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => false;
+        get => current == AIR_IDLE || 
+               current == AIR_JUMP;
     }
     public bool isAirRising
     {

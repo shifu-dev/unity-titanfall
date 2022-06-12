@@ -347,41 +347,6 @@ public class CharacterCapsule : CharacterBehaviour
         localRotation = localRotation * Quaternion.Euler(rot);
     }
 
-    public RaycastHit CapsuleMove(Vector3 move, float moveThreshold = 0.00001f)
-    {
-        if (move.magnitude == 0f || move.magnitude < moveThreshold)
-            return new RaycastHit();
-
-        RaycastHit hit = SmallCapsuleCast(move);
-        if (hit.collider == null)
-        {
-            // no collision occurred, so we made the complete move
-            Move(move);
-            return hit;
-        }
-
-        // move to the hit position
-        if (hit.distance < moveThreshold)
-        {
-            return hit;
-        }
-
-        Move(move.normalized * hit.distance);
-        return hit;
-    }
-
-    public RaycastHit CapsuleMoveNoHit(Vector3 move, float moveThreshold = 0.001f)
-    {
-        RaycastHit hit = SmallCapsuleCast(move);
-        if (hit.collider == null)
-        {
-            // no collision occurred, so we made the complete move
-            Move(move);
-        }
-
-        return hit;
-    }
-
     //////////////////////////////////////////////////////////////////
     /// Capsule Physics
     //////////////////////////////////////////////////////////////////
@@ -763,7 +728,7 @@ public class CharacterCapsule : CharacterBehaviour
         return result;
     }
 
-    public Vector3 ResolvePenetrationForSmallCapsule(float collisionOffset)
+    public Vector3 ResolvePenetrationForSmallCapsule(float collisionOffset = 0f)
     {
         return InternalResolvePenetration(false, collisionOffset);
     }
@@ -775,26 +740,28 @@ public class CharacterCapsule : CharacterBehaviour
 
     protected Vector3 InternalResolvePenetration(bool bigCapsule, float collisionOffset)
     {
+        Vector3 moveOut = Vector3.zero;
+
         Collider[] overlaps = SmallCapsuleOverlap();
         if (overlaps.Length <= 0)
         {
-            return Vector3.zero;
+            return moveOut;
         }
 
-        // store current values
-        float cacheRadius = collider.radius;
-        float cacheHeight = collider.height;
-        Vector3 cacheCenter = collider.center;
-
-        // set new values
-        collider.radius = localRadius;
-        collider.height = localHeight;
-        collider.center = localCenter;
         var thisCollider = this.collider;
         var thisPosition = this.position;
         var thisRotation = this.rotation;
 
-        Vector3 finalMoveOut = Vector3.zero;
+        // store current values
+        float cacheRadius = thisCollider.radius;
+        float cacheHeight = thisCollider.height;
+        Vector3 cacheCenter = thisCollider.center;
+
+        // set new values
+        thisCollider.radius = localRadius;
+        thisCollider.height = localHeight;
+        thisCollider.center = localCenter;
+
         foreach (var collider in overlaps)
         {
             if (collider == null || thisCollider == collider)
@@ -803,22 +770,85 @@ public class CharacterCapsule : CharacterBehaviour
             }
 
             bool computed = Physics.ComputePenetration(thisCollider, thisPosition, thisRotation,
-                collider, collider.transform.position, collider.transform.rotation, out Vector3 direction, out float distance);
-
-            Vector3 moveOut = direction * distance;
+                collider, collider.transform.position, collider.transform.rotation, 
+                out Vector3 direction, out float distance);
 
             if (computed)
             {
-                finalMoveOut += moveOut + (moveOut.normalized * collisionOffset);
+                moveOut += direction * (distance + collisionOffset);
             }
         }
 
         // restore previous values
-        collider.radius = cacheRadius;
-        collider.height = cacheHeight;
-        collider.center = cacheCenter;
+        thisCollider.radius = cacheRadius;
+        thisCollider.height = cacheHeight;
+        thisCollider.center = cacheCenter;
 
-        Move(finalMoveOut);
-        return finalMoveOut;
+        Move(moveOut);
+        return moveOut;
+    }
+
+    //////////////////////////////////////////////////////////////////
+    /// Movement Physics
+    //////////////////////////////////////////////////////////////////
+
+    public Vector3 SweepMove(Vector3 move)
+    {
+        return SweepMove(move, out RaycastHit hit);
+    }
+
+    public Vector3 SweepMove(Vector3 move, out RaycastHit hit)
+    {
+        hit = SmallCapsuleCast(move);
+        if (hit.collider != null)
+        {
+            move = move.normalized * hit.distance;
+        }
+
+        localPosition += move;
+        return move;
+    }
+
+    public bool SweepMoveOnSurface(out Vector3 move, Vector3 originalMove, Vector3 remainingMove, RaycastHit hit, float slopeUpAngle, bool maintainVelocity)
+    {
+        if (slopeUpAngle <= 0 || hit.collider == null || remainingMove == Vector3.zero)
+        {
+            move = Vector3.zero;
+            return false;
+        }
+
+        Vector3 moveVectorLeft = (Quaternion.Euler(0, -90, 0) * remainingMove).normalized;
+        Vector3 obstacleForward = Vector3.ProjectOnPlane(-hit.normal, moveVectorLeft).normalized;
+        float slopeAngle = 90f - Vector3.SignedAngle(remainingMove.normalized, obstacleForward, -moveVectorLeft);
+        slopeAngle = Math.Max(slopeAngle, 0);
+
+        if (slopeAngle > slopeUpAngle)
+        {
+            move = Vector3.zero;
+            return false;
+        }
+
+        Vector3 slopeMove = Vector3.ProjectOnPlane(originalMove.normalized * remainingMove.magnitude, hit.normal);
+        if (maintainVelocity)
+        {
+            slopeMove = slopeMove.normalized * remainingMove.magnitude;
+        }
+
+        move = slopeMove;
+        return true;
+    }
+
+    public Vector3 SweepMoveAlongSurface(Vector3 originalMove, Vector3 remainingMove, RaycastHit hit, bool maintainVelocity)
+    {
+        if (hit.collider == null || remainingMove == Vector3.zero)
+            return Vector3.zero;
+
+        Vector3 slideMove = Vector3.ProjectOnPlane(originalMove.normalized * remainingMove.magnitude, hit.normal);
+        if (maintainVelocity)
+        {
+            slideMove = slideMove.normalized * remainingMove.magnitude;
+        }
+
+        return slideMove;
     }
 }

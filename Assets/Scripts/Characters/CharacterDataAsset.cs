@@ -4,9 +4,15 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Character Asset")]
 public class CharacterDataAsset : ScriptableObject
 {
+    [Space]
+
     [Label("Character Name"), SerializeField]
     protected string m_characterName;
     public string characterName => m_characterName;
+
+    [Label("Character Mass"), SerializeField, Min(0)]
+    protected float m_characterMass;
+    public float characterMass => m_characterMass;
 
     [Space, Header("CHARACTER MOVEMENT")]
 
@@ -14,14 +20,23 @@ public class CharacterDataAsset : ScriptableObject
 
     [Header("# GROUND DATA"), Space]
 
+    //////////////////////////////////////////////////////////////////
+    // Ground Check Depth
+    [Tooltip("Distance below character to check for ground")]
     [Label("Check Depth"), SerializeField, Range(0.01f, 0.5f)]
     protected float m_groundCheckDepth;
     public float groundCheckDepth => m_groundCheckDepth;
 
+    //////////////////////////////////////////////////////////////////
+    // Ground Layer Mask
+    [Tooltip("Layer Mask to determine if the collider is ground")]
     [Label("Layer"), SerializeField]
     protected LayerMask m_groundLayer;
     public LayerMask groundLayer => m_groundLayer;
 
+    //////////////////////////////////////////////////////////////////
+    // Ground Min Move Distance
+    [Tooltip("Minimum distance the character should move")]
     [Label("Min Move Distance"), SerializeField, Min(0f)]
     protected float m_groundMinMoveDistance;
     public float groundMinMoveDistance => m_groundMinMoveDistance;
@@ -32,10 +47,12 @@ public class CharacterDataAsset : ScriptableObject
 
     //////////////////////////////////////////////////////////////////
     // Ground Stand Idle Speed & Acceleration
+    [Tooltip("Speed when there is no movement input")]
     [Label("Idle Speed"), SerializeField, Min(0)]
     protected float m_groundStandIdleSpeed;
     public float groundStandIdleSpeed => m_groundStandIdleSpeed;
 
+    [Tooltip("Acceleration (BrakingAcceleration if IdleSpeed = 0) when there is no movement input")]
     [Label("Idle Acceleration"), SerializeField, Min(0)]
     protected float m_groundStandIdleAcceleration;
     public float groundStandIdleAcceleration => m_groundStandIdleAcceleration;
@@ -244,8 +261,57 @@ public class CharacterDataAsset : ScriptableObject
 
     #endregion
 
+    #region AIR DATA
+
+    [Header("# AIR DATA"), Space]
+
+    [Space]
+    //////////////////////////////////////////////////////////////////
+    // Air Gravity Acceleration & MaxSpeed
+    [Label("Gravity Acceleration"), SerializeField]
+    protected float m_airGravityAcceleration;
+    public float airGravityAcceleration => m_airGravityAcceleration;
+
+    [Label("Gravity Max Speed"), SerializeField, Min(0f)]
+    protected float m_airGravityMaxSpeed;
+    public float airGravityMaxSpeed => m_airGravityMaxSpeed;
+
+    [Space]
+    //////////////////////////////////////////////////////////////////
+    // Air Min Move Distance
+    [Label("Min Move Distance"), SerializeField, Min(0f)]
+    protected float m_airMinMoveDistance;
+    public float airMinMoveDistance => m_airMinMoveDistance;
+
+    [Space]
+    //////////////////////////////////////////////////////////////////
+    // Air Move Speed & Acceleration
+    [Label("Move Speed"), SerializeField, Min(0f)]
+    protected float m_airMoveSpeed;
+    public float airMoveSpeed => m_airMoveSpeed;
+
+    [Label("Move Acceleration"), SerializeField, Min(0f)]
+    protected float m_airMoveAcceleration;
+    public float airMoveAcceleration => m_airMoveAcceleration;
+
+    [Space]
+    //////////////////////////////////////////////////////////////////
+    // Air Jump Power and MaxCount
+    [Label("Jump Power"), SerializeField]
+    protected uint m_airJumpPower;
+    public float airJumpPower => m_airJumpPower;
+
+    [Label("Max Jump Count"), SerializeField]
+    protected uint m_airMaxJumpCount;
+    public uint airMaxJumpCount => m_airMaxJumpCount;
+
+    #endregion
+
     public CharacterDataAsset()
     {
+        m_characterName = "UNNAMED";
+        m_characterMass = 80f;
+
         /// GroundData
         m_groundCheckDepth = 0.05f;
         m_groundLayer = 0;
@@ -276,7 +342,15 @@ public class CharacterDataAsset : ScriptableObject
         m_groundCrouchSlopeDownAngle = 65;
         m_groundCrouchMaintainVelocityOnSurface = false;
         m_groundCrouchMaintainVelocityAlongSurface = false;
-        // m_groundCrouchAutoRiseToStandSprint = true;
+        m_groundCrouchAutoRiseToStandSprint = true;
         m_groundCrouchToStandTransitionSpeed = 10;
+
+        m_airGravityAcceleration = -9.8f;
+        m_airGravityMaxSpeed = float.PositiveInfinity;
+        m_airMinMoveDistance = 0f;
+        m_airMoveSpeed = .1f;
+        m_airMoveAcceleration = .1f;
+        m_airJumpPower = 10;
+        m_airMaxJumpCount = 1;
     }
 }

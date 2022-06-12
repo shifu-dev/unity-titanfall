@@ -27,11 +27,10 @@ public class Character : MonoBehaviour
     public CharacterCapsule charCapsule { get; protected set; }
     public CharacterAnimation charAnimation { get; protected set; }
 
-    public float Mass { get; set; } = 80f;
-    public float ScaledMass
+    public float mass => charDataAsset.characterMass;
+    public float scaledMass
     {
-        get => transform.lossyScale.magnitude * Mass;
-        set => Mass = value / transform.lossyScale.magnitude;
+        get => transform.lossyScale.magnitude * mass;
     }
 
     public Quaternion rotation => transform.rotation;

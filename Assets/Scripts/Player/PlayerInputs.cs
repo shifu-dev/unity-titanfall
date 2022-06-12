@@ -46,6 +46,7 @@ public class PlayerInputs : MonoBehaviour
         tmpMove.x += Input.GetKey(KeyCode.A) ? -1 : 0;
         tmpMove.y += Input.GetKey(KeyCode.S) ? -1 : 0;
         tmpMove.x += Input.GetKey(KeyCode.D) ? 1 : 0;
+        tmpMove.x = -1;
         move = tmpMove;
 
         moveAngle = Vector3.SignedAngle(move, new Vector3(0, 1, 0), new Vector3(0, 0, 1));
@@ -64,6 +65,9 @@ public class PlayerInputs : MonoBehaviour
         float look_x = Input.GetAxis("look x");
         float look_y = -Input.GetAxis("look y");
         float look_z = 0;
+
+        look_x = 0;
+        look_y = 0;
 
         look_x = invertLook.x ? -look_x : look_x;
         look_y = invertLook.y ? -look_y : look_y;
