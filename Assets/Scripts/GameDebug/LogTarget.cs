@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 using System.Text;
 
 namespace GameLog
@@ -82,7 +83,7 @@ namespace GameLog
                 }
             }
 
-            return String.Format($"[{logMsg.logLevel}] {fmtLoggerName}: {logMsg.msg}\n");
+            return String.Format($"[{Time.frameCount}] [{Time.time}] [{logMsg.logLevel}] {fmtLoggerName}: {logMsg.msg}\n");
         }
 
         protected abstract void InternalWrite(LogLevel lvl, string msg);

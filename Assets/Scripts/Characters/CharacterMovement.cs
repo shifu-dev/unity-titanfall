@@ -1,5 +1,9 @@
-﻿using System;
+﻿#define DEBUG_GROUND_PHYSICS
+
 using UnityEngine;
+using GameLog;
+
+using ILogger = GameLog.ILogger;
 
 public class CharacterMovement : CharacterBehaviour
 {
@@ -14,6 +18,7 @@ public class CharacterMovement : CharacterBehaviour
 #endif
     #endregion
 
+    protected const uint k_debugMoveMultiplier = 100;
     protected const float k_collisionOffset = 0;
     protected const uint k_maxMoveIterations = 10;
 
@@ -21,6 +26,7 @@ public class CharacterMovement : CharacterBehaviour
     public CharacterCapsule charCapsule { get; protected set; }
     public CharacterInputs charInputs { get; protected set; }
     public CharacterView charView { get; protected set; }
+    public ILogger logger { get; protected set; }
 
     [SerializeField] private CharacterMovementStateImpl m_movementState;
     public virtual CharacterMovementState movementState
@@ -155,6 +161,11 @@ public class CharacterMovement : CharacterBehaviour
         UpdatePhysicsData();
         UpdateMovementState();
         UpdatePhysicsState();
+    }
+
+    public override void OnPossessed(Player player)
+    {
+        logger = GameDebug.CreateLogger("CharacterMovement");
     }
 
     //////////////////////////////////////////////////////////////////
@@ -327,14 +338,21 @@ public class CharacterMovement : CharacterBehaviour
         return hit;
     }
 
-    protected Vector3 SmallCapsuleMove(Vector3 move)
+    protected Vector3 SmallCapsuleMove(Vector3 move, float offset = 0f)
     {
-        return charCapsule.SweepMove(move);
+        return SmallCapsuleMove(move, out var hit, offset);
     }
 
-    protected Vector3 SmallCapsuleMove(Vector3 move, out RaycastHit hit)
+    protected Vector3 SmallCapsuleMove(Vector3 move, out RaycastHit hit, float offset = 0f)
     {
-        return charCapsule.SweepMove(move, out hit);
+        hit = SmallCapsuleCast(move, offset);
+        if (hit.collider != null)
+        {
+            move = move.normalized * hit.distance;
+        }
+
+        charCapsule.localPosition += move;
+        return move;
     }
 
     protected Vector3 ResolvePenetrationForSmallCapsule()
@@ -450,6 +468,152 @@ public class CharacterMovement : CharacterBehaviour
 
         m_lastMove = deltaMove;
         m_velocity = charCapsule.position - previousPosition;
+
+        if (m_velocity.y > 2f)
+        {
+            Debug.Break();
+        }
+    }
+
+    protected virtual void GroundMove(Vector3 originalMove)
+    {
+#if DEBUG_GROUND_PHYSICS
+        logger.Info($"GroundMove: {originalMove * k_debugMoveMultiplier} ----------------------------------------------------------------------------");
+#endif
+
+        GroundResizeCapsule();
+
+        if (originalMove.magnitude < groundMinMoveDistance)
+        {
+            ResolvePenetrationForSmallCapsule();
+            return;
+        }
+
+        Vector3 remainingMove = originalMove;
+
+        var stepUpHeight = 0f;
+        var didStepUp = false;
+        var didStepUpRecover = false;
+        var positionBeforeStepUp = Vector3.zero;
+        var moveBeforeStepUp = Vector3.zero;
+
+        ResolvePenetrationForSmallCapsule();
+
+        bool canRunIteration(uint it) => it < k_maxMoveIterations || remainingMove.magnitude > 0;
+        for (uint it = 0; canRunIteration(it); it++)
+        {
+
+#if DEBUG_GROUND_PHYSICS
+            logger.Info($"[{it}] Move: {remainingMove * k_debugMoveMultiplier} {remainingMove.magnitude}");
+#endif
+
+            // move the capsule and calculate the pending move vector
+            remainingMove -= SmallCapsuleMove(remainingMove, out RaycastHit sweepHit);
+            ResolvePenetrationForSmallCapsule();
+
+#if DEBUG_GROUND_PHYSICS
+            logger.Info($"[{it}] Moved: {remainingMove * k_debugMoveMultiplier} Hit[{sweepHit.ColliderName()}]");
+#endif
+
+
+#if DEBUG_GROUND_PHYSICS
+            logger.Info($"[{it}] Checking if to recover step up? DidStepUp[{didStepUp}] DidStepUpRecover[{didStepUpRecover}]");
+#endif
+
+            // perform step up recover
+            if (didStepUp && !didStepUpRecover)
+            {
+                didStepUpRecover = true;
+
+                SmallCapsuleMove(character.down * stepUpHeight, out var stepUpRecoverHit, .001f);
+                // GroundCheck(stepUpHeight);
+
+#if DEBUG_GROUND_PHYSICS
+                logger.Info($"[{it}] Performed StepUpRecover: Hit[{stepUpRecoverHit.ColliderName()}]");
+#endif
+
+                if (stepUpRecoverHit.collider)
+                {
+                    GroundRecalculateNormal(stepUpRecoverHit, out var hitNormal);
+                    float angle = Vector3.Angle(character.up, hitNormal);
+
+#if DEBUG_GROUND_PHYSICS
+                    logger.Info($"[{it}] Performed StepUpRecover GroundAngle[{angle}]");
+#endif
+
+                    if (angle > 0 && angle < 90 && angle > m_currentSlopeUpAngle)
+                    {
+
+#if DEBUG_GROUND_PHYSICS
+                        logger.Info($"[{it}] Reverting StepUp: GroundAngle[{angle}] > SlopeUpAngle[{m_currentSlopeUpAngle}]");
+#endif
+
+                        charCapsule.localPosition = positionBeforeStepUp;
+                        remainingMove = moveBeforeStepUp;
+                        continue;
+                    }
+                }
+            }
+
+            if (sweepHit.collider == null)
+            {
+#if DEBUG_GROUND_PHYSICS
+                logger.Info($"[{it}] MoveCompleted breaking loop. RemainingMove[{remainingMove * k_debugMoveMultiplier}, {remainingMove.magnitude}]");
+#endif
+
+                break;
+            }
+
+            // try sliding on the obstacle
+            if (GroundSlideOnSurface(originalMove, ref remainingMove, sweepHit))
+            {
+#if DEBUG_GROUND_PHYSICS
+                logger.Info($"[{it}] Performed GroundSlideOnSurface: RemainingMove[{remainingMove * k_debugMoveMultiplier}]");
+#endif
+
+                continue;
+            }
+
+#if DEBUG_GROUND_PHYSICS
+            logger.Info($"[{it}] Checking if to step up? DidStepUp[{didStepUp}] DidStepUpRecover[{didStepUpRecover}]");
+#endif
+
+            // step up the first time, we hit an obstacle
+            if (didStepUp == false)
+            {
+                didStepUp = true;
+                didStepUpRecover = false;
+                positionBeforeStepUp = charCapsule.localPosition;
+                moveBeforeStepUp = remainingMove;
+
+                stepUpHeight = SmallCapsuleMove(character.up * m_currentStepUpHeight, .001f).magnitude;
+
+#if DEBUG_GROUND_PHYSICS
+                logger.Info($"[{it}] Performed StepUp: RemainingMove[{remainingMove * k_debugMoveMultiplier}] StepUpHeight[{stepUpHeight}]");
+#endif
+
+                continue;
+            }
+
+            // try sliding along the obstacle
+            if (GroundSlideAlongSurface(originalMove, ref remainingMove, sweepHit))
+            {
+#if DEBUG_GROUND_PHYSICS
+                logger.Info($"[{it}] Performed GroundSlideAlongSurface: RemainingMove[{remainingMove * k_debugMoveMultiplier}]");
+#endif
+
+                continue;
+            }
+
+            // there's nothing we can do now, so stop the move
+            remainingMove = Vector3.zero;
+        }
+
+        ResolvePenetrationForSmallCapsule();
+        GroundStepDown(originalMove, ref remainingMove);
+        ResolvePenetrationForSmallCapsule();
+
+        charCapsule.PerformMove();
     }
 
     protected virtual CharacterMovementGroundResult GroundCheck()
@@ -521,68 +685,14 @@ public class CharacterMovement : CharacterBehaviour
         movementState.weight = weight;
     }
 
-    protected virtual void GroundMove(Vector3 originalMove)
+    protected virtual bool GroundCanStandOnBase(RaycastHit hit)
     {
-        GroundResizeCapsule();
+        return true;
+    }
 
-        if (originalMove.magnitude < groundMinMoveDistance)
-        {
-            ResolvePenetrationForSmallCapsule();
-            return;
-        }
-
-        Vector3 remainingMove = originalMove;
-        float? stepUp = null;
-
-        ResolvePenetrationForSmallCapsule();
-
-        bool canRunIteration(uint it) => it < k_maxMoveIterations || remainingMove.magnitude > 0;
-        for (uint it = 0; canRunIteration(it); it++)
-        {
-            // move the capsule and calculate the pending move vector
-            remainingMove -= SmallCapsuleMove(remainingMove, out RaycastHit sweepHit);
-            if (sweepHit.collider == null)
-            {
-                break;
-            }
-
-            if (GroundSlideOnSurface(originalMove, ref remainingMove, sweepHit))
-            {
-                continue;
-            }
-
-            // step up the first time, we hit an obstacle
-            if (stepUp.HasValue == false)
-            {
-                stepUp = GroundStepUp(originalMove, ref remainingMove, sweepHit);
-                continue;
-            }
-
-            if (GroundSlideAlongSurface(originalMove, ref remainingMove, sweepHit))
-            {
-                continue;
-            }
-
-            remainingMove = Vector3.zero;
-        }
-
-        ResolvePenetrationForSmallCapsule();
-
-        if (stepUp.HasValue)
-        {
-            SmallCapsuleMove(character.down * stepUp.Value, out RaycastHit stepUpRecoverHit);
-            if (stepUpRecoverHit.collider == null)
-            {
-                GroundStepDown(originalMove, ref remainingMove);
-            }
-        }
-        else
-        {
-            GroundStepDown(originalMove, ref remainingMove);
-        }
-
-        ResolvePenetrationForSmallCapsule();
-        charCapsule.PerformMove();
+    protected virtual bool GroundCanStandOnBase(CharacterMovementGroundResult groundResult)
+    {
+        return true;
     }
 
     protected virtual float GroundStepUp(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit)
@@ -639,7 +749,7 @@ public class CharacterMovement : CharacterBehaviour
         return stepUp;
     }
 
-    protected virtual bool RecalculateNormal(RaycastHit hit, out Vector3 normal)
+    protected virtual bool GroundRecalculateNormal(RaycastHit hit, out Vector3 normal)
     {
         return hit.RecalculateNormal(out normal, charCapsule.layerMask, charCapsule.triggerQuery);
     }
@@ -649,10 +759,10 @@ public class CharacterMovement : CharacterBehaviour
         if (hit.collider == null || remainingMove == Vector3.zero && m_currentSlopeUpAngle <= 0)
             return false;
 
-        RecalculateNormal(hit, out Vector3 hitNormal);
+        GroundRecalculateNormal(hit, out Vector3 hitNormal);
         float slopeAngle = Vector3.Angle(character.up, hitNormal);
 
-        if (slopeAngle <= m_currentSlopeUpAngle)
+        if (slopeAngle > 0 && slopeAngle <= m_currentSlopeUpAngle)
         {
             // treat surface as slope
             Vector3 slopeMove = Vector3.ProjectOnPlane(originalMove.normalized * remainingMove.magnitude, hit.normal);
@@ -685,41 +795,6 @@ public class CharacterMovement : CharacterBehaviour
         return true;
     }
 
-    protected virtual void GroundSlideOnOrAlongSurface(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit)
-    {
-        if (hit.collider == null || remainingMove == Vector3.zero)
-            return;
-
-        if (m_currentSlopeUpAngle > 0)
-        {
-            RecalculateNormal(hit, out Vector3 hitNormal);
-            float slopeAngle = Vector3.Angle(character.up, hitNormal);
-
-            if (slopeAngle <= m_currentSlopeUpAngle)
-            {
-                // treat surface as slope
-                Vector3 slopeMove = Vector3.ProjectOnPlane(originalMove.normalized * remainingMove.magnitude, hit.normal);
-                if (m_currentMaintainVelocityOnSurface)
-                {
-                    slopeMove = slopeMove.normalized * remainingMove.magnitude;
-                }
-
-                remainingMove = slopeMove;
-                return;
-            }
-        }
-
-        // treat surface as wall
-        Vector3 hitProject = Vector3.ProjectOnPlane(hit.normal, character.up);
-        Vector3 slideMove = Vector3.ProjectOnPlane(originalMove.normalized * remainingMove.magnitude, hitProject);
-        if (m_currentMaintainVelocityAlongSurface)
-        {
-            slideMove = slideMove.normalized * remainingMove.magnitude;
-        }
-
-        remainingMove = slideMove;
-    }
-
     protected virtual bool GroundStepDown(Vector3 originalMove, ref Vector3 remainingMove)
     {
         if (m_currentStepDownDepth <= 0)
@@ -743,6 +818,8 @@ public class CharacterMovement : CharacterBehaviour
     [SerializeField] protected float gravityMultiplier = .01f;
     protected virtual void PhysAir()
     {
+        Debug.Break();
+
         float deltaTime = Time.deltaTime;
         float moveSpeed = airMoveSpeed;
         float mass = character.scaledMass;

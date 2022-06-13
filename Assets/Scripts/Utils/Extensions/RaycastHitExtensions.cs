@@ -1,7 +1,15 @@
+using System.Runtime.CompilerServices;
+
 namespace UnityEngine
 {
     public static class RaycastHitExtensions
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string ColliderName(this RaycastHit hit)
+        {
+            return hit.collider ? hit.collider.name : "NULL";
+        }
+
         public static bool RecalculateNormalForMeshCollider(this RaycastHit hit, out Vector3 normal)
         {
             if (hit.collider && hit.collider is MeshCollider)

@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class PlayerInputs : MonoBehaviour
 {
+    [field: SerializeField] public bool useDebugInputs { get; protected set; }
+    [field: SerializeField] public Vector3 debugMove { get; protected set; }
+
     // Movement Inputs
     [field: SerializeField, ReadOnly] public Vector3 move { get; protected set; }
     [field: SerializeField, ReadOnly] public float moveAngle { get; protected set; }
@@ -42,11 +45,17 @@ public class PlayerInputs : MonoBehaviour
         //////////////////////////////////////////////////////////////////
         /// move
         Vector3 tmpMove = Vector3.zero;
-        tmpMove.y += Input.GetKey(KeyCode.W) ? 1 : 0;
-        tmpMove.x += Input.GetKey(KeyCode.A) ? -1 : 0;
-        tmpMove.y += Input.GetKey(KeyCode.S) ? -1 : 0;
-        tmpMove.x += Input.GetKey(KeyCode.D) ? 1 : 0;
-        tmpMove.x = -1;
+        if (useDebugInputs)
+        {
+            tmpMove = debugMove;
+        }
+        else
+        {
+            tmpMove.y += Input.GetKey(KeyCode.W) ? 1 : 0;
+            tmpMove.x += Input.GetKey(KeyCode.A) ? -1 : 0;
+            tmpMove.y += Input.GetKey(KeyCode.S) ? -1 : 0;
+            tmpMove.x += Input.GetKey(KeyCode.D) ? 1 : 0;
+        }
         move = tmpMove;
 
         moveAngle = Vector3.SignedAngle(move, new Vector3(0, 1, 0), new Vector3(0, 0, 1));

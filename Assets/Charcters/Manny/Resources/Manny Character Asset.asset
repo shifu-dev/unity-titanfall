@@ -30,9 +30,9 @@ MonoBehaviour:
   m_groundStandSprintLeftAngleMax: -46
   m_groundStandSprintRightAngleMax: 46
   m_groundStandJumpForce: 40
-  m_groundStandStepUpPercent: 24.79
+  m_groundStandStepUpPercent: 40
   m_groundStandStepDownPercent: 234.1
-  m_groundStandSlopeUpAngle: 34.8
+  m_groundStandSlopeUpAngle: 50
   m_groundStandSlopeDownAngle: -89
   m_groundStandMaintainVelocityOnSurface: 1
   m_groundStandMaintainVelocityAlongSurface: 0
