@@ -1,16 +1,16 @@
 using System;
 using UnityEngine;
 
-public class VirtualCapsuleDeprecated
+public struct VirtualCapsule
 {
     //////////////////////////////////////////////////////////////////
     /// Physics
     //////////////////////////////////////////////////////////////////
 
-    public virtual CapsuleCollider collider { get; set; }
+    public CapsuleCollider collider { get; set; }
 
-    public virtual LayerMask layerMask { get; set; }
-    public virtual QueryTriggerInteraction triggerQuery { get; set; }
+    public LayerMask layerMask { get; set; }
+    public QueryTriggerInteraction triggerQuery { get; set; }
 
     public Vector3 velocity { get; }
     public float speed => velocity.magnitude;
@@ -18,8 +18,8 @@ public class VirtualCapsuleDeprecated
     //////////////////////////////////////////////////////////////////
     /// Positions (WorldSpace & LocalSpace)
     //////////////////////////////////////////////////////////////////
-    public virtual Vector3 position { get; set; }
-    public virtual Vector3 localCenter { get; set; }
+    public Vector3 position { get; set; }
+    public Vector3 localCenter { get; set; }
     public Vector3 center
     {
         get => position + localCenter;
@@ -44,7 +44,7 @@ public class VirtualCapsuleDeprecated
     //////////////////////////////////////////////////////////////////
     /// Rotations (WorldSpace & LocalSpace)
     //////////////////////////////////////////////////////////////////
-    public virtual Quaternion rotation { get; set; }
+    public Quaternion rotation { get; set; }
     public Vector3 rotationEuler
     {
         get => rotation.eulerAngles;
@@ -78,8 +78,8 @@ public class VirtualCapsuleDeprecated
     /// Lengths (WorldSpace & LocalSpace)
     //////////////////////////////////////////////////////////////////
 
-    public virtual Vector3 scale { get; set; }
-    public virtual float localRadius { get; set; }
+    public Vector3 scale { get; set; }
+    public float localRadius { get; set; }
     public float radius
     {
         get
@@ -92,7 +92,7 @@ public class VirtualCapsuleDeprecated
     {
         get => radius * 2;
     }
-    public virtual float localHeight { get; set; }
+    public float localHeight { get; set; }
     public float height
     {
         get => Math.Max(localHeight * scale.y, diameter);
@@ -365,7 +365,7 @@ public class VirtualCapsuleDeprecated
     /// Penetration
     //////////////////////////////////////////////////////////////////
 
-    public virtual bool ComputePenetration(out Vector3 moveOut, Collider collider, Vector3 colliderPosition, Quaternion colliderRotation)
+    public bool ComputePenetration(out Vector3 moveOut, Collider collider, Vector3 colliderPosition, Quaternion colliderRotation)
     {
         moveOut = Vector3.zero;
         var thisCollider = this.collider;
@@ -405,7 +405,7 @@ public class VirtualCapsuleDeprecated
         return false;
     }
 
-    public virtual bool ResolvePenetrationInfo(out Vector3 moveOut, float collisionOffset = 0f)
+    public bool ResolvePenetrationInfo(out Vector3 moveOut, float collisionOffset = 0f)
     {
         moveOut = Vector3.zero;
 
@@ -454,7 +454,7 @@ public class VirtualCapsuleDeprecated
         return true;
     }
 
-    public virtual Vector3 ResolvePenetration(float collisionOffset = 0f)
+    public Vector3 ResolvePenetration(float collisionOffset = 0f)
     {
         if (ResolvePenetrationInfo(out var moveOut, collisionOffset))
         {

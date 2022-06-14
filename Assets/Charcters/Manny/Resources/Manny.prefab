@@ -79,7 +79,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5130046698628662828
 Transform:
   m_ObjectHideFlags: 0
@@ -350,7 +350,7 @@ Transform:
   - {fileID: 7662503284909734823}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 20, z: 0}
 --- !u!114 &1561319467078266631
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -416,7 +416,6 @@ MonoBehaviour:
     m_previous: 0
     m_current: 0
     m_weight: 1
-  <physIsOnGround>k__BackingField: 0
   gravityMultiplier: 1
 --- !u!114 &1210957656046409178
 MonoBehaviour:
@@ -434,11 +433,12 @@ MonoBehaviour:
   localCenter: {x: 0, y: 0, z: 0}
   localHeight: 2
   localRadius: 0.5
-  skinWidth: 0.01
+  skinWidth: 0.1
   layerMask:
     serializedVersion: 2
     m_Bits: 4294967291
-  triggerQuery: 1
+  triggerQuery: 0
+  <localRotation>k__BackingField: {x: 0, y: 0, z: 0, w: 1}
 --- !u!114 &7993160800140144679
 MonoBehaviour:
   m_ObjectHideFlags: 0

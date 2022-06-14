@@ -28,8 +28,13 @@ public class CharacterCapsule : CharacterBehaviour
     [SerializeField, Label("Trigger Query")]
     public QueryTriggerInteraction triggerQuery;
 
+    public float localSkinWidth
+    {
+        get => skinWidth * (localRadius / radius);
+    }
+
     public Vector3 localPosition { get; set; }
-    public Quaternion localRotation { get; set; }
+    [field: SerializeField] public Quaternion localRotation { get; set; }
     public Vector3 localScale { get; set; }
     public Vector3 lastLocalPosition { get; protected set; }
     public Quaternion lastLocalRotation { get; protected set; }
@@ -317,20 +322,28 @@ public class CharacterCapsule : CharacterBehaviour
 
     protected virtual void InternalCalculateCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius, float skinWidth)
     {
-        InternalCalculateCapsuleGeometry(out var scale, out var center, out topSphere, out baseSphere, out var cylinderHeight, out radius, skinWidth);
+        InternalCalculateCapsuleGeometry(out var scale, out var center, out topSphere, out baseSphere, out var height, out radius, skinWidth);
     }
 
-    protected virtual void InternalCalculateCapsuleGeometry(out Vector3 scale, out Vector3 center, out Vector3 topSphere, out Vector3 baseSphere, out float cylinderHeight, out float radius, float skinWidth)
+    protected virtual void InternalCalculateCapsuleGeometry(out Vector3 scale, out Vector3 center, out Vector3 topSphere, out Vector3 baseSphere, out float height, out float radius, float skinWidth)
     {
         scale = this.scale;
-        radius = localRadius * Mathf.Max(scale.x, scale.z) + skinWidth;
 
-        float worldHeight = localHeight * scale.y;
-        cylinderHeight = worldHeight - radius - radius;
+        radius = localRadius * Mathf.Max(scale.x, scale.z);
+
+        height = Math.Max(localHeight * scale.y, radius * 2f);
+
+        float cylinderHeight = height - radius - radius;
+        var halfCylinderHeight = cylinderHeight * .5f;
+        Debug.Log(cylinderHeight);
 
         center = this.center;
-        topSphere = center + (up * (cylinderHeight / 2));
-        baseSphere = center + (down * (cylinderHeight / 2));
+
+        topSphere = center + up * halfCylinderHeight;
+
+        baseSphere = center + down * halfCylinderHeight;
+
+        radius += skinWidth;
     }
 
     //////////////////////////////////////////////////////////////////
@@ -436,12 +449,12 @@ public class CharacterCapsule : CharacterBehaviour
         return hit;
     }
 
-    public bool CapsuleCast(Vector3 move, out RaycastHit smallCapsuleHit, out RaycastHit bigCapsuleHit)
+    public bool CapsuleCast(Vector3 move, out RaycastHit smallHit, out RaycastHit bigHit)
     {
-        smallCapsuleHit = SmallCapsuleCast(move);
-        bigCapsuleHit = BigCapsuleCast(move);
+        smallHit = SmallCapsuleCast(move);
+        bigHit = skinWidth <= 0f ? smallHit : BigCapsuleCast(move);
 
-        return smallCapsuleHit.collider || bigCapsuleHit.collider;
+        return smallHit.collider || bigHit.collider;
     }
 
     public RaycastHit[] SmallCapsuleCastAll(Vector3 move)
@@ -669,27 +682,11 @@ public class CharacterCapsule : CharacterBehaviour
     /// Penetration
     //////////////////////////////////////////////////////////////////
 
-    /// <summary>
-    /// Compute the minimal translation required to separate the character from the collider (without SkinWidth).
-    /// </summary>
-    /// <param name="moveOut">Minimal move required to separate the colliders apart.</param>
-    /// <param name="collider">The collider to test.</param>
-    /// <param name="colliderPosition">Position of the collider.</param>
-    /// <param name="colliderRotation">Rotation of the collider.</param>
-    /// <returns>True if found penetration.</returns>
     public bool ComputePenetrationForSmallCapsule(out Vector3 moveOut, Collider collider, Vector3 colliderPosition, Quaternion colliderRotation)
     {
         return InternalComputePenetration(false, out moveOut, collider, colliderPosition, colliderRotation);
     }
 
-    /// <summary>
-    /// Compute the minimal translation required to separate the character from the collider (with SkinWidth).
-    /// </summary>
-    /// <param name="moveOut">Minimal move required to separate the colliders apart.</param>
-    /// <param name="collider">The collider to test.</param>
-    /// <param name="colliderPosition">Position of the collider.</param>
-    /// <param name="colliderRotation">Rotation of the collider.</param>
-    /// <returns>True if found penetration.</returns>
     public bool ComputePenetrationForBigCapsule(out Vector3 moveOut, Collider collider, Vector3 colliderPosition, Quaternion colliderRotation)
     {
         return InternalComputePenetration(true, out moveOut, collider, colliderPosition, colliderRotation);
@@ -703,29 +700,159 @@ public class CharacterCapsule : CharacterBehaviour
             return false;
         }
 
+        var thisCollider = this.collider;
+
         // store current values
-        float cacheRadius = this.collider.radius;
-        float cacheHeight = this.collider.height;
-        Vector3 cacheCenter = this.collider.center;
-        int cacheDirection = this.collider.direction;
+        float cacheRadius = thisCollider.radius;
+        float cacheHeight = thisCollider.height;
+        Vector3 cacheCenter = thisCollider.center;
+        int cacheDirection = thisCollider.direction;
 
         // set new values
-        this.collider.radius = localRadius;
-        this.collider.height = localHeight;
-        this.collider.center = localCenter;
+        thisCollider.radius = bigCapsule ? localRadius + localSkinWidth : localRadius;
+        thisCollider.height = localHeight;
+        thisCollider.center = localCenter;
 
         // Note: Physics.ComputePenetration does not always return values when the colliders overlap.
-        var result = Physics.ComputePenetration(collider, localPosition, localRotation,
+        var result = Physics.ComputePenetration(thisCollider, this.position, this.rotation,
             collider, colliderPosition, colliderRotation, out Vector3 direction, out float distance);
 
         // restore previous values
-        this.collider.radius = cacheRadius;
-        this.collider.height = cacheHeight;
-        this.collider.center = cacheCenter;
-        this.collider.direction = cacheDirection;
+        thisCollider.radius = cacheRadius;
+        thisCollider.height = cacheHeight;
+        thisCollider.center = cacheCenter;
+        thisCollider.direction = cacheDirection;
 
         moveOut = direction * distance;
         return result;
+    }
+
+    public bool ResolvePenetrationInfoForSmallCapsule(out Vector3 moveOut, float collisionOffset = 0f)
+    {
+        return InternalResolvePenetrationInfo(false, out moveOut, collisionOffset);
+    }
+
+    public bool ResolvePenetrationInfoForBigCapsule(out Vector3 moveOut, float collisionOffset = 0f)
+    {
+        return InternalResolvePenetrationInfo(true, out moveOut, collisionOffset);
+    }
+
+    protected bool InternalResolvePenetrationInfo(bool bigCapsule, out Vector3 moveOut, float collisionOffset)
+    {
+        moveOut = Vector3.zero;
+
+        Collider[] overlaps = SmallCapsuleOverlap();
+        if (overlaps.Length <= 0)
+        {
+            return false;
+        }
+
+        var thisCollider = this.collider;
+        var thisPosition = this.position;
+        var thisRotation = this.rotation;
+
+        // store current values
+        float cacheRadius = thisCollider.radius;
+        float cacheHeight = thisCollider.height;
+        Vector3 cacheCenter = thisCollider.center;
+
+        // set new values
+        thisCollider.radius = bigCapsule ? localRadius + localSkinWidth : localRadius;
+        thisCollider.height = localHeight;
+        thisCollider.center = localCenter;
+
+        bool didCompute = false;
+        foreach (var collider in overlaps)
+        {
+            if (collider == null || thisCollider == collider)
+            {
+                continue;
+            }
+
+            bool computed = Physics.ComputePenetration(thisCollider, thisPosition, thisRotation,
+                collider, collider.transform.position, collider.transform.rotation,
+                out Vector3 direction, out float distance);
+
+            if (computed)
+            {
+                didCompute = true;
+                moveOut += direction * (distance + collisionOffset);
+            }
+        }
+
+        // restore previous values
+        thisCollider.radius = cacheRadius;
+        thisCollider.height = cacheHeight;
+        thisCollider.center = cacheCenter;
+
+        return didCompute;
+    }
+
+    public bool ResolvePenetrationInfoForSmallCapsuleNonAlloc(Collider[] overlaps, out Vector3 moveOut, float collisionOffset = 0f)
+    {
+        return InternalResolvePenetrationInfoNonAlloc(false, overlaps, out moveOut, collisionOffset);
+    }
+
+    public bool ResolvePenetrationInfoForBigCapsuleNonAlloc(Collider[] overlaps, out Vector3 moveOut, float collisionOffset = 0f)
+    {
+        return InternalResolvePenetrationInfoNonAlloc(true, overlaps, out moveOut, collisionOffset);
+    }
+
+    protected bool InternalResolvePenetrationInfoNonAlloc(bool bigCapsule, Collider[] overlaps, out Vector3 moveOut, float collisionOffset)
+    {
+        moveOut = Vector3.zero;
+
+        if (overlaps == null)
+        {
+            return false;
+        }
+
+        uint overlapCount = SmallCapsuleOverlapNonAlloc(overlaps);
+        if (overlapCount <= 0)
+        {
+            return false;
+        }
+
+        var thisCollider = this.collider;
+        var thisPosition = this.position;
+        var thisRotation = this.rotation;
+
+        // store current values
+        float cacheRadius = thisCollider.radius;
+        float cacheHeight = thisCollider.height;
+        Vector3 cacheCenter = thisCollider.center;
+
+        // set new values
+        thisCollider.radius = bigCapsule ? localRadius + localSkinWidth : localRadius;
+        thisCollider.height = localHeight;
+        thisCollider.center = localCenter;
+
+        bool didCompute = false;
+        for (uint i = 0; i < overlapCount; i++)
+        {
+            var collider = overlaps[i];
+            if (collider == null || thisCollider == collider)
+            {
+                continue;
+            }
+
+            bool computed = Physics.ComputePenetration(thisCollider, thisPosition, thisRotation,
+                collider, collider.transform.position, collider.transform.rotation,
+                out Vector3 direction, out float distance);
+
+            if (computed)
+            {
+                didCompute = true;
+                moveOut += direction * (distance + collisionOffset);
+            }
+        }
+
+        // restore previous values
+        thisCollider.radius = cacheRadius;
+        thisCollider.height = cacheHeight;
+        thisCollider.center = cacheCenter;
+
+        return didCompute;
     }
 
     public Vector3 ResolvePenetrationForSmallCapsule(float collisionOffset = 0f)
@@ -733,7 +860,7 @@ public class CharacterCapsule : CharacterBehaviour
         return InternalResolvePenetration(false, collisionOffset);
     }
 
-    public Vector3 ResolvePenetrationForBigCapsule(float collisionOffset)
+    public Vector3 ResolvePenetrationForBigCapsule(float collisionOffset = 0f)
     {
         return InternalResolvePenetration(true, collisionOffset);
     }
@@ -758,7 +885,7 @@ public class CharacterCapsule : CharacterBehaviour
         Vector3 cacheCenter = thisCollider.center;
 
         // set new values
-        thisCollider.radius = localRadius;
+        thisCollider.radius = bigCapsule ? localRadius + localSkinWidth : localRadius;
         thisCollider.height = localHeight;
         thisCollider.center = localCenter;
 
@@ -770,7 +897,7 @@ public class CharacterCapsule : CharacterBehaviour
             }
 
             bool computed = Physics.ComputePenetration(thisCollider, thisPosition, thisRotation,
-                collider, collider.transform.position, collider.transform.rotation, 
+                collider, collider.transform.position, collider.transform.rotation,
                 out Vector3 direction, out float distance);
 
             if (computed)
@@ -850,5 +977,18 @@ public class CharacterCapsule : CharacterBehaviour
         }
 
         return slideMove;
+    }
+
+    //////////////////////////////////////////////////////////////////
+    /// Debug
+    //////////////////////////////////////////////////////////////////
+
+    protected virtual void OnDrawGizmos()
+    {
+        CalculateSmallCapsuleGeometry(out var smallTopSphere, out var smallBaseSphere, out var smallRadius);
+        GizmosExtensions.DrawWireCapsule(rotation, smallTopSphere, smallBaseSphere, smallRadius, Color.blue);
+
+        CalculateBigCapsuleGeometry(out var bigTopSphere, out var bigBaseSphere, out var bigRadius);
+        GizmosExtensions.DrawWireCapsule(rotation, bigTopSphere, bigBaseSphere, bigRadius, Color.red);
     }
 }
