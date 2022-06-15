@@ -38,7 +38,6 @@ namespace UnityEngine
             var prevColor = Handles.color;
             Handles.color = color;
 
-            Debug.Log(rot.eulerAngles);
             var space = Matrix4x4.TRS(Vector3.zero, rot, Handles.matrix.lossyScale);
             using (new Handles.DrawingScope(space))
             {

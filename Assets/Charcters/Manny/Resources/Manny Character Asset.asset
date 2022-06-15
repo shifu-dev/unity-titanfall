@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_characterName: Manny
   m_characterMass: 80
-  m_groundCheckDepth: 0.381
+  m_groundCheckDepth: 0.5
   m_groundLayer:
     serializedVersion: 2
     m_Bits: 64

@@ -335,7 +335,6 @@ public class CharacterCapsule : CharacterBehaviour
 
         float cylinderHeight = height - radius - radius;
         var halfCylinderHeight = cylinderHeight * .5f;
-        Debug.Log(cylinderHeight);
 
         center = this.center;
 
@@ -869,7 +868,7 @@ public class CharacterCapsule : CharacterBehaviour
     {
         Vector3 moveOut = Vector3.zero;
 
-        Collider[] overlaps = SmallCapsuleOverlap();
+        Collider[] overlaps = bigCapsule ? BigCapsuleOverlap() : SmallCapsuleOverlap();
         if (overlaps.Length <= 0)
         {
             return moveOut;
@@ -911,7 +910,7 @@ public class CharacterCapsule : CharacterBehaviour
         thisCollider.height = cacheHeight;
         thisCollider.center = cacheCenter;
 
-        Move(moveOut);
+        localPosition += moveOut;
         return moveOut;
     }
 

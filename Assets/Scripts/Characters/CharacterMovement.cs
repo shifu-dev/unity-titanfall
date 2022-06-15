@@ -1,6 +1,4 @@
-﻿#define DEBUG_GROUND_PHYSICS
-
-using System;
+﻿using System;
 using UnityEngine;
 using GameLog;
 
@@ -8,20 +6,12 @@ using ILogger = GameLog.ILogger;
 
 public class CharacterMovement : CharacterBehaviour
 {
-    #region EDITOR
-#if UNITY_EDITOR
-
-    public virtual void OnEditorEnable()
-    {
-        charCapsule = GetComponent<CharacterCapsule>();
-    }
-
-#endif
-    #endregion
-
     protected const uint k_debugMoveMultiplier = 100;
-    protected const float k_collisionOffset = 0;
     protected const uint k_maxMoveIterations = 10;
+    protected const float k_collisionOffset = 0.01f;
+
+    protected const float k_minGroundSlopeUpAngle = 0f;
+    protected const float k_maxGroundSlopeUpAngle = 89.9f;
 
     public CharacterDataAsset charDataAsset { get; protected set; }
     public CharacterCapsule charCapsule { get; protected set; }
@@ -272,7 +262,7 @@ public class CharacterMovement : CharacterBehaviour
             // charCapsule.localRotation = Quaternion.Euler(charCapsule.localRotation.eulerAngles + deltaRotation);
         }
 
-        ResolvePenetration();
+        CapsuleResolvePenetration();
         GroundUpdateResult();
     }
 
@@ -313,21 +303,53 @@ public class CharacterMovement : CharacterBehaviour
         }
 
         CapsuleCast(remainingMove, out smallHit, out bigHit);
-        Vector3 move = remainingMove;
+
+        Vector3 direction = remainingMove.normalized;
+        float distance = remainingMove.magnitude;
 
         if (smallHit.collider)
         {
-            move = remainingMove.normalized * (smallHit.distance - charCapsule.skinWidth - k_collisionOffset);
+            distance = smallHit.distance - charCapsule.skinWidth - k_collisionOffset;
         }
         else if (bigHit.collider)
         {
-            move = remainingMove.normalized * (bigHit.distance - k_collisionOffset);
+            distance = bigHit.distance - k_collisionOffset;
         }
 
-        charCapsule.localPosition += move;
-        ResolvePenetration();
+        charCapsule.localPosition += direction * distance;
 
-        return move;
+        var resolvePenetration = CapsuleResolvePenetration();
+
+        Debug.Log($"CapsuleMove: Move[{remainingMove.normalized}, {remainingMove.magnitude}] Moved[{distance}] " +
+            $"BigHit[{bigHit.ColliderName()}] SmallHit[{smallHit.ColliderName()}] ResolvePenetration[{resolvePenetration.magnitude}]");
+
+        return direction * Math.Max(0f, distance);
+    }
+
+    protected Vector3 CapsuleMove(Vector3 remainingMove, out RaycastHit smallHit, out RaycastHit bigHit, out Vector3 hitNormal)
+    {
+        hitNormal = Vector3.zero;
+
+        var moved = CapsuleMove(remainingMove, out smallHit, out bigHit);
+        var hit = bigHit.collider ? bigHit : smallHit;
+
+        if (hit.collider)
+        {
+            var rayDirection = remainingMove.normalized;
+            var rayOrigin = hit.point + (-rayDirection * .01f);
+
+            Physics.Raycast(rayOrigin, rayDirection, out var rayHit, .011f,
+                charCapsule.layerMask, charCapsule.triggerQuery);
+
+            if (rayHit.collider && rayHit.collider == hit.collider)
+            {
+                hitNormal = rayHit.normal;
+
+                Debug.Log($"CapsuleMove: New HitNormal[{hitNormal}] Normal[{hit.normal}]");
+            }
+        }
+
+        return moved;
     }
 
     protected RaycastHit SmallBaseSphereCast(Vector3 move, float offsetValue = 0)
@@ -351,7 +373,7 @@ public class CharacterMovement : CharacterBehaviour
         return hit;
     }
 
-    protected Vector3 ResolvePenetration()
+    protected Vector3 CapsuleResolvePenetration()
     {
         return charCapsule.ResolvePenetrationForBigCapsule(k_collisionOffset);
     }
@@ -363,6 +385,11 @@ public class CharacterMovement : CharacterBehaviour
 
         m_velocity = Vector3.zero;
         m_lastMove = Vector3.zero;
+    }
+
+    protected bool RecalculateNormal(RaycastHit hit, out Vector3 normal)
+    {
+        return hit.RecalculateNormalUsingRaycast(out normal, charCapsule.layerMask, charCapsule.triggerQuery);
     }
 
     //////////////////////////////////////////////////////////////////
@@ -473,87 +500,58 @@ public class CharacterMovement : CharacterBehaviour
 
         m_lastMove = deltaMove;
         m_velocity = charCapsule.position - previousPosition;
-
-        if (m_velocity.y > 2f)
-        {
-            Debug.Break();
-        }
     }
 
     protected virtual void GroundMove(Vector3 originalMove)
     {
-#if DEBUG_GROUND_PHYSICS
-        logger.Info($"GroundMove: {originalMove * k_debugMoveMultiplier} ----------------------------------------------------------------------------");
-#endif
-
         GroundResizeCapsule();
 
         if (originalMove.magnitude < groundMinMoveDistance)
         {
-            ResolvePenetration();
+            CapsuleResolvePenetration();
             return;
         }
 
         Vector3 remainingMove = originalMove;
+        remainingMove.y = 0f;
 
         var stepUpHeight = 0f;
+        var canStepUp = true;
         var didStepUp = false;
         var didStepUpRecover = false;
         var positionBeforeStepUp = Vector3.zero;
         var moveBeforeStepUp = Vector3.zero;
 
-        ResolvePenetration();
+        CapsuleResolvePenetration();
 
         for (uint it = 0; it < k_maxMoveIterations; it++)
         {
-
-#if DEBUG_GROUND_PHYSICS
-            logger.Info($"[{it}] Move: {remainingMove * k_debugMoveMultiplier} {remainingMove.magnitude}");
-#endif
-
-            remainingMove -= CapsuleMove(remainingMove, out var smallHit, out var bigHit);
+            Debug.Log($"[{it}] SweepMove: {remainingMove}, {remainingMove.magnitude}");
+            remainingMove -= CapsuleMove(remainingMove, out var smallHit, out var bigHit, out var moveHitNormal);
             var moveHit = smallHit.collider ? smallHit : bigHit;
-
-#if DEBUG_GROUND_PHYSICS
-            logger.Info($"[{it}] Moved: {remainingMove * k_debugMoveMultiplier} SmallHit[{smallHit.ColliderName()}] BigHit[{bigHit.ColliderName()}]");
-#endif
-
-
-#if DEBUG_GROUND_PHYSICS
-            logger.Info($"[{it}] Checking if to recover step up? DidStepUp[{didStepUp}] DidStepUpRecover[{didStepUpRecover}]");
-#endif
 
             // perform step up recover
             if (didStepUp && !didStepUpRecover)
             {
+                didStepUp = false;
                 didStepUpRecover = true;
 
-                // SmallCapsuleMove(character.down * stepUpHeight, out var stepUpRecoverHit, .001f);
-                CapsuleMove(character.down * stepUpHeight, out var smallStepUpRecoverHit, out var bigStepUpRecoverHit);
-                var recoverHit = smallStepUpRecoverHit.collider ? smallStepUpRecoverHit : bigStepUpRecoverHit;
+                Debug.Log($"[{it}] StepUpRecover: {stepUpHeight}");
+                CapsuleMove(character.down * stepUpHeight, out var smallStepUpRecoverHit, out var bigStepUpRecoverHit, out var stepUpRecoverHitNormal);
+                var stepUpRecoverHit = bigStepUpRecoverHit.collider ? bigStepUpRecoverHit : smallStepUpRecoverHit;
 
-#if DEBUG_GROUND_PHYSICS
-                logger.Info($"[{it}] Performed StepUpRecover: SmallHit[{smallStepUpRecoverHit.ColliderName()}] BigHit[{bigStepUpRecoverHit.ColliderName()}]");
-#endif
-
-                if (recoverHit.collider)
+                if (stepUpRecoverHit.collider)
                 {
-                    GroundRecalculateNormal(recoverHit, out var recoverHitNormal);
-                    float angle = Vector3.Angle(character.up, recoverHitNormal);
-
-#if DEBUG_GROUND_PHYSICS
-                    logger.Info($"[{it}] Performed StepUpRecover GroundAngle[{angle}]");
-#endif
-
-                    if (angle > 0 && angle < 90 && angle > m_currentSlopeUpAngle)
+                    // if we cannot step on this ground, revert the step up
+                    // and continue the loop without stepping up this time
+                    if (GroundCanStandOn(stepUpRecoverHit, stepUpRecoverHitNormal) == false)
                     {
-
-#if DEBUG_GROUND_PHYSICS
-                        logger.Info($"[{it}] Reverting StepUp: GroundAngle[{angle}] > SlopeUpAngle[{m_currentSlopeUpAngle}]");
-#endif
+                        Debug.Log($"[{it}] Reverting step up!");
 
                         charCapsule.localPosition = positionBeforeStepUp;
                         remainingMove = moveBeforeStepUp;
+                        canStepUp = false;
+
                         continue;
                     }
                 }
@@ -561,40 +559,26 @@ public class CharacterMovement : CharacterBehaviour
 
             if (moveHit.collider == null)
             {
-#if DEBUG_GROUND_PHYSICS
-                logger.Info($"[{it}] MoveCompleted breaking loop. RemainingMove[{remainingMove * k_debugMoveMultiplier}, {remainingMove.magnitude}]");
-#endif
-
                 break;
             }
 
             // try sliding on the obstacle
-            if (GroundSlideOnSurface(originalMove, ref remainingMove, moveHit))
+            if (GroundSlideOnSurface(originalMove, ref remainingMove, moveHit, moveHitNormal))
             {
-#if DEBUG_GROUND_PHYSICS
-                logger.Info($"[{it}] Performed GroundSlideOnSurface: RemainingMove[{remainingMove * k_debugMoveMultiplier}]");
-#endif
-
+                Debug.Log($"[{it}] SlideOnSurface");
                 continue;
             }
 
-#if DEBUG_GROUND_PHYSICS
-            logger.Info($"[{it}] Checking if to step up? DidStepUp[{didStepUp}] DidStepUpRecover[{didStepUpRecover}]");
-#endif
-
             // step up the first time, we hit an obstacle
-            if (didStepUp == false)
+            if (canStepUp && didStepUp == false)
             {
                 didStepUp = true;
                 didStepUpRecover = false;
                 positionBeforeStepUp = charCapsule.localPosition;
                 moveBeforeStepUp = remainingMove;
 
+                Debug.Log($"[{it}] StepUp: {m_currentStepUpHeight}");
                 stepUpHeight = CapsuleMove(character.up * m_currentStepUpHeight).magnitude;
-
-#if DEBUG_GROUND_PHYSICS
-                logger.Info($"[{it}] Performed StepUp: RemainingMove[{remainingMove * k_debugMoveMultiplier}] StepUpHeight[{stepUpHeight}]");
-#endif
 
                 continue;
             }
@@ -602,10 +586,7 @@ public class CharacterMovement : CharacterBehaviour
             // try sliding along the obstacle
             if (GroundSlideAlongSurface(originalMove, ref remainingMove, moveHit))
             {
-#if DEBUG_GROUND_PHYSICS
-                logger.Info($"[{it}] Performed GroundSlideAlongSurface: RemainingMove[{remainingMove * k_debugMoveMultiplier}]");
-#endif
-
+                Debug.Log($"[{it}] SlideAlongSurface");
                 continue;
             }
 
@@ -614,46 +595,9 @@ public class CharacterMovement : CharacterBehaviour
         }
 
         GroundStepDown(originalMove, ref remainingMove);
-        ResolvePenetration();
+        CapsuleResolvePenetration();
 
         charCapsule.PerformMove();
-    }
-
-    protected virtual CharacterMovementGroundResult GroundCheck()
-    {
-        return GroundCheck(groundCheckDepth);
-    }
-
-    protected virtual CharacterMovementGroundResult GroundCheck(float depth)
-    {
-        RaycastHit hit = SmallBaseSphereCast(character.down * depth, .02f);
-        var result = new CharacterMovementGroundResult();
-
-        if (hit.collider == null)
-        {
-            return result;
-        }
-
-        result.collider = hit.collider;
-        result.direction = character.down;
-        result.distance = hit.distance;
-
-        Vector3 leftDirection = Quaternion.Euler(0, -90, 0) * result.direction;
-        Vector3 obstacleForward = Vector3.ProjectOnPlane(-hit.normal, leftDirection).normalized;
-        result.angle = 90f - Vector3.SignedAngle(result.direction, obstacleForward, -leftDirection);
-
-        result.basePosition = result.collider.transform.position;
-        result.baseRotation = result.collider.transform.rotation;
-
-        result.edgeDistance = default;
-
-        return result;
-    }
-
-    protected void GroundUpdateResult()
-    {
-        m_previousGroundResult = m_groundResult;
-        m_groundResult = GroundCheck(groundCheckDepth);
     }
 
     protected virtual void GroundResizeCapsule()
@@ -688,33 +632,17 @@ public class CharacterMovement : CharacterBehaviour
         movementState.weight = weight;
     }
 
-    protected virtual bool GroundCanStandOnBase(RaycastHit hit)
+    protected virtual bool GroundSlideOnSurface(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit, Vector3 hitNormal)
     {
-        return true;
-    }
-
-    protected virtual bool GroundCanStandOnBase(CharacterMovementGroundResult groundResult)
-    {
-        return true;
-    }
-
-    protected virtual bool GroundRecalculateNormal(RaycastHit hit, out Vector3 normal)
-    {
-        return hit.RecalculateNormal(out normal, charCapsule.layerMask, charCapsule.triggerQuery);
-    }
-
-    protected virtual bool GroundSlideOnSurface(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit)
-    {
-        if (hit.collider == null || remainingMove == Vector3.zero && m_currentSlopeUpAngle <= 0)
+        if (hit.collider == null || remainingMove == Vector3.zero || m_currentSlopeUpAngle <= 0)
+        {
             return false;
+        }
 
-        GroundRecalculateNormal(hit, out Vector3 hitNormal);
-        float slopeAngle = Vector3.Angle(character.up, hitNormal);
-
-        if (slopeAngle > 0f && slopeAngle < 90f && slopeAngle <= m_currentSlopeUpAngle)
+        if (GroundCanStandOn(hit, hitNormal))
         {
             // treat surface as slope
-            Vector3 slopeMove = Vector3.ProjectOnPlane(originalMove.normalized * remainingMove.magnitude, hit.normal);
+            Vector3 slopeMove = Vector3.ProjectOnPlane(originalMove.normalized * remainingMove.magnitude, hitNormal);
             if (m_currentMaintainVelocityOnSurface)
             {
                 slopeMove = slopeMove.normalized * remainingMove.magnitude;
@@ -749,15 +677,97 @@ public class CharacterMovement : CharacterBehaviour
         if (m_currentStepDownDepth <= 0)
             return false;
 
-        ResolvePenetration();
+        CapsuleResolvePenetration();
 
-        var moved = CapsuleMove(character.down * m_currentStepDownDepth, out var smallHit, out var bigHit);
-        if (smallHit.collider == null && bigHit.collider == null)
+        Debug.Log($"GroundStepDown: {m_currentStepDownDepth}");
+        var moved = CapsuleMove(character.down * m_currentStepDownDepth, out var smallHit, out var bigHit, out var hitNormal);
+        var hit = bigHit.collider ? bigHit : smallHit;
+
+        if (GroundCanStandOn(hit, hitNormal) == false)
         {
             charCapsule.localPosition -= moved;
+            return false;
         }
 
         return true;
+    }
+
+    protected virtual bool GroundCheck(Collider collider)
+    {
+        if (collider == null)
+        {
+            return false;
+        }
+
+        return groundLayer.Contains(collider.gameObject.layer);
+    }
+
+    protected virtual bool GroundCanStandOn(RaycastHit hit)
+    {
+        return GroundCanStandOn(hit, Vector3.zero);
+    }
+
+    protected virtual bool GroundCanStandOn(RaycastHit hit, Vector3 slopeNormal)
+    {
+        if (hit.collider)
+        {
+            if (GroundCheck(hit.collider) == false)
+            {
+                return false;
+            }
+
+            if (slopeNormal == Vector3.zero)
+            {
+                RecalculateNormal(hit, out slopeNormal);
+            }
+
+            float maxSlopeAngle = Math.Clamp(m_currentSlopeUpAngle,
+                k_minGroundSlopeUpAngle, k_maxGroundSlopeUpAngle);
+
+            float slopeAngle = Vector3.Angle(character.up, slopeNormal);
+
+            Debug.Log($"GroundCanStandOn: MaxSlopeAngle[{maxSlopeAngle}] SlopeAngle[{slopeAngle}]");
+            Debug.DrawRay(hit.point, slopeNormal, Color.green);
+
+            if (FloatExtensions.IsInRange(slopeAngle, k_minGroundSlopeUpAngle, maxSlopeAngle))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected virtual bool GroundCast(float depth, out CharacterMovementGroundResult result)
+    {
+        RaycastHit hit = SmallBaseSphereCast(character.down * depth, .02f);
+        result = new CharacterMovementGroundResult();
+
+        if (GroundCheck(hit.collider) == false)
+        {
+            return false;
+        }
+
+        result.collider = hit.collider;
+        result.direction = character.down;
+        result.distance = hit.distance;
+
+        Vector3 leftDirection = Quaternion.Euler(0, -90, 0) * result.direction;
+        Vector3 obstacleForward = Vector3.ProjectOnPlane(-hit.normal, leftDirection).normalized;
+        result.angle = 90f - Vector3.SignedAngle(result.direction, obstacleForward, -leftDirection);
+
+        result.basePosition = result.collider.transform.position;
+        result.baseRotation = result.collider.transform.rotation;
+
+        result.edgeDistance = default;
+
+        return true;
+    }
+
+    protected virtual void GroundUpdateResult()
+    {
+        m_previousGroundResult = m_groundResult;
+        GroundCast(groundCheckDepth, out m_groundResult);
     }
 
     //////////////////////////////////////////////////////////////////
@@ -767,8 +777,6 @@ public class CharacterMovement : CharacterBehaviour
     [SerializeField] protected float gravityMultiplier = .01f;
     protected virtual void PhysAir()
     {
-        Debug.Break();
-
         float deltaTime = Time.deltaTime;
         float moveSpeed = airMoveSpeed;
         float mass = character.scaledMass;
@@ -791,8 +799,8 @@ public class CharacterMovement : CharacterBehaviour
 
     protected virtual void AirMove(Vector3 originalMove)
     {
-        // SmallCapsuleMove(originalMove);
-        ResolvePenetration();
+        CapsuleMove(originalMove);
+        CapsuleResolvePenetration();
     }
 }
 
