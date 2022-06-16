@@ -985,9 +985,9 @@ public class CharacterCapsule : CharacterBehaviour
     protected virtual void OnDrawGizmos()
     {
         CalculateSmallCapsuleGeometry(out var smallTopSphere, out var smallBaseSphere, out var smallRadius);
-        GizmosExtensions.DrawWireCapsule(rotation, smallTopSphere, smallBaseSphere, smallRadius, Color.blue);
+        GizmosExtensions.DrawWireCapsule(rotation, smallTopSphere, smallBaseSphere, smallRadius, Color.cyan);
 
         CalculateBigCapsuleGeometry(out var bigTopSphere, out var bigBaseSphere, out var bigRadius);
-        GizmosExtensions.DrawWireCapsule(rotation, bigTopSphere, bigBaseSphere, bigRadius, Color.red);
+        GizmosExtensions.DrawWireCapsule(rotation, bigTopSphere, bigBaseSphere, bigRadius, Color.green);
     }
 }

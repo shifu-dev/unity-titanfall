@@ -34,7 +34,7 @@ MonoBehaviour:
   m_groundStandStepDownPercent: 234.1
   m_groundStandSlopeUpAngle: 50
   m_groundStandSlopeDownAngle: -89
-  m_groundStandMaintainVelocityOnSurface: 1
+  m_groundStandMaintainVelocityOnSurface: 0
   m_groundStandMaintainVelocityAlongSurface: 0
   m_groundStandCapsuleCenter: {x: 0, y: 0, z: 0}
   m_groundStandCapsuleHeight: 2
@@ -52,7 +52,7 @@ MonoBehaviour:
   m_groundCrouchStepDownPercent: 5
   m_groundCrouchSlopeUpAngle: 55
   m_groundCrouchSlopeDownAngle: 65
-  m_groundCrouchMaintainVelocityOnSurface: 1
+  m_groundCrouchMaintainVelocityOnSurface: 0
   m_groundCrouchMaintainVelocityAlongSurface: 0
   m_groundCrouchCapsuleCenter: {x: 0, y: 0, z: 0}
   m_groundCrouchCapsuleHeight: 1.25

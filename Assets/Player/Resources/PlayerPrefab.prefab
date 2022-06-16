@@ -61,7 +61,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c122ed70fe182794dbf1470aa8b67b06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <useDebugInputs>k__BackingField: 1
+  <useDebugInputs>k__BackingField: 0
   <debugMove>k__BackingField: {x: 0, y: 1, z: 0}
   <move>k__BackingField: {x: 0, y: 0, z: 0}
   <moveAngle>k__BackingField: 0

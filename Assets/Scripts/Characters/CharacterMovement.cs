@@ -286,7 +286,15 @@ public class CharacterMovement : CharacterBehaviour
 
     protected bool CapsuleCast(Vector3 move, out RaycastHit smallHit, out RaycastHit bigHit)
     {
-        return charCapsule.CapsuleCast(move, out smallHit, out bigHit);
+        bigHit = charCapsule.BigCapsuleCast(move);
+        if (bigHit.collider)
+        {
+            move = move.normalized * bigHit.distance;
+        }
+
+        smallHit = charCapsule.SmallCapsuleCast(move);
+
+        return smallHit.collider || bigHit.collider;
     }
 
     protected Vector3 CapsuleMove(Vector3 remainingMove)
@@ -366,25 +374,9 @@ public class CharacterMovement : CharacterBehaviour
         return moved;
     }
 
-    protected RaycastHit SmallBaseSphereCast(Vector3 move, float offsetValue = 0)
+    protected RaycastHit BigBaseSphereCast(Vector3 move)
     {
-        charCapsule.CalculateSmallCapsuleGeometry(out var topSphere,
-            out var baseSphere, out var radius);
-
-        Vector3 offset = -move.normalized * offsetValue;
-        topSphere += offset;
-        baseSphere += offset;
-        move += -offset;
-
-        Physics.SphereCast(baseSphere, radius, move.normalized, out RaycastHit hit,
-            move.magnitude, charCapsule.layerMask, charCapsule.triggerQuery);
-
-        if (hit.collider)
-        {
-            hit.distance = hit.distance - offsetValue;
-        }
-
-        return hit;
+        return charCapsule.BigBaseSphereCast(move);
     }
 
     protected Vector3 CapsuleResolvePenetration()
@@ -682,7 +674,9 @@ public class CharacterMovement : CharacterBehaviour
         Vector3 slideMove = Vector3.ProjectOnPlane(originalMove.normalized * remainingMoveSize, hitProject);
         if (m_currentMaintainVelocityAlongSurface)
         {
-            if (slideMove.magnitude.IsEqualToZero() == false)
+            // to avoid sliding along perpendicular surface for very small values,
+            // may be a result of small miscalculations
+            if (slideMove.magnitude > 0.0001f)
             {
                 slideMove = slideMove.normalized * remainingMoveSize;
             }
@@ -763,7 +757,7 @@ public class CharacterMovement : CharacterBehaviour
 
     protected virtual bool GroundCast(float depth, out CharacterMovementGroundResult result)
     {
-        RaycastHit hit = SmallBaseSphereCast(character.down * depth, .02f);
+        RaycastHit hit = BigBaseSphereCast(character.down * depth);
         result = new CharacterMovementGroundResult();
 
         if (GroundCheck(hit.collider) == false)
