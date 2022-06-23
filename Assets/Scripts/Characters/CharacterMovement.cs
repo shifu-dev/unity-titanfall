@@ -499,7 +499,7 @@ public class CharacterMovement : CharacterBehaviour
         _velocity = Vector3.ProjectOnPlane(_velocity, characterUp);
 
         Vector3 deltaMove = moveInput * speed * deltaTime;
-        deltaMove = Vector3.MoveTowards(_velocity, deltaMove, acceleration * deltaTime);
+        deltaMove = Vector3.MoveTowards(_velocity * deltaTime, deltaMove, acceleration * deltaTime);
 
         deltaMove += characterUp * jump * deltaTime;
 
@@ -737,6 +737,7 @@ public class CharacterMovement : CharacterBehaviour
         CapsuleResolvePenetration();
 
         _velocity = charCapsule.localPosition - lastPosition;
+        _velocity = _velocity / Time.deltaTime;
 
         if (verticalMoveMagnitude == 0f)
         {
@@ -935,29 +936,22 @@ public class CharacterMovement : CharacterBehaviour
 
     protected virtual void PhysAir()
     {
-        Vector3 charUp = character.up;
+        Vector3 char_up = character.up;
         float deltaTime = Time.deltaTime;
         float moveAcceleration = airMoveAcceleration;
         float moveSpeed = airMoveSpeed;
         float mass = character.mass;
+        // float gravitySpeed = airGravityAcceleration * mass * deltaTime * .013f * .1f;
         float gravitySpeed = airGravityAcceleration * mass * deltaTime * deltaTime * .1f;
 
-        Vector3 _horizontalVelocity = Vector3.ProjectOnPlane(_velocity, charUp);
-        Vector3 _verticalVelocity = _velocity - _horizontalVelocity;
+        Vector3 velocity = _velocity * deltaTime;
+        Vector3 velocity_h = Vector3.ProjectOnPlane(velocity, char_up);
+        Vector3 velocity_v = velocity - velocity_h;
 
-        Vector3 horizontalMove = _horizontalVelocity;
-        Vector3 verticalMove = _verticalVelocity + charUp * gravitySpeed;
+        Vector3 move_h = velocity_h;
+        Vector3 move_v = velocity_v + (char_up * gravitySpeed);
 
-        // Calculate Movement
-        Vector3 helperHorizontalMove = new Vector3(charInputs.move.x, 0, charInputs.move.y);
-        helperHorizontalMove = Quaternion.Euler(0, charView.turnAngle, 0) * helperHorizontalMove;
-        helperHorizontalMove = character.rotation * helperHorizontalMove * moveSpeed;
-        helperHorizontalMove = Vector3.ProjectOnPlane(helperHorizontalMove, horizontalMove);
-        helperHorizontalMove = Vector3.zero;
-
-        horizontalMove += helperHorizontalMove;
-
-        Vector3 deltaMove = horizontalMove + verticalMove;
+        Vector3 deltaMove = move_h + move_v;
 
         AirMove(deltaMove);
     }
@@ -969,7 +963,8 @@ public class CharacterMovement : CharacterBehaviour
         CapsuleMove(originalMove);
         CapsuleResolvePenetration();
 
-        _velocity = lastPosition - charCapsule.localPosition;
+        _velocity = charCapsule.localPosition - lastPosition;
+        _velocity = _velocity / Time.deltaTime;
     }
 }
 
