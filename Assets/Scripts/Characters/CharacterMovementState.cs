@@ -11,41 +11,39 @@ public interface CharacterMovementState
     public const uint NONE = 0;
     public const uint DEAD = 1;
     public const uint NAVIGATION = 2;
-    public const uint GROUND_STAND_JUMP = 3;
-    public const uint GROUND_STAND_IDLE = 4;
+    public const uint GROUND_STAND_IDLE = 3;
+    public const uint GROUND_STAND_IDLE_JUMP = 4;
     public const uint GROUND_STAND_WALK = 5;
-    public const uint GROUND_STAND_RUN = 6;
-    public const uint GROUND_STAND_SPRINT = 7;
-    public const uint GROUND_CROUCH_JUMP = 8;
-    public const uint GROUND_CROUCH_IDLE = 9;
-    public const uint GROUND_CROUCH_WALK = 10;
-    public const uint GROUND_CROUCH_RUN = 11;
-    public const uint GROUND_PRONE_IDLE = 12;
-    public const uint GROUND_PRONE_MOVE = 13;
-    public const uint GROUND_PRONE_ROLL = 14;
-    public const uint GROUND_SLIDE = 15;
-    public const uint GROUND_ROLL = 16;
-    public const uint AIR_JUMP = 17;
-    public const uint AIR_IDLE = 18;
-    public const uint CUSTOM = 19;
+    public const uint GROUND_STAND_WALK_JUMP = 6;
+    public const uint GROUND_STAND_RUN = 7;
+    public const uint GROUND_STAND_RUN_JUMP = 8;
+    public const uint GROUND_STAND_SPRINT = 9;
+    public const uint GROUND_STAND_SPRINT_JUMP = 10;
+    public const uint GROUND_CROUCH_IDLE = 11;
+    public const uint GROUND_CROUCH_WALK = 12;
+    public const uint GROUND_CROUCH_RUN = 13;
+    public const uint GROUND_SLIDE = 14;
+    public const uint GROUND_ROLL = 15;
+    public const uint AIR_JUMP = 16;
+    public const uint AIR_IDLE = 17;
+    public const uint CUSTOM = 18;
 
     private static readonly string[] strings = new string[]
     {
         "NONE",
         "DEAD",
         "NAVIGATION",
-        "GROUND STAND JUMP",
         "GROUND STAND IDLE",
+        "GROUND STAND IDLE JUMP",
         "GROUND STAND WALK",
+        "GROUND STAND WALK JUMP",
         "GROUND STAND RUN",
+        "GROUND STAND RUN JUMP",
         "GROUND STAND SPRINT",
-        "GROUND CROUCH JUMP",
+        "GROUND STAND SPRINT JUMP",
         "GROUND CROUCH IDLE",
         "GROUND CROUCH WALK",
         "GROUND CROUCH RUN",
-        "GROUND PRONE IDLE",
-        "GROUND PRONE MOVE",
-        "GROUND PRONE ROLL",
         "GROUND SLIDE",
         "GROUND ROLL",
         "AIR JUMP",
@@ -69,28 +67,31 @@ public interface CharacterMovementState
     public bool isGrounded
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => current == GROUND_STAND_JUMP ||
-               current == GROUND_STAND_IDLE ||
+        get => current == GROUND_STAND_IDLE ||
+               current == GROUND_STAND_IDLE_JUMP ||
                current == GROUND_STAND_WALK ||
+               current == GROUND_STAND_WALK_JUMP ||
                current == GROUND_STAND_RUN ||
+               current == GROUND_STAND_RUN_JUMP ||
                current == GROUND_STAND_SPRINT ||
-               current == GROUND_CROUCH_JUMP ||
+               current == GROUND_STAND_SPRINT_JUMP ||
                current == GROUND_CROUCH_IDLE ||
                current == GROUND_CROUCH_WALK ||
                current == GROUND_CROUCH_RUN ||
-               current == GROUND_PRONE_IDLE ||
-               current == GROUND_PRONE_MOVE ||
-               current == GROUND_PRONE_ROLL;
-
+               current == GROUND_SLIDE ||
+               current == GROUND_ROLL;
     }
     public bool isGroundStanding
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => current == GROUND_STAND_JUMP ||
-               current == GROUND_STAND_IDLE ||
+        get => current == GROUND_STAND_IDLE ||
+               current == GROUND_STAND_IDLE_JUMP ||
                current == GROUND_STAND_WALK ||
+               current == GROUND_STAND_WALK_JUMP ||
                current == GROUND_STAND_RUN ||
-               current == GROUND_STAND_SPRINT;
+               current == GROUND_STAND_RUN_JUMP ||
+               current == GROUND_STAND_SPRINT ||
+               current == GROUND_STAND_SPRINT_JUMP;
     }
     public bool isGroundStandIdle
     {
@@ -100,7 +101,10 @@ public interface CharacterMovementState
     public bool isGroundStandJump
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => current == GROUND_STAND_JUMP;
+        get => current == GROUND_STAND_IDLE_JUMP ||
+               current == GROUND_STAND_WALK_JUMP ||
+               current == GROUND_STAND_RUN_JUMP ||
+               current == GROUND_STAND_SPRINT_JUMP;
     }
     public bool isGroundStandWalking
     {
@@ -120,8 +124,7 @@ public interface CharacterMovementState
     public bool isGroundCrouching
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => current == GROUND_CROUCH_JUMP ||
-               current == GROUND_CROUCH_IDLE ||
+        get => current == GROUND_CROUCH_IDLE ||
                current == GROUND_CROUCH_WALK ||
                current == GROUND_CROUCH_RUN;
     }
@@ -129,11 +132,6 @@ public interface CharacterMovementState
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => current == GROUND_CROUCH_IDLE;
-    }
-    public bool isGroundCrouchJump
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => current == GROUND_CROUCH_JUMP;
     }
     public bool isGroundCrouchWalking
     {
@@ -145,17 +143,10 @@ public interface CharacterMovementState
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => current == GROUND_CROUCH_RUN;
     }
-    public bool isGroundProne
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => current == GROUND_PRONE_IDLE ||
-                   current == GROUND_PRONE_MOVE ||
-                   current == GROUND_PRONE_ROLL;
-    }
     public bool isAir
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => current == AIR_IDLE || 
+        get => current == AIR_IDLE ||
                current == AIR_JUMP;
     }
     public bool isAirRising

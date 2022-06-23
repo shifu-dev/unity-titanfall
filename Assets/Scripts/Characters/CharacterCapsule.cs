@@ -34,7 +34,7 @@ public class CharacterCapsule : CharacterBehaviour
     }
 
     public Vector3 localPosition { get; set; }
-    [field: SerializeField] public Quaternion localRotation { get; set; }
+    public Quaternion localRotation { get; set; }
     public Vector3 localScale { get; set; }
     public Vector3 lastLocalPosition { get; protected set; }
     public Quaternion lastLocalRotation { get; protected set; }
@@ -54,6 +54,11 @@ public class CharacterCapsule : CharacterBehaviour
         skinWidth = 0.01f;
         layerMask = Physics.DefaultRaycastLayers;
         triggerQuery = QueryTriggerInteraction.Ignore;
+
+        lastLocalPosition = Vector3.zero;
+        lastLocalRotation = Quaternion.identity;
+        lastLocalScale = Vector3.one;
+        velocity = Vector3.zero;
     }
 
     //////////////////////////////////////////////////////////////////
@@ -71,6 +76,8 @@ public class CharacterCapsule : CharacterBehaviour
         lastLocalPosition = localPosition;
         lastLocalRotation = localRotation;
         lastLocalScale = localScale;
+
+        velocity = Vector3.zero;
     }
 
     public override void OnUpdateCharacter()
@@ -96,7 +103,7 @@ public class CharacterCapsule : CharacterBehaviour
         collider.radius = localRadius;
 
         // calculate velocity
-        velocity = (localPosition - lastLocalPosition) / Time.deltaTime;
+        velocity = localPosition - lastLocalPosition;
     }
 
     //////////////////////////////////////////////////////////////////
@@ -357,6 +364,15 @@ public class CharacterCapsule : CharacterBehaviour
     public void Rotate(Vector3 rot)
     {
         localRotation = localRotation * Quaternion.Euler(rot);
+    }
+
+    public void Teleport(Vector3 pos, Quaternion rot)
+    {
+        lastLocalPosition = pos;
+        localPosition = pos;
+
+        lastLocalRotation = rot;
+        localRotation = rot;
     }
 
     //////////////////////////////////////////////////////////////////

@@ -9,10 +9,11 @@ public class CharacterMovement : CharacterBehaviour
     protected const uint k_debugMoveMultiplier = 100;
     protected const uint k_maxMoveIterations = 10;
 
-    protected const float k_collisionOffset = .01f;
+    protected const float k_collisionOffset = .001f;
     protected const float k_recalculateNormalFallback = .01f;
     protected const float k_recalculateNormalAddon = .001f;
 
+    protected const float k_minMoveAlongSurfaceForMaintainVelocity = .0001f;
     protected const float k_minGroundSlopeUpAngle = 0f;
     protected const float k_maxGroundSlopeUpAngle = 89.9f;
 
@@ -22,29 +23,24 @@ public class CharacterMovement : CharacterBehaviour
     public CharacterView charView { get; protected set; }
     public ILogger logger { get; protected set; }
 
-    [SerializeField] private CharacterMovementStateImpl m_movementState;
+    [SerializeField] private CharacterMovementStateImpl _movementState;
     public virtual CharacterMovementState movementState
     {
-        get => m_movementState;
-        protected set => m_movementState = new CharacterMovementStateImpl(value.current, value.weight);
+        get => _movementState;
+        protected set => _movementState = new CharacterMovementStateImpl(value.current, value.weight);
     }
 
-    [SerializeField] protected CharacterMovementGroundResult m_previousGroundResult;
-    [SerializeField] protected CharacterMovementGroundResult m_groundResult;
+    [SerializeField] protected Vector3 _velocity;
 
-    protected float groundStandStepUpHeight => charCapsule.height * groundStandStepUpPercent / 100;
-    protected float groundStandStepDownDepth => charCapsule.height * groundStandStepDownPercent / 100;
-    protected float groundCrouchStepUpHeight => charCapsule.height * groundCrouchStepUpPercent / 100;
-    protected float groundCrouchStepDownDepth => charCapsule.height * groundCrouchStepUpPercent / 100;
+    [SerializeField] protected CharacterMovementGroundResult _previousGroundResult;
+    [SerializeField] protected CharacterMovementGroundResult _groundResult;
 
-    protected Vector3 m_velocity = Vector3.zero;
-    protected Vector3 m_lastMove = Vector3.zero;
-    protected float m_currentStepUpHeight = 0;
-    protected float m_currentStepDownDepth = 0;
-    protected float m_currentSlopeUpAngle = 0;
-    protected float m_currentSlopeDownAngle = 0;
-    protected bool m_currentMaintainVelocityOnSurface = true;
-    protected bool m_currentMaintainVelocityAlongSurface = true;
+    protected float _currentStepUpHeight = 0;
+    protected float _currentStepDownDepth = 0;
+    protected float _currentSlopeUpAngle = 0;
+    protected float _currentSlopeDownAngle = 0;
+    protected bool _currentMaintainVelocityOnSurface = true;
+    protected bool _currentMaintainVelocityAlongSurface = true;
 
     //////////////////////////////////////////////////////////////////
     /// CharacterMovementData Copy
@@ -66,6 +62,11 @@ public class CharacterMovement : CharacterBehaviour
         groundCrouchIdleAcceleration, airGravityAcceleration, airGravityMaxSpeed,
         airMinMoveDistance, airMoveSpeed, airMoveAcceleration, airJumpPower;
 
+    protected float groundStandStepUpHeight => charCapsule.height * groundStandStepUpPercent / 100;
+    protected float groundStandStepDownDepth => charCapsule.height * groundStandStepDownPercent / 100;
+    protected float groundCrouchStepUpHeight => charCapsule.height * groundCrouchStepUpPercent / 100;
+    protected float groundCrouchStepDownDepth => charCapsule.height * groundCrouchStepUpPercent / 100;
+
     protected uint airMaxJumpCount;
 
     protected bool groundStandMaintainVelocityOnSurface, groundStandMaintainVelocityAlongSurface,
@@ -76,9 +77,10 @@ public class CharacterMovement : CharacterBehaviour
 
     public CharacterMovement()
     {
-        movementState = new CharacterMovementStateImpl(CharacterMovementState.NONE);
-        m_previousGroundResult = CharacterMovementGroundResult.invalid;
-        m_groundResult = CharacterMovementGroundResult.invalid;
+        CreateMovementState();
+
+        _previousGroundResult = CharacterMovementGroundResult.invalid;
+        _groundResult = CharacterMovementGroundResult.invalid;
     }
 
     //////////////////////////////////////////////////////////////////
@@ -165,11 +167,16 @@ public class CharacterMovement : CharacterBehaviour
     /// Movement State
     //////////////////////////////////////////////////////////////////
 
+    protected virtual void CreateMovementState()
+    {
+        movementState = new CharacterMovementStateImpl(CharacterMovementState.NONE);
+    }
+
     protected virtual void UpdateMovementState()
     {
         CharacterMovementState newState = new CharacterMovementStateImpl();
 
-        if (m_groundResult.isValid)
+        if (_velocity.y == 0f && _groundResult.isValid)
         {
             if (charInputs.crouch)
             {
@@ -193,26 +200,50 @@ public class CharacterMovement : CharacterBehaviour
             }
             else    // Standing
             {
-                if (charInputs.jump)
+                if (charInputs.move.magnitude == 0)
                 {
-                    newState.current = CharacterMovementState.GROUND_STAND_JUMP;
-                }
-                else if (charInputs.move.magnitude == 0)
-                {
-                    newState.current = CharacterMovementState.GROUND_STAND_IDLE;
+                    if (charInputs.jump)
+                    {
+                        newState.current = CharacterMovementState.GROUND_STAND_IDLE_JUMP;
+                    }
+                    else
+                    {
+                        newState.current = CharacterMovementState.GROUND_STAND_IDLE;
+                    }
                 }
                 else if (charInputs.walk)
                 {
-                    newState.current = CharacterMovementState.GROUND_STAND_WALK;
+                    if (charInputs.jump)
+                    {
+                        newState.current = CharacterMovementState.GROUND_STAND_WALK_JUMP;
+                    }
+                    else
+                    {
+                        newState.current = CharacterMovementState.GROUND_STAND_WALK;
+                    }
                 }
                 else if (charInputs.sprint && charInputs.moveAngle > groundStandSprintLeftAngleMax
                                                       && charInputs.moveAngle < groundStandSprintRightAngleMax)
                 {
-                    newState.current = CharacterMovementState.GROUND_STAND_SPRINT;
+                    if (charInputs.jump)
+                    {
+                        newState.current = CharacterMovementState.GROUND_STAND_SPRINT_JUMP;
+                    }
+                    else
+                    {
+                        newState.current = CharacterMovementState.GROUND_STAND_SPRINT;
+                    }
                 }
                 else
                 {
-                    newState.current = CharacterMovementState.GROUND_STAND_RUN;
+                    if (charInputs.jump)
+                    {
+                        newState.current = CharacterMovementState.GROUND_STAND_RUN_JUMP;
+                    }
+                    else
+                    {
+                        newState.current = CharacterMovementState.GROUND_STAND_RUN;
+                    }
                 }
             }
         }
@@ -255,9 +286,9 @@ public class CharacterMovement : CharacterBehaviour
 
     protected virtual void UpdatePhysicsData()
     {
-        if (m_groundResult.isValid)
+        if (_groundResult.isValid)
         {
-            var deltaPosition = m_groundResult.collider.transform.position - m_groundResult.basePosition;
+            var deltaPosition = _groundResult.collider.transform.position - _groundResult.basePosition;
             // var deltaRotation = m_groundResult.collider.transform.rotation.eulerAngles - m_groundResult.baseRotation.eulerAngles;
 
             charCapsule.localPosition += deltaPosition;
@@ -284,12 +315,27 @@ public class CharacterMovement : CharacterBehaviour
     /// Capsule API
     //////////////////////////////////////////////////////////////////
 
+    protected bool CapsuleCast(Vector3 move, out RaycastHit hit)
+    {
+        bool result = CapsuleCast(move, out RaycastHit smallHit, out RaycastHit bigHit);
+        hit = smallHit.collider ? smallHit : bigHit;
+
+        return result;
+    }
+
     protected bool CapsuleCast(Vector3 move, out RaycastHit smallHit, out RaycastHit bigHit)
     {
         bigHit = charCapsule.BigCapsuleCast(move);
-        if (bigHit.collider)
+        if (charCapsule.skinWidth > 0f)
         {
-            move = move.normalized * bigHit.distance;
+            if (bigHit.collider)
+            {
+                move = move.normalized * bigHit.distance;
+            }
+        }
+        else
+        {
+            smallHit = bigHit;
         }
 
         smallHit = charCapsule.SmallCapsuleCast(move);
@@ -297,30 +343,66 @@ public class CharacterMovement : CharacterBehaviour
         return smallHit.collider || bigHit.collider;
     }
 
-    protected Vector3 CapsuleMove(Vector3 remainingMove)
+    protected bool BaseSphereCast(Vector3 move, out RaycastHit hit)
     {
-        return CapsuleMove(remainingMove, out RaycastHit smallHit, out RaycastHit bigHit);
+        bool result = BaseSphereCast(move, out RaycastHit smallHit, out RaycastHit bigHit);
+        hit = smallHit.collider ? smallHit : bigHit;
+
+        return result;
     }
 
-    protected Vector3 CapsuleMove(Vector3 remainingMove, out RaycastHit hit)
+    protected bool BaseSphereCast(Vector3 move, out RaycastHit hit, out Vector3 hitNormal)
     {
-        var moved = CapsuleMove(remainingMove, out RaycastHit smallHit, out RaycastHit bigHit);
+        bool didHit = BaseSphereCast(move, out hit);
+        RecalculateNormal(hit, move.normalized, out hitNormal);
+
+        return didHit;
+    }
+
+    protected bool BaseSphereCast(Vector3 move, out RaycastHit smallHit, out RaycastHit bigHit)
+    {
+        bigHit = charCapsule.BigBaseSphereCast(move);
+        if (charCapsule.skinWidth > 0f)
+        {
+            if (bigHit.collider)
+            {
+                move = move.normalized * bigHit.distance;
+            }
+
+            smallHit = charCapsule.SmallBaseSphereCast(move);
+        }
+        else
+        {
+            smallHit = bigHit;
+        }
+
+        return smallHit.collider || bigHit.collider;
+    }
+
+    protected Vector3 CapsuleMove(Vector3 move)
+    {
+        return CapsuleMove(move, out RaycastHit smallHit, out RaycastHit bigHit);
+    }
+
+    protected Vector3 CapsuleMove(Vector3 move, out RaycastHit hit)
+    {
+        Vector3 moved = CapsuleMove(move, out RaycastHit smallHit, out RaycastHit bigHit);
         hit = smallHit.collider ? smallHit : bigHit;
 
         return moved;
     }
 
-    protected Vector3 CapsuleMove(Vector3 remainingMove, out RaycastHit hit, out Vector3 hitNormal)
+    protected Vector3 CapsuleMove(Vector3 move, out RaycastHit hit, out Vector3 hitNormal)
     {
-        var moved = CapsuleMove(remainingMove, out RaycastHit smallHit, out RaycastHit bigHit, out hitNormal);
+        var moved = CapsuleMove(move, out RaycastHit smallHit, out RaycastHit bigHit, out hitNormal);
         hit = smallHit.collider ? smallHit : bigHit;
 
         return moved;
     }
 
-    protected Vector3 CapsuleMove(Vector3 remainingMove, out RaycastHit smallHit, out RaycastHit bigHit)
+    protected Vector3 CapsuleMove(Vector3 move, out RaycastHit smallHit, out RaycastHit bigHit)
     {
-        if (remainingMove.magnitude == 0f)
+        if (move.magnitude == 0f)
         {
             smallHit = new RaycastHit();
             bigHit = new RaycastHit();
@@ -328,10 +410,10 @@ public class CharacterMovement : CharacterBehaviour
             return Vector3.zero;
         }
 
-        CapsuleCast(remainingMove, out smallHit, out bigHit);
+        CapsuleCast(move, out smallHit, out bigHit);
 
-        Vector3 direction = remainingMove.normalized;
-        float distance = remainingMove.magnitude;
+        Vector3 direction = move.normalized;
+        float distance = move.magnitude;
 
         if (smallHit.collider)
         {
@@ -349,34 +431,14 @@ public class CharacterMovement : CharacterBehaviour
         return direction * Math.Max(0f, distance);
     }
 
-    protected Vector3 CapsuleMove(Vector3 remainingMove, out RaycastHit smallHit, out RaycastHit bigHit, out Vector3 hitNormal)
+    protected Vector3 CapsuleMove(Vector3 move, out RaycastHit smallHit, out RaycastHit bigHit, out Vector3 hitNormal)
     {
-        Vector3 moved = CapsuleMove(remainingMove, out smallHit, out bigHit);
+        Vector3 moved = CapsuleMove(move, out smallHit, out bigHit);
         RaycastHit hit = smallHit.collider ? smallHit : bigHit;
 
-        if (hit.collider)
-        {
-            Vector3 rayDirection = remainingMove.normalized;
-            Vector3 rayOrigin = hit.point + (-rayDirection * k_recalculateNormalFallback);
-            const float rayDistance = k_recalculateNormalFallback + k_recalculateNormalAddon;
+        RecalculateNormal(hit, move.normalized, out hitNormal);
 
-            Physics.Raycast(rayOrigin, rayDirection, out RaycastHit rayHit,
-                rayDistance, charCapsule.layerMask, charCapsule.triggerQuery);
-
-            if (rayHit.collider && rayHit.collider == hit.collider)
-            {
-                hitNormal = rayHit.normal;
-                return moved;
-            }
-        }
-
-        hitNormal = Vector3.zero;
         return moved;
-    }
-
-    protected RaycastHit BigBaseSphereCast(Vector3 move)
-    {
-        return charCapsule.BigBaseSphereCast(move);
     }
 
     protected Vector3 CapsuleResolvePenetration()
@@ -388,14 +450,33 @@ public class CharacterMovement : CharacterBehaviour
     {
         charCapsule.position = pos;
         charCapsule.rotation = rot;
-
-        m_velocity = Vector3.zero;
-        m_lastMove = Vector3.zero;
     }
 
     protected bool RecalculateNormal(RaycastHit hit, out Vector3 normal)
     {
         return hit.RecalculateNormalUsingRaycast(out normal, charCapsule.layerMask, charCapsule.triggerQuery);
+    }
+
+    protected bool RecalculateNormal(RaycastHit hit, Vector3 direction, out Vector3 normal)
+    {
+        if (hit.collider)
+        {
+            Vector3 rayDirection = direction;
+            Vector3 rayOrigin = hit.point + (-rayDirection * k_recalculateNormalFallback);
+            const float rayDistance = k_recalculateNormalFallback + k_recalculateNormalAddon;
+
+            Physics.Raycast(rayOrigin, rayDirection, out RaycastHit rayHit,
+                rayDistance, charCapsule.layerMask, charCapsule.triggerQuery);
+
+            if (rayHit.collider && rayHit.collider == hit.collider)
+            {
+                normal = rayHit.normal;
+                return true;
+            }
+        }
+
+        normal = Vector3.zero;
+        return false;
     }
 
     //////////////////////////////////////////////////////////////////
@@ -404,201 +485,263 @@ public class CharacterMovement : CharacterBehaviour
 
     protected virtual void PhysGround()
     {
-        // Calculate Speed
-        float speed = 0;
-        float acceleration = 0;
+        GroundCalculateValues(movementState.current, out float speed, out float acceleration, out float jump,
+            out _currentStepDownDepth, out _currentStepUpHeight, out _currentSlopeUpAngle,
+            out _currentSlopeDownAngle);
 
-        switch (movementState.current)
+        float deltaTime = Time.deltaTime;
+        Vector3 characterUp = character.up;
+
+        Vector3 moveInput = new Vector3(charInputs.move.x, 0, charInputs.move.y);
+        moveInput = Quaternion.Euler(0, charView.turnAngle, 0) * moveInput.normalized;
+        moveInput = character.rotation * moveInput;
+
+        _velocity = Vector3.ProjectOnPlane(_velocity, characterUp);
+
+        Vector3 deltaMove = moveInput * speed * deltaTime;
+        deltaMove = Vector3.MoveTowards(_velocity, deltaMove, acceleration * deltaTime);
+
+        deltaMove += characterUp * jump * deltaTime;
+
+        GroundMove(deltaMove);
+    }
+
+    protected virtual void GroundCalculateValues(uint state, out float speed,
+        out float acceleration, out float jump, out float stepDownDepth,
+        out float stepUpHeight, out float slopeUpAngle, out float slopeDownAngle)
+    {
+        switch (state)
         {
-            case CharacterMovementState.GROUND_STAND_JUMP:
-                m_currentStepUpHeight = groundStandStepUpHeight;
-                m_currentStepDownDepth = groundStandStepDownDepth;
-                m_currentSlopeUpAngle = groundStandSlopeUpAngle;
-                acceleration = groundStandJumpForce;
-                speed = groundStandJumpForce;
-                break;
-
             case CharacterMovementState.GROUND_STAND_IDLE:
-                m_currentStepUpHeight = groundStandStepUpHeight;
-                m_currentStepDownDepth = groundStandStepDownDepth;
-                m_currentSlopeUpAngle = groundStandSlopeUpAngle;
+                stepDownDepth = groundStandStepDownDepth;
+                stepUpHeight = groundStandStepUpHeight;
+                slopeUpAngle = groundStandSlopeUpAngle;
+                slopeDownAngle = groundStandSlopeDownAngle;
                 acceleration = groundStandIdleAcceleration;
                 speed = groundStandIdleSpeed;
+                jump = 0f;
+                break;
+
+            case CharacterMovementState.GROUND_STAND_IDLE_JUMP:
+                stepDownDepth = groundStandStepDownDepth;
+                stepUpHeight = groundStandStepUpHeight;
+                slopeUpAngle = groundStandSlopeUpAngle;
+                slopeDownAngle = groundStandSlopeDownAngle;
+                acceleration = groundStandIdleAcceleration;
+                speed = groundStandIdleSpeed;
+                jump = groundStandJumpForce;
                 break;
 
             case CharacterMovementState.GROUND_STAND_WALK:
-                m_currentStepUpHeight = groundStandStepUpHeight;
-                m_currentStepDownDepth = groundStandStepDownDepth;
-                m_currentSlopeUpAngle = groundStandSlopeUpAngle;
+                stepDownDepth = groundStandStepDownDepth;
+                stepUpHeight = groundStandStepUpHeight;
+                slopeUpAngle = groundStandSlopeUpAngle;
+                slopeDownAngle = groundStandSlopeDownAngle;
                 acceleration = groundStandWalkAcceleration;
                 speed = groundStandWalkSpeed;
+                jump = 0f;
                 break;
 
+            case CharacterMovementState.GROUND_STAND_WALK_JUMP:
+                stepDownDepth = groundStandStepDownDepth;
+                stepUpHeight = groundStandStepUpHeight;
+                slopeUpAngle = groundStandSlopeUpAngle;
+                slopeDownAngle = groundStandSlopeDownAngle;
+                acceleration = groundStandWalkAcceleration;
+                speed = groundStandWalkSpeed;
+                jump = groundStandJumpForce;
+                break;
+
+
             case CharacterMovementState.GROUND_STAND_RUN:
-                m_currentStepUpHeight = groundStandStepUpHeight;
-                m_currentStepDownDepth = groundStandStepDownDepth;
-                m_currentSlopeUpAngle = groundStandSlopeUpAngle;
+                stepDownDepth = groundStandStepDownDepth;
+                stepUpHeight = groundStandStepUpHeight;
+                slopeUpAngle = groundStandSlopeUpAngle;
+                slopeDownAngle = groundStandSlopeDownAngle;
                 acceleration = groundStandRunAcceleration;
                 speed = groundStandRunSpeed;
+                jump = 0f;
+                break;
+
+            case CharacterMovementState.GROUND_STAND_RUN_JUMP:
+                stepDownDepth = groundStandStepDownDepth;
+                stepUpHeight = groundStandStepUpHeight;
+                slopeUpAngle = groundStandSlopeUpAngle;
+                slopeDownAngle = groundStandSlopeDownAngle;
+                acceleration = groundStandRunAcceleration;
+                speed = groundStandRunSpeed;
+                jump = groundStandJumpForce;
                 break;
 
             case CharacterMovementState.GROUND_STAND_SPRINT:
-                m_currentStepUpHeight = groundStandStepUpHeight;
-                m_currentStepDownDepth = groundStandStepDownDepth;
-                m_currentSlopeUpAngle = groundStandSlopeUpAngle;
+                stepDownDepth = groundStandStepDownDepth;
+                stepUpHeight = groundStandStepUpHeight;
+                slopeUpAngle = groundStandSlopeUpAngle;
+                slopeDownAngle = groundStandSlopeDownAngle;
                 acceleration = groundStandSprintAcceleration;
                 speed = groundStandSprintSpeed;
+                jump = 0f;
                 break;
 
-            case CharacterMovementState.GROUND_CROUCH_JUMP:
-                m_currentStepUpHeight = groundCrouchStepUpHeight;
-                m_currentStepDownDepth = groundCrouchStepDownDepth;
-                m_currentSlopeUpAngle = groundCrouchSlopeUpAngle;
-                acceleration = groundCrouchJumpForce;
-                speed = groundCrouchJumpForce;
+            case CharacterMovementState.GROUND_STAND_SPRINT_JUMP:
+                stepDownDepth = groundStandStepDownDepth;
+                stepUpHeight = groundStandStepUpHeight;
+                slopeUpAngle = groundStandSlopeUpAngle;
+                slopeDownAngle = groundStandSlopeDownAngle;
+                acceleration = groundStandSprintAcceleration;
+                speed = groundStandSprintSpeed;
+                jump = groundStandJumpForce;
                 break;
 
             case CharacterMovementState.GROUND_CROUCH_IDLE:
-                m_currentStepUpHeight = groundCrouchStepUpHeight;
-                m_currentStepDownDepth = groundCrouchStepDownDepth;
-                m_currentSlopeUpAngle = groundCrouchSlopeUpAngle;
+                stepDownDepth = groundCrouchStepDownDepth;
+                stepUpHeight = groundCrouchStepUpHeight;
+                slopeUpAngle = groundCrouchSlopeUpAngle;
+                slopeDownAngle = groundCrouchSlopeDownAngle;
                 acceleration = groundCrouchIdleAcceleration;
                 speed = groundCrouchIdleSpeed;
+                jump = 0f;
                 break;
 
             case CharacterMovementState.GROUND_CROUCH_WALK:
-                m_currentStepUpHeight = groundCrouchStepUpHeight;
-                m_currentStepDownDepth = groundCrouchStepDownDepth;
-                m_currentSlopeUpAngle = groundCrouchSlopeUpAngle;
+                stepDownDepth = groundCrouchStepDownDepth;
+                stepUpHeight = groundCrouchStepUpHeight;
+                slopeUpAngle = groundCrouchSlopeUpAngle;
+                slopeDownAngle = groundCrouchSlopeDownAngle;
                 acceleration = groundCrouchWalkAcceleration;
                 speed = groundCrouchWalkSpeed;
+                jump = 0f;
                 break;
 
             case CharacterMovementState.GROUND_CROUCH_RUN:
-                m_currentStepUpHeight = groundCrouchStepUpHeight;
-                m_currentStepDownDepth = groundCrouchStepDownDepth;
-                m_currentSlopeUpAngle = groundCrouchSlopeUpAngle;
+                stepDownDepth = groundCrouchStepDownDepth;
+                stepUpHeight = groundCrouchStepUpHeight;
+                slopeUpAngle = groundCrouchSlopeUpAngle;
+                slopeDownAngle = groundCrouchSlopeDownAngle;
                 acceleration = groundCrouchRunAcceleration;
                 speed = groundCrouchRunSpeed;
+                jump = 0f;
                 break;
 
+            case CharacterMovementState.GROUND_SLIDE:
+            case CharacterMovementState.GROUND_ROLL:
             default:
-                m_currentStepUpHeight = 0;
-                m_currentStepDownDepth = 0;
-                m_currentSlopeUpAngle = 0;
-                acceleration = 0;
-                speed = 0;
+                stepDownDepth = 0f;
+                stepUpHeight = 0f;
+                slopeUpAngle = 0f;
+                slopeDownAngle = 0f;
+                acceleration = 0f;
+                speed = 0f;
+                jump = 0f;
                 break;
         }
-
-        // Calculate move input
-        Vector3 moveInput = new Vector3(charInputs.move.x, 0, charInputs.move.y);
-        moveInput = Quaternion.Euler(0, charView.turnAngle, 0) * moveInput.normalized;
-
-        Vector3 deltaMove = moveInput * speed * Time.deltaTime;
-        // deltaMove = Vector3.MoveTowards(m_lastMove, deltaMove, acceleration * Time.deltaTime);
-
-        deltaMove.y = movementState.isGroundStandJump ? speed : 0;
-
-        // Perform move
-        var previousPosition = charCapsule.position;
-        GroundMove(deltaMove);
-
-        m_lastMove = deltaMove;
-        m_velocity = charCapsule.position - previousPosition;
     }
 
     protected virtual void GroundMove(Vector3 originalMove)
     {
+        Vector3 characterUp = character.up;
+        Vector3 lastPosition = charCapsule.localPosition;
+
         GroundResizeCapsule();
 
-        if (originalMove.magnitude < groundMinMoveDistance)
+        Vector3 horizontalMove = Vector3.ProjectOnPlane(originalMove, characterUp);
+        Vector3 verticalMove = originalMove - horizontalMove;
+        float verticalMoveMagnitude = verticalMove.magnitude;
+
+        Vector3 remainingMove = horizontalMove;
+
+        // perform the vertical move (usually jump)
+        CapsuleMove(verticalMove);
+
+        if (remainingMove.magnitude > groundMinMoveDistance)
         {
+            var stepUpHeight = 0f;
+            var canStepUp = verticalMoveMagnitude == 0f;
+            var didStepUp = false;
+            var didStepUpRecover = false;
+            var positionBeforeStepUp = Vector3.zero;
+            var moveBeforeStepUp = Vector3.zero;
+
             CapsuleResolvePenetration();
-            return;
-        }
 
-        Vector3 remainingMove = originalMove;
-        remainingMove.y = 0f;
-
-        var stepUpHeight = 0f;
-        var canStepUp = true;
-        var didStepUp = false;
-        var didStepUpRecover = false;
-        var positionBeforeStepUp = Vector3.zero;
-        var moveBeforeStepUp = Vector3.zero;
-
-        CapsuleResolvePenetration();
-
-        for (uint it = 0; it < k_maxMoveIterations; it++)
-        {
-            remainingMove -= CapsuleMove(remainingMove, out RaycastHit moveHit, out Vector3 moveHitNormal);
-
-            // perform step up recover
-            if (didStepUp && !didStepUpRecover)
+            for (uint it = 0; it < k_maxMoveIterations; it++)
             {
-                didStepUp = false;
-                didStepUpRecover = true;
+                remainingMove -= CapsuleMove(remainingMove, out RaycastHit moveHit, out Vector3 moveHitNormal);
 
-                CapsuleMove(character.down * stepUpHeight, out RaycastHit stepUpRecoverHit, out Vector3 stepUpRecoverHitNormal);
-
-                if (stepUpRecoverHit.collider)
+                // perform step up recover
+                if (didStepUp && !didStepUpRecover)
                 {
-                    // if we cannot step on this ground, revert the step up
-                    // and continue the loop without stepping up this time
-                    if (GroundCanStandOn(stepUpRecoverHit, stepUpRecoverHitNormal) == false)
+                    didStepUp = false;
+                    didStepUpRecover = true;
+
+                    CapsuleMove(character.down * stepUpHeight, out RaycastHit stepUpRecoverHit, out Vector3 stepUpRecoverHitNormal);
+
+                    if (stepUpRecoverHit.collider)
                     {
+                        // if we cannot step on this ground, revert the step up
+                        // and continue the loop without stepping up this time
+                        if (GroundCanStandOn(stepUpRecoverHit, stepUpRecoverHitNormal, out float baseAngle) == false)
+                        {
+                            if (baseAngle < 90f)
+                            {
+                                charCapsule.localPosition = positionBeforeStepUp;
+                                remainingMove = moveBeforeStepUp;
+                                canStepUp = false;
 
-                        charCapsule.localPosition = positionBeforeStepUp;
-                        remainingMove = moveBeforeStepUp;
-                        canStepUp = false;
-
-                        continue;
+                                continue;
+                            }
+                        }
                     }
                 }
+
+                // if there is no collision (no obstacle or remainingMove == 0)
+                // break the loop
+                if (moveHit.collider == null)
+                {
+                    break;
+                }
+
+                // try sliding on the obstacle
+                if (GroundSlideOnSurface(originalMove, ref remainingMove, moveHit, moveHitNormal))
+                {
+                    continue;
+                }
+
+                // step up the first time, we hit an obstacle
+                if (canStepUp && didStepUp == false)
+                {
+                    canStepUp = false;
+                    didStepUp = true;
+                    didStepUpRecover = false;
+                    positionBeforeStepUp = charCapsule.localPosition;
+                    moveBeforeStepUp = remainingMove;
+
+                    stepUpHeight = CapsuleMove(characterUp * _currentStepUpHeight).magnitude;
+
+                    continue;
+                }
+
+                // try sliding along the obstacle
+                if (GroundSlideAlongSurface(originalMove, ref remainingMove, moveHit, moveHitNormal))
+                {
+                    continue;
+                }
+
+                // there's nothing we can do now, so stop the move
+                remainingMove = Vector3.zero;
             }
 
-            // if there is no collision (no obstacle or remainingMove == 0)
-            // break the loop
-            if (moveHit.collider == null)
-            {
-                break;
-            }
-
-            // try sliding on the obstacle
-            if (GroundSlideOnSurface(originalMove, ref remainingMove, moveHit, moveHitNormal))
-            {
-                continue;
-            }
-
-            // step up the first time, we hit an obstacle
-            if (canStepUp && didStepUp == false)
-            {
-                canStepUp = false;
-                didStepUp = true;
-                didStepUpRecover = false;
-                positionBeforeStepUp = charCapsule.localPosition;
-                moveBeforeStepUp = remainingMove;
-
-                stepUpHeight = CapsuleMove(character.up * m_currentStepUpHeight).magnitude;
-
-                continue;
-            }
-
-            // try sliding along the obstacle
-            if (GroundSlideAlongSurface(originalMove, ref remainingMove, moveHit, moveHitNormal))
-            {
-                continue;
-            }
-
-            // there's nothing we can do now, so stop the move
-            remainingMove = Vector3.zero;
         }
 
-        GroundStepDown();
+        GroundStepDown(originalMove);
         CapsuleResolvePenetration();
 
-        charCapsule.PerformMove();
+        _velocity = charCapsule.localPosition - lastPosition;
+
+        if (verticalMoveMagnitude == 0f)
+        {
+            _velocity = Vector3.ProjectOnPlane(_velocity, characterUp);
+        }
     }
 
     protected virtual void GroundResizeCapsule()
@@ -646,7 +789,7 @@ public class CharacterMovement : CharacterBehaviour
             }
 
             Vector3 slopeMove = Vector3.ProjectOnPlane(remainingMove, hitNormal);
-            if (m_currentMaintainVelocityOnSurface)
+            if (_currentMaintainVelocityOnSurface)
             {
                 slopeMove = slopeMove.normalized * remainingMove.magnitude;
             }
@@ -672,11 +815,11 @@ public class CharacterMovement : CharacterBehaviour
 
         Vector3 hitProject = Vector3.ProjectOnPlane(hitNormal, character.up);
         Vector3 slideMove = Vector3.ProjectOnPlane(originalMove.normalized * remainingMoveSize, hitProject);
-        if (m_currentMaintainVelocityAlongSurface)
+        if (_currentMaintainVelocityAlongSurface)
         {
             // to avoid sliding along perpendicular surface for very small values,
             // may be a result of small miscalculations
-            if (slideMove.magnitude > 0.0001f)
+            if (slideMove.magnitude > k_minMoveAlongSurfaceForMaintainVelocity)
             {
                 slideMove = slideMove.normalized * remainingMoveSize;
             }
@@ -686,14 +829,15 @@ public class CharacterMovement : CharacterBehaviour
         return true;
     }
 
-    protected virtual bool GroundStepDown()
+    protected virtual bool GroundStepDown(Vector3 originalMove)
     {
-        if (m_currentStepDownDepth <= 0)
+        var verticalMove = Vector3.Project(originalMove, character.up).magnitude;
+        if (verticalMove != 0f || _currentStepDownDepth <= 0)
             return false;
 
         CapsuleResolvePenetration();
 
-        var moved = CapsuleMove(character.down * m_currentStepDownDepth, out RaycastHit hit, out Vector3 hitNormal);
+        var moved = CapsuleMove(character.down * _currentStepDownDepth, out RaycastHit hit, out Vector3 hitNormal);
 
         if (GroundCanStandOn(hit, hitNormal) == false)
         {
@@ -740,7 +884,7 @@ public class CharacterMovement : CharacterBehaviour
                 RecalculateNormal(hit, out slopeNormal);
             }
 
-            float maxSlopeAngle = Math.Clamp(m_currentSlopeUpAngle,
+            float maxSlopeAngle = Math.Clamp(_currentSlopeUpAngle,
                 k_minGroundSlopeUpAngle, k_maxGroundSlopeUpAngle);
 
             slopeAngle = Vector3.Angle(character.up, slopeNormal);
@@ -757,7 +901,7 @@ public class CharacterMovement : CharacterBehaviour
 
     protected virtual bool GroundCast(float depth, out CharacterMovementGroundResult result)
     {
-        RaycastHit hit = BigBaseSphereCast(character.down * depth);
+        BaseSphereCast(character.down * depth, out RaycastHit hit, out Vector3 hitNormal);
         result = new CharacterMovementGroundResult();
 
         if (GroundCheck(hit.collider) == false)
@@ -769,9 +913,7 @@ public class CharacterMovement : CharacterBehaviour
         result.direction = character.down;
         result.distance = hit.distance;
 
-        Vector3 leftDirection = Quaternion.Euler(0, -90, 0) * result.direction;
-        Vector3 obstacleForward = Vector3.ProjectOnPlane(-hit.normal, leftDirection).normalized;
-        result.angle = 90f - Vector3.SignedAngle(result.direction, obstacleForward, -leftDirection);
+        result.angle = Vector3.Angle(character.up, hitNormal);
 
         result.basePosition = result.collider.transform.position;
         result.baseRotation = result.collider.transform.rotation;
@@ -783,41 +925,51 @@ public class CharacterMovement : CharacterBehaviour
 
     protected virtual void GroundUpdateResult()
     {
-        m_previousGroundResult = m_groundResult;
-        GroundCast(groundCheckDepth, out m_groundResult);
+        _previousGroundResult = _groundResult;
+        GroundCast(groundCheckDepth, out _groundResult);
     }
 
     //////////////////////////////////////////////////////////////////
     /// Air Physics
     //////////////////////////////////////////////////////////////////
 
-    [SerializeField] protected float gravityMultiplier = .01f;
     protected virtual void PhysAir()
     {
+        Vector3 charUp = character.up;
         float deltaTime = Time.deltaTime;
+        float moveAcceleration = airMoveAcceleration;
         float moveSpeed = airMoveSpeed;
-        float mass = character.scaledMass;
-        float gravitySpeed = airGravityAcceleration * mass * deltaTime * deltaTime * gravityMultiplier;
+        float mass = character.mass;
+        float gravitySpeed = airGravityAcceleration * mass * deltaTime * deltaTime * .1f;
+
+        Vector3 _horizontalVelocity = Vector3.ProjectOnPlane(_velocity, charUp);
+        Vector3 _verticalVelocity = _velocity - _horizontalVelocity;
+
+        Vector3 horizontalMove = _horizontalVelocity;
+        Vector3 verticalMove = _verticalVelocity + charUp * gravitySpeed;
 
         // Calculate Movement
-        Vector3 moveInput = new Vector3(charInputs.move.x, 0, charInputs.move.y);
-        moveInput = Quaternion.Euler(0, charView.turnAngle, 0) * moveInput;
+        Vector3 helperHorizontalMove = new Vector3(charInputs.move.x, 0, charInputs.move.y);
+        helperHorizontalMove = Quaternion.Euler(0, charView.turnAngle, 0) * helperHorizontalMove;
+        helperHorizontalMove = character.rotation * helperHorizontalMove * moveSpeed;
+        helperHorizontalMove = Vector3.ProjectOnPlane(helperHorizontalMove, horizontalMove);
+        helperHorizontalMove = Vector3.zero;
 
-        Vector3 deltaMove = moveInput * moveSpeed * Time.deltaTime; // horizontal movement
-        deltaMove = m_velocity + (character.down * -gravitySpeed); // add gravity
+        horizontalMove += helperHorizontalMove;
 
-        // Perform move
-        var previousPosition = charCapsule.position;
+        Vector3 deltaMove = horizontalMove + verticalMove;
+
         AirMove(deltaMove);
-
-        m_lastMove = deltaMove;
-        m_velocity = charCapsule.position - previousPosition;
     }
 
     protected virtual void AirMove(Vector3 originalMove)
     {
+        Vector3 lastPosition = charCapsule.localPosition;
+
         CapsuleMove(originalMove);
         CapsuleResolvePenetration();
+
+        _velocity = lastPosition - charCapsule.localPosition;
     }
 }
 
