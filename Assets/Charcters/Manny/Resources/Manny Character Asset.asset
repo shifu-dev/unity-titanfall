@@ -31,7 +31,7 @@ MonoBehaviour:
   m_groundStandSprintRightAngleMax: 46
   m_groundStandJumpForce: 40
   m_groundStandStepUpPercent: 40
-  m_groundStandStepDownPercent: 234.1
+  m_groundStandStepDownPercent: 40
   m_groundStandSlopeUpAngle: 50
   m_groundStandSlopeDownAngle: -89
   m_groundStandMaintainVelocityOnSurface: 0
@@ -61,7 +61,7 @@ MonoBehaviour:
   m_airGravityAcceleration: -9.8
   m_airGravityMaxSpeed: Infinity
   m_airMinMoveDistance: 0
-  m_airMoveSpeed: 0.1
-  m_airMoveAcceleration: 0.1
+  m_airMoveSpeed: 0
+  m_airMoveAcceleration: 0.8
   m_airJumpPower: 10
-  m_airMaxJumpCount: 1
+  m_airMaxJumpCount: 0

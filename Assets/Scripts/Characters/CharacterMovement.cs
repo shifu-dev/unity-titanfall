@@ -1,13 +1,10 @@
 ﻿using System;
 using UnityEngine;
-using GameLog;
-
-using ILogger = GameLog.ILogger;
 
 public class CharacterMovement : CharacterBehaviour
 {
-    protected const uint k_debugMoveMultiplier = 100;
-    protected const uint k_maxMoveIterations = 10;
+    protected const uint k_maxGroundMoveIterations = 10;
+    protected const uint k_maxAirMoveIterations = 10;
 
     protected const float k_collisionOffset = .001f;
     protected const float k_recalculateNormalFallback = .01f;
@@ -21,7 +18,6 @@ public class CharacterMovement : CharacterBehaviour
     public CharacterCapsule charCapsule { get; protected set; }
     public CharacterInputs charInputs { get; protected set; }
     public CharacterView charView { get; protected set; }
-    public ILogger logger { get; protected set; }
 
     [SerializeField] private CharacterMovementStateImpl _movementState;
     public virtual CharacterMovementState movementState
@@ -30,15 +26,23 @@ public class CharacterMovement : CharacterBehaviour
         protected set => _movementState = new CharacterMovementStateImpl(value.current, value.weight);
     }
 
-    [SerializeField] protected Vector3 _velocity;
-
     [SerializeField] protected CharacterMovementGroundResult _previousGroundResult;
     [SerializeField] protected CharacterMovementGroundResult _groundResult;
 
+    // protected float delta_time = 1f;
+    protected float delta_time;
+    protected Vector3 _velocity;
+    protected float _currentMinMoveDist = 0;
+    protected float _currentMoveSpeed = 0;
+    protected float _currentMoveAccel = 0;
+    protected float _currentJumpPower = 0;
     protected float _currentStepUpHeight = 0;
     protected float _currentStepDownDepth = 0;
     protected float _currentSlopeUpAngle = 0;
     protected float _currentSlopeDownAngle = 0;
+    protected uint _currentJumpCount = 0;
+    protected uint _currentMaxJumpCount = 0;
+    protected bool _currentMaintainVelocityOnJump = false;
     protected bool _currentMaintainVelocityOnSurface = true;
     protected bool _currentMaintainVelocityAlongSurface = true;
 
@@ -81,6 +85,8 @@ public class CharacterMovement : CharacterBehaviour
 
         _previousGroundResult = CharacterMovementGroundResult.invalid;
         _groundResult = CharacterMovementGroundResult.invalid;
+        _velocity = Vector3.zero;
+        delta_time = 1f;
     }
 
     //////////////////////////////////////////////////////////////////
@@ -150,10 +156,13 @@ public class CharacterMovement : CharacterBehaviour
         airJumpPower = charDataAsset.airJumpPower;
         airMaxJumpCount = charDataAsset.airMaxJumpCount;
 
+        _velocity = Vector3.zero;
     }
 
     public override void OnUpdateCharacter()
     {
+        delta_time = Time.deltaTime;
+
         UpdatePhysicsData();
         UpdateMovementState();
         UpdatePhysicsState();
@@ -485,178 +494,177 @@ public class CharacterMovement : CharacterBehaviour
 
     protected virtual void PhysGround()
     {
-        GroundCalculateValues(movementState.current, out float speed, out float acceleration, out float jump,
-            out _currentStepDownDepth, out _currentStepUpHeight, out _currentSlopeUpAngle,
-            out _currentSlopeDownAngle);
+        GroundCalculateValues();
 
-        float deltaTime = Time.deltaTime;
-        Vector3 characterUp = character.up;
+        Vector3 char_up = character.up;
 
-        Vector3 moveInput = new Vector3(charInputs.move.x, 0, charInputs.move.y);
-        moveInput = Quaternion.Euler(0, charView.turnAngle, 0) * moveInput.normalized;
-        moveInput = character.rotation * moveInput;
+        Vector3 move_input_raw = charInputs.move;
+        Vector3 move_input = new Vector3(move_input_raw.x, 0, move_input_raw.y);
+        move_input = Quaternion.Euler(0, charView.turnAngle, 0) * move_input.normalized;
+        move_input = character.rotation * move_input;
 
-        _velocity = Vector3.ProjectOnPlane(_velocity, characterUp);
+        _velocity = Vector3.ProjectOnPlane(_velocity, char_up);
 
-        Vector3 deltaMove = moveInput * speed * deltaTime;
-        deltaMove = Vector3.MoveTowards(_velocity * deltaTime, deltaMove, acceleration * deltaTime);
+        Vector3 move = move_input * _currentMoveSpeed * delta_time;
+        move = Vector3.MoveTowards(_velocity * delta_time, move, _currentMoveAccel * delta_time);
 
-        deltaMove += characterUp * jump * deltaTime;
+        move += char_up * _currentJumpPower * delta_time;
 
-        GroundMove(deltaMove);
+        GroundMove(move);
     }
 
-    protected virtual void GroundCalculateValues(uint state, out float speed,
-        out float acceleration, out float jump, out float stepDownDepth,
-        out float stepUpHeight, out float slopeUpAngle, out float slopeDownAngle)
+    protected virtual void GroundCalculateValues()
     {
-        switch (state)
+        _currentJumpCount = 0;
+        _currentMinMoveDist = groundMinMoveDistance;
+
+        switch (movementState.current)
         {
             case CharacterMovementState.GROUND_STAND_IDLE:
-                stepDownDepth = groundStandStepDownDepth;
-                stepUpHeight = groundStandStepUpHeight;
-                slopeUpAngle = groundStandSlopeUpAngle;
-                slopeDownAngle = groundStandSlopeDownAngle;
-                acceleration = groundStandIdleAcceleration;
-                speed = groundStandIdleSpeed;
-                jump = 0f;
+                _currentStepDownDepth = groundStandStepDownDepth;
+                _currentStepUpHeight = groundStandStepUpHeight;
+                _currentSlopeUpAngle = groundStandSlopeUpAngle;
+                _currentSlopeDownAngle = groundStandSlopeDownAngle;
+                _currentMoveAccel = groundStandIdleAcceleration;
+                _currentMoveSpeed = groundStandIdleSpeed;
+                _currentJumpPower = 0f;
                 break;
 
             case CharacterMovementState.GROUND_STAND_IDLE_JUMP:
-                stepDownDepth = groundStandStepDownDepth;
-                stepUpHeight = groundStandStepUpHeight;
-                slopeUpAngle = groundStandSlopeUpAngle;
-                slopeDownAngle = groundStandSlopeDownAngle;
-                acceleration = groundStandIdleAcceleration;
-                speed = groundStandIdleSpeed;
-                jump = groundStandJumpForce;
+                _currentStepDownDepth = groundStandStepDownDepth;
+                _currentStepUpHeight = groundStandStepUpHeight;
+                _currentSlopeUpAngle = groundStandSlopeUpAngle;
+                _currentSlopeDownAngle = groundStandSlopeDownAngle;
+                _currentMoveAccel = groundStandIdleAcceleration;
+                _currentMoveSpeed = groundStandIdleSpeed;
+                _currentJumpPower = groundStandJumpForce;
                 break;
 
             case CharacterMovementState.GROUND_STAND_WALK:
-                stepDownDepth = groundStandStepDownDepth;
-                stepUpHeight = groundStandStepUpHeight;
-                slopeUpAngle = groundStandSlopeUpAngle;
-                slopeDownAngle = groundStandSlopeDownAngle;
-                acceleration = groundStandWalkAcceleration;
-                speed = groundStandWalkSpeed;
-                jump = 0f;
+                _currentStepDownDepth = groundStandStepDownDepth;
+                _currentStepUpHeight = groundStandStepUpHeight;
+                _currentSlopeUpAngle = groundStandSlopeUpAngle;
+                _currentSlopeDownAngle = groundStandSlopeDownAngle;
+                _currentMoveAccel = groundStandWalkAcceleration;
+                _currentMoveSpeed = groundStandWalkSpeed;
+                _currentJumpPower = 0f;
                 break;
 
             case CharacterMovementState.GROUND_STAND_WALK_JUMP:
-                stepDownDepth = groundStandStepDownDepth;
-                stepUpHeight = groundStandStepUpHeight;
-                slopeUpAngle = groundStandSlopeUpAngle;
-                slopeDownAngle = groundStandSlopeDownAngle;
-                acceleration = groundStandWalkAcceleration;
-                speed = groundStandWalkSpeed;
-                jump = groundStandJumpForce;
+                _currentStepDownDepth = groundStandStepDownDepth;
+                _currentStepUpHeight = groundStandStepUpHeight;
+                _currentSlopeUpAngle = groundStandSlopeUpAngle;
+                _currentSlopeDownAngle = groundStandSlopeDownAngle;
+                _currentMoveAccel = groundStandWalkAcceleration;
+                _currentMoveSpeed = groundStandWalkSpeed;
+                _currentJumpPower = groundStandJumpForce;
                 break;
 
 
             case CharacterMovementState.GROUND_STAND_RUN:
-                stepDownDepth = groundStandStepDownDepth;
-                stepUpHeight = groundStandStepUpHeight;
-                slopeUpAngle = groundStandSlopeUpAngle;
-                slopeDownAngle = groundStandSlopeDownAngle;
-                acceleration = groundStandRunAcceleration;
-                speed = groundStandRunSpeed;
-                jump = 0f;
+                _currentStepDownDepth = groundStandStepDownDepth;
+                _currentStepUpHeight = groundStandStepUpHeight;
+                _currentSlopeUpAngle = groundStandSlopeUpAngle;
+                _currentSlopeDownAngle = groundStandSlopeDownAngle;
+                _currentMoveAccel = groundStandRunAcceleration;
+                _currentMoveSpeed = groundStandRunSpeed;
+                _currentJumpPower = 0f;
                 break;
 
             case CharacterMovementState.GROUND_STAND_RUN_JUMP:
-                stepDownDepth = groundStandStepDownDepth;
-                stepUpHeight = groundStandStepUpHeight;
-                slopeUpAngle = groundStandSlopeUpAngle;
-                slopeDownAngle = groundStandSlopeDownAngle;
-                acceleration = groundStandRunAcceleration;
-                speed = groundStandRunSpeed;
-                jump = groundStandJumpForce;
+                _currentStepDownDepth = groundStandStepDownDepth;
+                _currentStepUpHeight = groundStandStepUpHeight;
+                _currentSlopeUpAngle = groundStandSlopeUpAngle;
+                _currentSlopeDownAngle = groundStandSlopeDownAngle;
+                _currentMoveAccel = groundStandRunAcceleration;
+                _currentMoveSpeed = groundStandRunSpeed;
+                _currentJumpPower = groundStandJumpForce;
                 break;
 
             case CharacterMovementState.GROUND_STAND_SPRINT:
-                stepDownDepth = groundStandStepDownDepth;
-                stepUpHeight = groundStandStepUpHeight;
-                slopeUpAngle = groundStandSlopeUpAngle;
-                slopeDownAngle = groundStandSlopeDownAngle;
-                acceleration = groundStandSprintAcceleration;
-                speed = groundStandSprintSpeed;
-                jump = 0f;
+                _currentStepDownDepth = groundStandStepDownDepth;
+                _currentStepUpHeight = groundStandStepUpHeight;
+                _currentSlopeUpAngle = groundStandSlopeUpAngle;
+                _currentSlopeDownAngle = groundStandSlopeDownAngle;
+                _currentMoveAccel = groundStandSprintAcceleration;
+                _currentMoveSpeed = groundStandSprintSpeed;
+                _currentJumpPower = 0f;
                 break;
 
             case CharacterMovementState.GROUND_STAND_SPRINT_JUMP:
-                stepDownDepth = groundStandStepDownDepth;
-                stepUpHeight = groundStandStepUpHeight;
-                slopeUpAngle = groundStandSlopeUpAngle;
-                slopeDownAngle = groundStandSlopeDownAngle;
-                acceleration = groundStandSprintAcceleration;
-                speed = groundStandSprintSpeed;
-                jump = groundStandJumpForce;
+                _currentStepDownDepth = groundStandStepDownDepth;
+                _currentStepUpHeight = groundStandStepUpHeight;
+                _currentSlopeUpAngle = groundStandSlopeUpAngle;
+                _currentSlopeDownAngle = groundStandSlopeDownAngle;
+                _currentMoveAccel = groundStandSprintAcceleration;
+                _currentMoveSpeed = groundStandSprintSpeed;
+                _currentJumpPower = groundStandJumpForce;
                 break;
 
             case CharacterMovementState.GROUND_CROUCH_IDLE:
-                stepDownDepth = groundCrouchStepDownDepth;
-                stepUpHeight = groundCrouchStepUpHeight;
-                slopeUpAngle = groundCrouchSlopeUpAngle;
-                slopeDownAngle = groundCrouchSlopeDownAngle;
-                acceleration = groundCrouchIdleAcceleration;
-                speed = groundCrouchIdleSpeed;
-                jump = 0f;
+                _currentStepDownDepth = groundCrouchStepDownDepth;
+                _currentStepUpHeight = groundCrouchStepUpHeight;
+                _currentSlopeUpAngle = groundCrouchSlopeUpAngle;
+                _currentSlopeDownAngle = groundCrouchSlopeDownAngle;
+                _currentMoveAccel = groundCrouchIdleAcceleration;
+                _currentMoveSpeed = groundCrouchIdleSpeed;
+                _currentJumpPower = 0f;
                 break;
 
             case CharacterMovementState.GROUND_CROUCH_WALK:
-                stepDownDepth = groundCrouchStepDownDepth;
-                stepUpHeight = groundCrouchStepUpHeight;
-                slopeUpAngle = groundCrouchSlopeUpAngle;
-                slopeDownAngle = groundCrouchSlopeDownAngle;
-                acceleration = groundCrouchWalkAcceleration;
-                speed = groundCrouchWalkSpeed;
-                jump = 0f;
+                _currentStepDownDepth = groundCrouchStepDownDepth;
+                _currentStepUpHeight = groundCrouchStepUpHeight;
+                _currentSlopeUpAngle = groundCrouchSlopeUpAngle;
+                _currentSlopeDownAngle = groundCrouchSlopeDownAngle;
+                _currentMoveAccel = groundCrouchWalkAcceleration;
+                _currentMoveSpeed = groundCrouchWalkSpeed;
+                _currentJumpPower = 0f;
                 break;
 
             case CharacterMovementState.GROUND_CROUCH_RUN:
-                stepDownDepth = groundCrouchStepDownDepth;
-                stepUpHeight = groundCrouchStepUpHeight;
-                slopeUpAngle = groundCrouchSlopeUpAngle;
-                slopeDownAngle = groundCrouchSlopeDownAngle;
-                acceleration = groundCrouchRunAcceleration;
-                speed = groundCrouchRunSpeed;
-                jump = 0f;
+                _currentStepDownDepth = groundCrouchStepDownDepth;
+                _currentStepUpHeight = groundCrouchStepUpHeight;
+                _currentSlopeUpAngle = groundCrouchSlopeUpAngle;
+                _currentSlopeDownAngle = groundCrouchSlopeDownAngle;
+                _currentMoveAccel = groundCrouchRunAcceleration;
+                _currentMoveSpeed = groundCrouchRunSpeed;
+                _currentJumpPower = 0f;
                 break;
 
             case CharacterMovementState.GROUND_SLIDE:
             case CharacterMovementState.GROUND_ROLL:
             default:
-                stepDownDepth = 0f;
-                stepUpHeight = 0f;
-                slopeUpAngle = 0f;
-                slopeDownAngle = 0f;
-                acceleration = 0f;
-                speed = 0f;
-                jump = 0f;
+                _currentStepDownDepth = 0f;
+                _currentStepUpHeight = 0f;
+                _currentSlopeUpAngle = 0f;
+                _currentSlopeDownAngle = 0f;
+                _currentMoveAccel = 0f;
+                _currentMoveSpeed = 0f;
+                _currentJumpPower = 0f;
                 break;
         }
     }
 
-    protected virtual void GroundMove(Vector3 originalMove)
+    protected virtual void GroundMove(Vector3 move_orig)
     {
-        Vector3 characterUp = character.up;
-        Vector3 lastPosition = charCapsule.localPosition;
+        Vector3 char_up = character.up;
+        Vector3 last_pos = charCapsule.localPosition;
 
         GroundResizeCapsule();
 
-        Vector3 horizontalMove = Vector3.ProjectOnPlane(originalMove, characterUp);
-        Vector3 verticalMove = originalMove - horizontalMove;
-        float verticalMoveMagnitude = verticalMove.magnitude;
+        Vector3 move_h = Vector3.ProjectOnPlane(move_orig, char_up);
+        Vector3 move_v = move_orig - move_h;
+        float move_v_mag = move_v.magnitude;
 
-        Vector3 remainingMove = horizontalMove;
+        Vector3 move_rem = move_h;
 
         // perform the vertical move (usually jump)
-        CapsuleMove(verticalMove);
+        CapsuleMove(move_v);
 
-        if (remainingMove.magnitude > groundMinMoveDistance)
+        if (move_rem.magnitude > _currentMinMoveDist)
         {
             var stepUpHeight = 0f;
-            var canStepUp = verticalMoveMagnitude == 0f;
+            var canStepUp = move_v_mag == 0f;
             var didStepUp = false;
             var didStepUpRecover = false;
             var positionBeforeStepUp = Vector3.zero;
@@ -664,9 +672,9 @@ public class CharacterMovement : CharacterBehaviour
 
             CapsuleResolvePenetration();
 
-            for (uint it = 0; it < k_maxMoveIterations; it++)
+            for (uint it = 0; it < k_maxGroundMoveIterations; it++)
             {
-                remainingMove -= CapsuleMove(remainingMove, out RaycastHit moveHit, out Vector3 moveHitNormal);
+                move_rem -= CapsuleMove(move_rem, out RaycastHit moveHit, out Vector3 moveHitNormal);
 
                 // perform step up recover
                 if (didStepUp && !didStepUpRecover)
@@ -685,7 +693,7 @@ public class CharacterMovement : CharacterBehaviour
                             if (baseAngle < 90f)
                             {
                                 charCapsule.localPosition = positionBeforeStepUp;
-                                remainingMove = moveBeforeStepUp;
+                                move_rem = moveBeforeStepUp;
                                 canStepUp = false;
 
                                 continue;
@@ -702,7 +710,7 @@ public class CharacterMovement : CharacterBehaviour
                 }
 
                 // try sliding on the obstacle
-                if (GroundSlideOnSurface(originalMove, ref remainingMove, moveHit, moveHitNormal))
+                if (GroundSlideOnSurface(move_orig, ref move_rem, moveHit, moveHitNormal))
                 {
                     continue;
                 }
@@ -714,34 +722,37 @@ public class CharacterMovement : CharacterBehaviour
                     didStepUp = true;
                     didStepUpRecover = false;
                     positionBeforeStepUp = charCapsule.localPosition;
-                    moveBeforeStepUp = remainingMove;
+                    moveBeforeStepUp = move_rem;
 
-                    stepUpHeight = CapsuleMove(characterUp * _currentStepUpHeight).magnitude;
+                    stepUpHeight = CapsuleMove(char_up * _currentStepUpHeight).magnitude;
 
                     continue;
                 }
 
                 // try sliding along the obstacle
-                if (GroundSlideAlongSurface(originalMove, ref remainingMove, moveHit, moveHitNormal))
+                if (GroundSlideAlongSurface(move_orig, ref move_rem, moveHit, moveHitNormal))
                 {
                     continue;
                 }
 
                 // there's nothing we can do now, so stop the move
-                remainingMove = Vector3.zero;
+                move_rem = Vector3.zero;
             }
 
         }
 
-        GroundStepDown(originalMove);
+        GroundStepDown(move_orig);
         CapsuleResolvePenetration();
 
-        _velocity = charCapsule.localPosition - lastPosition;
-        _velocity = _velocity / Time.deltaTime;
-
-        if (verticalMoveMagnitude == 0f)
+        _velocity = charCapsule.localPosition - last_pos;
+        if (delta_time != 0f)
         {
-            _velocity = Vector3.ProjectOnPlane(_velocity, characterUp);
+            _velocity = _velocity / Time.deltaTime;
+        }
+
+        if (move_v_mag == 0f)
+        {
+            _velocity = Vector3.ProjectOnPlane(_velocity, char_up);
         }
     }
 
@@ -905,7 +916,8 @@ public class CharacterMovement : CharacterBehaviour
         BaseSphereCast(character.down * depth, out RaycastHit hit, out Vector3 hitNormal);
         result = new CharacterMovementGroundResult();
 
-        if (GroundCheck(hit.collider) == false)
+        // if (GroundCheck(hit.collider) == false)
+        if (GroundCanStandOn(hit) == false)
         {
             return false;
         }
@@ -936,35 +948,146 @@ public class CharacterMovement : CharacterBehaviour
 
     protected virtual void PhysAir()
     {
-        Vector3 char_up = character.up;
-        float deltaTime = Time.deltaTime;
-        float moveAcceleration = airMoveAcceleration;
-        float moveSpeed = airMoveSpeed;
-        float mass = character.mass;
-        // float gravitySpeed = airGravityAcceleration * mass * deltaTime * .013f * .1f;
-        float gravitySpeed = airGravityAcceleration * mass * deltaTime * deltaTime * .1f;
+        AirCalculateValues();
 
-        Vector3 velocity = _velocity * deltaTime;
+        Vector3 char_up = character.up;
+        Vector3 char_forward = character.forward;
+        Vector3 char_right = character.right;
+        float mass = character.mass;
+        float gravity_speed = airGravityAcceleration * mass * delta_time * delta_time * .1f;
+
+        Vector3 velocity = _velocity * delta_time;
         Vector3 velocity_h = Vector3.ProjectOnPlane(velocity, char_up);
         Vector3 velocity_v = velocity - velocity_h;
 
+        Vector3 move_v = velocity_v + (char_up * gravity_speed);
         Vector3 move_h = velocity_h;
-        Vector3 move_v = velocity_v + (char_up * gravitySpeed);
 
-        Vector3 deltaMove = move_h + move_v;
+        Vector3 move_h_x = Vector3.ProjectOnPlane(move_h, char_forward);
+        Vector3 move_h_z = move_h - move_h_x;
+        // processed move input
+        Vector3 move_input_raw = charInputs.move;
+        Vector3 move_input = new Vector3(move_input_raw.x, 0f, move_input_raw.y);
+        move_input = Quaternion.Euler(0f, charView.turnAngle, 0f) * move_input;
+        move_input = character.rotation * move_input;
 
-        AirMove(deltaMove);
+        // helping movement in air
+        Vector3 move_help_h = _currentMoveSpeed * move_input * delta_time;
+        Vector3 move_help_h_x = Vector3.ProjectOnPlane(move_help_h, char_forward);
+        Vector3 move_help_h_z = move_help_h - move_help_h_x;
+
+        if (move_help_h_x.magnitude > 0f)
+        {
+            if (move_h_x.normalized == move_help_h_x.normalized)
+            {
+                if (move_help_h_x.magnitude > move_h_x.magnitude)
+                {
+                    move_h_x = move_help_h_x;
+                }
+            }
+            else
+            {
+                move_h_x = move_help_h_x;
+            }
+        }
+
+        if (move_help_h_z.magnitude > 0f)
+        {
+            if (move_h_z.normalized == move_help_h_z.normalized)
+            {
+                if (move_help_h_z.magnitude > move_h_z.magnitude)
+                {
+                    move_h_z = move_help_h_z;
+                }
+            }
+            else
+            {
+                move_h_z = move_help_h_z;
+            }
+        }
+
+        move_h = move_h_x + move_h_z;
+
+        // process character jump
+        if (charInputs.jump && _currentJumpCount < airMaxJumpCount)
+        {
+            _currentJumpCount++;
+
+            if (_currentMaintainVelocityOnJump == false)
+            {
+                move_v = Vector3.zero;
+            }
+
+            move_v = char_up * _currentJumpPower;
+        }
+
+        Vector3 move = move_h + move_v;
+
+        AirMove(move);
+    }
+
+    protected virtual void AirCalculateValues()
+    {
+        _currentMoveAccel = airMoveAcceleration;
+        _currentMoveSpeed = airMoveSpeed;
+        _currentJumpPower = airJumpPower;
+        _currentMaxJumpCount = airMaxJumpCount;
+        _currentMinMoveDist = airMinMoveDistance;
+
+        // TODO: add this field in data asset
+        _currentMaintainVelocityOnJump = false;
     }
 
     protected virtual void AirMove(Vector3 originalMove)
     {
         Vector3 lastPosition = charCapsule.localPosition;
+        Vector3 remainingMove = originalMove;
 
-        CapsuleMove(originalMove);
-        CapsuleResolvePenetration();
+        for (int i = 0; i < k_maxAirMoveIterations; i++)
+        {
+            remainingMove -= CapsuleMove(remainingMove, out RaycastHit hit, out Vector3 hitNormal);
+
+            if (hit.collider == null)
+            {
+                // no collision, so end the move
+                remainingMove = Vector3.zero;
+                break;
+            }
+
+            AirMoveAlongSurface(originalMove, ref remainingMove, hit, hitNormal);
+        }
 
         _velocity = charCapsule.localPosition - lastPosition;
-        _velocity = _velocity / Time.deltaTime;
+
+        if (delta_time != 0f)
+        {
+            _velocity = _velocity / delta_time;
+        }
+    }
+
+    protected virtual void AirMoveAlongSurface(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit, Vector3 hitNormal)
+    {
+        if (hit.collider == null || remainingMove == global::UnityEngine.Vector3.zero)
+            return;
+
+        if (GroundCanStandOn(hit))
+        {
+            remainingMove = global::UnityEngine.Vector3.zero;
+            return;
+        }
+
+        if (hitNormal == Vector3.zero)
+        {
+            RecalculateNormal(hit, out hitNormal);
+        }
+
+        Vector3 slideMove = Vector3.ProjectOnPlane(remainingMove, hitNormal);
+        if (_currentMaintainVelocityAlongSurface)
+        {
+            slideMove = slideMove.normalized * remainingMove.magnitude;
+        }
+
+        remainingMove = slideMove;
     }
 }
 

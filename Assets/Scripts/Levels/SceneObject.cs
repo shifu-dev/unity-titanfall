@@ -4,7 +4,7 @@ using System.Collections.Generic;
 [DisallowMultipleComponent]
 public class SceneObject : MonoBehaviour
 {
-    public const string GlobalTag = "SceneObject";
+    public const string globalTag = "SceneObject";
 
-    public Transform[] PlayerStartPositions;
+    public Transform[] playerSpawnPoints;
 }

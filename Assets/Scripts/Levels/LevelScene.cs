@@ -38,7 +38,7 @@ public class LevelScene : ScriptableObject
         {
             LevelManager.logger.Info("LEVELSCENE: FindingSceneObject | force: " + force + " | SceneObject: " + sceneObject);
 
-            GameObject[] sceneGameObjects = GameObject.FindGameObjectsWithTag(SceneObject.GlobalTag);
+            GameObject[] sceneGameObjects = GameObject.FindGameObjectsWithTag(SceneObject.globalTag);
             LevelManager.logger.Info("LEVELSCENE: Found " + sceneGameObjects.Length + " SceneObjects");
 
             foreach (var go in sceneGameObjects)

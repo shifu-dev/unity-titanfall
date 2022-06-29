@@ -11,29 +11,35 @@ public class TrainingLevel : Level
         ILogger logger = LevelManager.logger.GetOrCreateSubLogger("TrainingLevel");
 
         var sceneObject = mainScene.sceneObject;
-        var startPositions = sceneObject.PlayerStartPositions;
+        var spawnPositions = sceneObject.playerSpawnPoints;
 
-        if (startPositions.Length > 0)
+        Transform spawnPoint = null;
+        foreach (var spawnPos in spawnPositions)
         {
-            var startPoint = startPositions[0];
-            if (startPoint != null)
+            if (spawnPos != null)
             {
-                var localPlayer = PlayerManager.localPlayer;
-                if (localPlayer != null)
-                {
-                    // Create Character
-                    GameObject CharacterPrefab = Resources.Load<GameObject>("Manny");
-                    GameObject CharacterGameObject = GameObject.Instantiate(CharacterPrefab,
-                        startPoint.position, startPoint.rotation);
+                spawnPoint = spawnPos;
+                break;
+            }
+        }
 
-                    CharacterGameObject.name = "Manny";
-                    Character character = CharacterGameObject.GetComponent<Character>();
-                    logger.Info("Created Character");
+        if (spawnPoint != null)
+        {
+            var localPlayer = PlayerManager.localPlayer;
+            if (localPlayer != null)
+            {
+                // Create Character
+                GameObject CharacterPrefab = Resources.Load<GameObject>("Manny");
+                GameObject CharacterGameObject = GameObject.Instantiate(CharacterPrefab,
+                    spawnPoint.position, spawnPoint.rotation);
 
-                    // Player Possess Character
-                    localPlayer.Possess(character);
-                    logger.Info("Player Possessed Character");
-                }
+                CharacterGameObject.name = "Manny";
+                Character character = CharacterGameObject.GetComponent<Character>();
+                logger.Info("Created Character");
+
+                // Player Possess Character
+                localPlayer.Possess(character);
+                logger.Info("Player Possessed Character");
             }
         }
     }
