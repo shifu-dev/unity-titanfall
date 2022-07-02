@@ -412,11 +412,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7262304a2f5a754bb05b7e89d850f58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_movementState:
+  _movementState:
     m_previous: 0
     m_current: 0
     m_weight: 1
-  gravityMultiplier: 0.001
 --- !u!114 &1210957656046409178
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -490,72 +489,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb7d0c9f08f8c0d4f85611f9bd4a91f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_leftHand:
-    m_source: {fileID: 3973714730083592506}
-    m_locked: 0
-    m_current:
-      m_equipableObject: {fileID: 0}
-      status: 0
-      weight:
-        m_value: 0
-      equipSpeed: 0
-      unequipSpeed: 0
-      positionOnEquip: {x: 0, y: 0, z: 0}
-      rotationOnEquip: {x: 0, y: 0, z: 0, w: 0}
-      positionOnUnequip: {x: 0, y: 0, z: 0}
-      rotationOnUnequip: {x: 0, y: 0, z: 0, w: 0}
-      parentOnUnequip: {fileID: 0}
-      m_weapon: {fileID: 0}
-      m_grenade: {fileID: 0}
-      m_slot: 0
-    m_next:
-      m_equipableObject: {fileID: 0}
-      status: 0
-      weight:
-        m_value: 0
-      equipSpeed: 0
-      unequipSpeed: 0
-      positionOnEquip: {x: 0, y: 0, z: 0}
-      rotationOnEquip: {x: 0, y: 0, z: 0, w: 0}
-      positionOnUnequip: {x: 0, y: 0, z: 0}
-      rotationOnUnequip: {x: 0, y: 0, z: 0, w: 0}
-      parentOnUnequip: {fileID: 0}
-      m_weapon: {fileID: 0}
-      m_grenade: {fileID: 0}
-      m_slot: 0
-  m_rightHand:
-    m_source: {fileID: 1926329094455811431}
-    m_locked: 0
-    m_current:
-      m_equipableObject: {fileID: 0}
-      status: 0
-      weight:
-        m_value: 0
-      equipSpeed: 0
-      unequipSpeed: 0
-      positionOnEquip: {x: 0, y: 0, z: 0}
-      rotationOnEquip: {x: 0, y: 0, z: 0, w: 0}
-      positionOnUnequip: {x: 0, y: 0, z: 0}
-      rotationOnUnequip: {x: 0, y: 0, z: 0, w: 0}
-      parentOnUnequip: {fileID: 0}
-      m_weapon: {fileID: 0}
-      m_grenade: {fileID: 0}
-      m_slot: 0
-    m_next:
-      m_equipableObject: {fileID: 0}
-      status: 0
-      weight:
-        m_value: 0
-      equipSpeed: 0
-      unequipSpeed: 0
-      positionOnEquip: {x: 0, y: 0, z: 0}
-      rotationOnEquip: {x: 0, y: 0, z: 0, w: 0}
-      positionOnUnequip: {x: 0, y: 0, z: 0}
-      rotationOnUnequip: {x: 0, y: 0, z: 0, w: 0}
-      parentOnUnequip: {fileID: 0}
-      m_weapon: {fileID: 0}
-      m_grenade: {fileID: 0}
-      m_slot: 0
+  _left_current:
+    equipable: {fileID: 0}
+    weight:
+      m_value: 0
+    equip_speed: 0
+    unequip_speed: 0
+    slot: 0
+  _left_next:
+    equipable: {fileID: 0}
+    weight:
+      m_value: 0
+    equip_speed: 0
+    unequip_speed: 0
+    slot: 0
+  _left_status: 0
+  _left_locked: 0
+  _right_current:
+    equipable: {fileID: 0}
+    weight:
+      m_value: 0
+    equip_speed: 0
+    unequip_speed: 0
+    slot: 0
+  _right_next:
+    equipable: {fileID: 0}
+    weight:
+      m_value: 0
+    equip_speed: 0
+    unequip_speed: 0
+    slot: 0
+  _right_status: 0
+  _right_locked: 0
 --- !u!114 &5399984233667666123
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -568,17 +533,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a06096b59bf0a845bc7ae186dceb333, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_camera: {fileID: 0}
-  m_lookVector: {x: 0, y: 0, z: 0}
-  m_eyesData:
+  _camera: {fileID: 0}
+  _lookVector: {x: 0, y: 0, z: 0}
+  _eyesData:
     eyes: {fileID: 0}
-  m_firstPersonData:
-    standPos: {x: 0, y: 0.75, z: 0.2}
+  _firstPersonData:
+    standPos: {x: 0, y: 0, z: 0}
     standCrouchTransition: {fileID: 0}
-    crouchPos: {x: 0, y: 0, z: 0.2}
-    minRotation: {x: -180, y: -89.9, z: 0}
-    maxRotation: {x: 180, y: 89.9, z: 0}
-  m_thirdPersonData:
+    crouchPos: {x: 0, y: 0, z: 0}
+    minRotation: {x: -180, y: -89, z: 0}
+    maxRotation: {x: 180, y: 89, z: 0}
+  _thirdPersonData:
     alwaysUpdate: 0
     lookAtSource: {fileID: 0}
     lookAtSourceOffset: {x: 0, y: 0, z: 0}

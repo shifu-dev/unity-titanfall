@@ -75,9 +75,6 @@ public class PlayerInputs : MonoBehaviour
         float look_y = -Input.GetAxis("look y");
         float look_z = 0;
 
-        look_x = 0;
-        look_y = 0;
-
         look_x = invertLook.x ? -look_x : look_x;
         look_y = invertLook.y ? -look_y : look_y;
         look_z = invertLook.z ? -look_z : look_z;

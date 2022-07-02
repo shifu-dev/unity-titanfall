@@ -11,8 +11,11 @@ public enum GrenadeCategory
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Interactable))]
 [RequireComponent(typeof(Projectile))]
-public abstract class Grenade : MonoBehaviour, IEquipable
+public abstract class Grenade : Equipable
 {
+    public override EquipableType type => EquipableType.Grenade;
+    public override Grenade grenade => this;
+
     public abstract GrenadeAsset grenadeAsset { get; }
     public Projectile projectile { get; protected set; }
     public Interactable interactable { get; protected set; }

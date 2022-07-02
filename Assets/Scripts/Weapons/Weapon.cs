@@ -17,11 +17,10 @@ public enum WeaponCategory
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(WeaponInputs))]
-public abstract class Weapon : MonoBehaviour, IEquipable
+public abstract class Weapon : Equipable
 {
-    //////////////////////////////////////////////////////////////////
-    /// Variables
-    //////////////////////////////////////////////////////////////////
+    public override EquipableType type => EquipableType.Grenade;
+    public override Weapon weapon => this;
 
     public WeaponInputs weaponInputs { get; protected set; }
 

@@ -1,16 +1,15 @@
-using System;
 using UnityEngine;
 
-public enum EquipStatus
+public enum EquipableType
 {
-    Unknown,
-    Equip,
-    Equipped,
-    Unequip,
-    Unequipped
+    Weapon,
+    Grenade
 }
 
-public interface IEquipable
+public abstract class Equipable : MonoBehaviour
 {
-    GameObject gameObject { get; }
+    public abstract EquipableType type { get; }
+
+    public virtual Weapon weapon => GetComponent<Weapon>();
+    public virtual Grenade grenade => GetComponent<Grenade>();
 }

@@ -50,43 +50,43 @@ public class CharacterView : CharacterBehaviour
     /// Variables
     //////////////////////////////////////////////////////////////////
 
-    public CharacterInputs charInputs { get; protected set; }
-    public CharacterCapsule charCapsule { get; protected set; }
-    public CharacterMovement charMovement { get; protected set; }
+    protected CharacterInputs _charInputs;
+    protected CharacterCapsule _charCapsule;
+    protected CharacterMovement _charMovement;
 
-    [SerializeField] protected Camera m_camera;
+    [SerializeField] protected Camera _camera;
     public new Camera camera
     {
-        get => m_camera;
-        set => m_camera = value;
+        get => _camera;
+        set => _camera = value;
     }
 
-    [SerializeField, ReadOnly] protected Vector3 m_lookVector;
-    public Vector2 lookVector => m_lookVector;
+    [SerializeField, ReadOnly] protected Vector3 _lookVector;
+    public Vector2 lookVector => _lookVector;
 
     public Mode mode
     {
-        get => m_stateMachine.currentState;
-        set => m_stateMachine.Switch(value);
+        get => _stateMachine.currentState;
+        set => _stateMachine.Switch(value);
     }
 
     [Header("View Modes Data"), Space]
-    [SerializeField] protected EyesData m_eyesData;
-    [SerializeField] protected FirstPersonData m_firstPersonData;
-    [SerializeField] protected ThirdPersonData m_thirdPersonData;
+    [SerializeField] protected EyesData _eyesData;
+    [SerializeField] protected FirstPersonData _firstPersonData;
+    [SerializeField] protected ThirdPersonData _thirdPersonData;
 
-    protected StateMachine<Mode> m_stateMachine;
+    protected StateMachine<Mode> _stateMachine;
 
-    public float turnAngle => m_lookVector.x;
+    public float turnAngle => _lookVector.x;
 
     public CharacterView()
     {
-        m_stateMachine = new StateMachine<Mode>();
-        m_stateMachine.Add(Mode.None, null, null, null);
-        m_stateMachine.Add(Mode.Eyes, EnterViewMode_Eyes, UpdateViewMode_Eyes, ExitViewMode_Eyes);
-        m_stateMachine.Add(Mode.FirstPerson, EnterViewMode_FirstPerson, UpdateViewMode_FirstPerson, ExitViewMode_FirstPerson);
-        m_stateMachine.Add(Mode.ThirdPerson, EnterViewMode_ThirdPerson, UpdateViewMode_ThirdPerson, ExitViewMode_ThirdPerson);
-        m_stateMachine.Switch(Mode.None);
+        _stateMachine = new StateMachine<Mode>();
+        _stateMachine.Add(Mode.None, null, null, null);
+        _stateMachine.Add(Mode.Eyes, EnterViewMode_Eyes, UpdateViewMode_Eyes, ExitViewMode_Eyes);
+        _stateMachine.Add(Mode.FirstPerson, EnterViewMode_FirstPerson, UpdateViewMode_FirstPerson, ExitViewMode_FirstPerson);
+        _stateMachine.Add(Mode.ThirdPerson, EnterViewMode_ThirdPerson, UpdateViewMode_ThirdPerson, ExitViewMode_ThirdPerson);
+        _stateMachine.Switch(Mode.None);
     }
 
     //////////////////////////////////////////////////////////////////
@@ -97,19 +97,19 @@ public class CharacterView : CharacterBehaviour
     {
         base.OnInitCharacter(character, initializer);
 
-        charInputs = character.charInputs;
-        charCapsule = character.charCapsule;
-        charMovement = character.charMovement;
+        _charInputs = character.charInputs;
+        _charCapsule = character.charCapsule;
+        _charMovement = character.charMovement;
     }
 
     public override void OnUpdateCharacter()
     {
-        m_stateMachine.Update();
+        _stateMachine.Update();
     }
 
     public virtual void SwitchView(Mode mode)
     {
-        m_stateMachine.Switch(mode);
+        _stateMachine.Switch(mode);
     }
 
     //////////////////////////////////////////////////////////////////
@@ -121,11 +121,11 @@ public class CharacterView : CharacterBehaviour
     }
     protected virtual void UpdateViewMode_Eyes()
     {
-        if (m_camera == null || m_eyesData.eyes == null)
+        if (_camera == null || _eyesData.eyes == null)
             return;
 
-        m_camera.transform.position = m_eyesData.eyes.transform.position;
-        m_camera.transform.rotation = m_eyesData.eyes.transform.rotation;
+        _camera.transform.position = _eyesData.eyes.transform.position;
+        _camera.transform.rotation = _eyesData.eyes.transform.rotation;
     }
     protected virtual void ExitViewMode_Eyes()
     {
@@ -136,33 +136,33 @@ public class CharacterView : CharacterBehaviour
     }
     protected virtual void UpdateViewMode_FirstPerson()
     {
-        if (m_camera == null)
+        if (_camera == null)
         {
             return;
         }
 
-        m_lookVector += charInputs.look;
-        m_lookVector.x = m_lookVector.x < -180 || m_lookVector.x > 180 ? -m_lookVector.x : m_lookVector.x;
-        m_lookVector.y = m_lookVector.y < -180 || m_lookVector.y > 180 ? -m_lookVector.y : m_lookVector.y;
-        m_lookVector.z = m_lookVector.z < -180 || m_lookVector.z > 180 ? -m_lookVector.z : m_lookVector.z;
+        _lookVector += _charInputs.look;
+        _lookVector.x = _lookVector.x < -180 || _lookVector.x > 180 ? -_lookVector.x : _lookVector.x;
+        _lookVector.y = _lookVector.y < -180 || _lookVector.y > 180 ? -_lookVector.y : _lookVector.y;
+        _lookVector.z = _lookVector.z < -180 || _lookVector.z > 180 ? -_lookVector.z : _lookVector.z;
 
-        m_lookVector.x = Math.Clamp(m_lookVector.x, m_firstPersonData.minRotation.x, m_firstPersonData.maxRotation.x);
-        m_lookVector.y = Math.Clamp(m_lookVector.y, m_firstPersonData.minRotation.y, m_firstPersonData.maxRotation.y);
-        m_lookVector.z = Math.Clamp(m_lookVector.z, m_firstPersonData.minRotation.z, m_firstPersonData.maxRotation.z);
+        _lookVector.x = Math.Clamp(_lookVector.x, _firstPersonData.minRotation.x, _firstPersonData.maxRotation.x);
+        _lookVector.y = Math.Clamp(_lookVector.y, _firstPersonData.minRotation.y, _firstPersonData.maxRotation.y);
+        _lookVector.z = Math.Clamp(_lookVector.z, _firstPersonData.minRotation.z, _firstPersonData.maxRotation.z);
 
-        Vector3 camPos = Vector3.zero;
-        Quaternion camRot = Quaternion.identity;
+        Vector3 cam_pos = Vector3.zero;
+        Quaternion cam_rot = Quaternion.identity;
 
         // calculate position
-        camPos = m_firstPersonData.standPos;
-        camPos = charCapsule.GetPositionInVolume(camPos);
+        cam_pos = _firstPersonData.standPos;
+        cam_pos = _charCapsule.GetPositionInVolume(cam_pos);
 
         // calculate rotation
-        camRot = Quaternion.Euler(new Vector3(m_lookVector.y, m_lookVector.x, m_lookVector.z));
+        cam_rot = Quaternion.Euler(new Vector3(_lookVector.y, _lookVector.x, _lookVector.z));
 
         // apply position and rotation
-        m_camera.transform.position = camPos;
-        m_camera.transform.rotation = camRot;
+        _camera.transform.position = cam_pos;
+        _camera.transform.rotation = cam_rot;
     }
     protected virtual void ExitViewMode_FirstPerson()
     {
@@ -173,17 +173,17 @@ public class CharacterView : CharacterBehaviour
     }
     protected virtual void UpdateViewMode_ThirdPerson()
     {
-        var data = m_thirdPersonData;
-        if (m_camera == null || data.lookAtSource == null)
+        var data = _thirdPersonData;
+        if (_camera == null || data.lookAtSource == null)
         {
             SwitchView(Mode.None);
             return;
         }
 
         Vector3 lookAt = data.lookAtSource.transform.position + data.lookAtSourceOffset;
-        Vector3 lookDir = charCapsule.forward;
-        Vector3 camPos = m_camera.transform.position;
-        Quaternion camRot = Quaternion.LookRotation(lookDir, charCapsule.up);
+        Vector3 lookDir = _charCapsule.forward;
+        Vector3 camPos = _camera.transform.position;
+        Quaternion camRot = Quaternion.LookRotation(lookDir, _charCapsule.up);
 
         bool hit = Physics.Raycast(lookAt, lookDir * -1, out RaycastHit hitInfo, data.maxDistanceFromLookSource);
         if (hit)
@@ -204,8 +204,8 @@ public class CharacterView : CharacterBehaviour
             camPos.y = Mathf.Lerp(camPos.y, targetCamPos.y, lerpSpeed.y);
             camPos.z = Mathf.Lerp(camPos.z, targetCamPos.z, lerpSpeed.z);
 
-            m_camera.transform.position = camPos;
-            m_camera.transform.rotation = camRot;
+            _camera.transform.position = camPos;
+            _camera.transform.rotation = camRot;
         }
     }
     protected virtual void ExitViewMode_ThirdPerson()
