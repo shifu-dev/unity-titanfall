@@ -318,31 +318,19 @@ public class CharacterEquip : CharacterBehaviour
         var weapon = _right_current.equipable.weapon;
         if (weapon)
         {
-            Debug.Log("CharacterEquip: OnRightWeaponEquipped");
-
-            // if (equipData.isEquipped)
-            // {
-            //     weapon.OnEquip();
-            // }
-
-            // if (equipData.isUnequipped)
-            // {
-            //     weapon.OnUnequip();
-            // }
-
             return;
         }
     }
 
     public void OnWeaponFound(InteractableScanResult scanResult, Weapon weapon)
     {
-        Debug.Log($"CharacterEquip | WeaponFound {{{weapon.name}}}");
+        // Debug.Log($"CharacterEquip | WeaponFound {{{weapon.name}}}");
         uint slot = charInventory.AddWeapon(weapon);
         if (slot > 0)
         {
             scanResult.interactable.canInteract = false;
 
-            Debug.Log($"CharacterEquip | Weapon added in inventory {{{weapon.name}, {{{slot}}}}}");
+            // Debug.Log($"CharacterEquip | Weapon added in inventory {{{weapon.name}, {{{slot}}}}}");
             EquipData equipData = new EquipData();
             equipData.equipable = weapon;
             equipData.equip_speed = 1f;
@@ -351,8 +339,8 @@ public class CharacterEquip : CharacterBehaviour
 
             if (RightHandEquip(equipData))
             {
-                weapon.OnPickup();
-                Debug.Log($"CharacterEquip | EquipWeapon {{{weapon.name}}}");
+                // weapon.OnPickup();
+                // Debug.Log($"CharacterEquip | EquipWeapon {{{weapon.name}}}");
             }
         }
     }

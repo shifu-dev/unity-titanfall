@@ -416,6 +416,7 @@ MonoBehaviour:
     m_previous: 0
     m_current: 0
     m_weight: 1
+  _velocity: {x: 0, y: 0, z: 0}
 --- !u!114 &1210957656046409178
 MonoBehaviour:
   m_ObjectHideFlags: 0

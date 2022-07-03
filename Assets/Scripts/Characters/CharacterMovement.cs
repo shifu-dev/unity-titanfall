@@ -14,6 +14,8 @@ public class CharacterMovement : CharacterBehaviour
     protected const float k_minGroundSlopeUpAngle = 0f;
     protected const float k_maxGroundSlopeUpAngle = 89.9f;
 
+    protected const float k_gravityMultiplier = .075f;
+
     public CharacterDataAsset charDataAsset { get; protected set; }
     public CharacterCapsule charCapsule { get; protected set; }
     public CharacterInputs charInputs { get; protected set; }
@@ -30,8 +32,11 @@ public class CharacterMovement : CharacterBehaviour
     [SerializeField] protected CharacterMovementGroundResult _groundResult;
 
     // protected float delta_time = 1f;
-    protected float delta_time;
-    protected Vector3 _velocity;
+    protected float _delta_time;
+    [ReadOnly, SerializeField] protected Vector3 _velocity;
+    protected Vector3 _char_up = Vector3.up;
+    protected Vector3 _char_right = Vector3.right;
+    protected Vector3 _char_forward = Vector3.forward;
     protected float _currentMinMoveDist = 0;
     protected float _currentMoveSpeed = 0;
     protected float _currentMoveAccel = 0;
@@ -45,6 +50,7 @@ public class CharacterMovement : CharacterBehaviour
     protected bool _currentMaintainVelocityOnJump = false;
     protected bool _currentMaintainVelocityOnSurface = true;
     protected bool _currentMaintainVelocityAlongSurface = true;
+    protected bool _canGround = true;
 
     //////////////////////////////////////////////////////////////////
     /// CharacterMovementData Copy
@@ -86,7 +92,7 @@ public class CharacterMovement : CharacterBehaviour
         _previousGroundResult = CharacterMovementGroundResult.invalid;
         _groundResult = CharacterMovementGroundResult.invalid;
         _velocity = Vector3.zero;
-        delta_time = 1f;
+        _delta_time = 1f;
     }
 
     //////////////////////////////////////////////////////////////////
@@ -161,7 +167,7 @@ public class CharacterMovement : CharacterBehaviour
 
     public override void OnUpdateCharacter()
     {
-        delta_time = Time.deltaTime;
+        _delta_time = Time.deltaTime;
 
         UpdatePhysicsData();
         UpdateMovementState();
@@ -185,7 +191,7 @@ public class CharacterMovement : CharacterBehaviour
     {
         CharacterMovementState newState = new CharacterMovementStateImpl();
 
-        if (_velocity.y == 0f && _groundResult.isValid)
+        if (_canGround && _groundResult.isValid)
         {
             if (charInputs.crouch)
             {
@@ -416,6 +422,8 @@ public class CharacterMovement : CharacterBehaviour
             smallHit = new RaycastHit();
             bigHit = new RaycastHit();
 
+            CapsuleResolvePenetration();
+
             return Vector3.zero;
         }
 
@@ -435,7 +443,7 @@ public class CharacterMovement : CharacterBehaviour
 
         charCapsule.localPosition += direction * distance;
 
-        Vector3 resolvePenetration = CapsuleResolvePenetration();
+        CapsuleResolvePenetration();
 
         return direction * Math.Max(0f, distance);
     }
@@ -463,18 +471,18 @@ public class CharacterMovement : CharacterBehaviour
 
     protected bool RecalculateNormal(RaycastHit hit, out Vector3 normal)
     {
-        return hit.RecalculateNormalUsingRaycast(out normal, charCapsule.layerMask, charCapsule.triggerQuery);
+        return hit.RecalculateNormalUsingRaycast(out normal,
+            charCapsule.layerMask, charCapsule.triggerQuery);
     }
 
     protected bool RecalculateNormal(RaycastHit hit, Vector3 direction, out Vector3 normal)
     {
-        if (hit.collider)
+        if (hit.collider && direction != Vector3.zero)
         {
-            Vector3 rayDirection = direction;
-            Vector3 rayOrigin = hit.point + (-rayDirection * k_recalculateNormalFallback);
+            Vector3 origin = hit.point + (-direction * k_recalculateNormalFallback);
             const float rayDistance = k_recalculateNormalFallback + k_recalculateNormalAddon;
 
-            Physics.Raycast(rayOrigin, rayDirection, out RaycastHit rayHit,
+            Physics.Raycast(origin, direction, out RaycastHit rayHit,
                 rayDistance, charCapsule.layerMask, charCapsule.triggerQuery);
 
             if (rayHit.collider && rayHit.collider == hit.collider)
@@ -484,8 +492,23 @@ public class CharacterMovement : CharacterBehaviour
             }
         }
 
+        if (RecalculateNormal(hit, out normal))
+        {
+            return true;
+        }
+
         normal = Vector3.zero;
         return false;
+    }
+
+    protected bool RecalculateNormalIfZero(RaycastHit hit, ref Vector3 normal)
+    {
+        if (normal == Vector3.zero)
+        {
+            return RecalculateNormal(hit, out normal);
+        }
+
+        return true;
     }
 
     //////////////////////////////////////////////////////////////////
@@ -496,27 +519,39 @@ public class CharacterMovement : CharacterBehaviour
     {
         GroundCalculateValues();
 
-        Vector3 char_up = character.up;
-
         Vector3 move_input_raw = charInputs.move;
         Vector3 move_input = new Vector3(move_input_raw.x, 0, move_input_raw.y);
         move_input = Quaternion.Euler(0, charView.turnAngle, 0) * move_input.normalized;
         move_input = character.rotation * move_input;
 
-        _velocity = Vector3.ProjectOnPlane(_velocity, char_up);
+        _velocity = Vector3.ProjectOnPlane(_velocity, _char_up);
 
-        Vector3 move = move_input * _currentMoveSpeed * delta_time;
-        move = Vector3.MoveTowards(_velocity * delta_time, move, _currentMoveAccel * delta_time);
+        Vector3 move = move_input * _currentMoveSpeed * _delta_time;
+        move = Vector3.MoveTowards(_velocity * _delta_time, move, _currentMoveAccel * _delta_time);
 
-        move += char_up * _currentJumpPower * delta_time;
+        move += _char_up * _currentJumpPower * _delta_time;
 
         GroundMove(move);
     }
 
     protected virtual void GroundCalculateValues()
     {
+        _char_up = character.up;
+        _char_right = character.right;
+        _char_forward = character.forward;
         _currentJumpCount = 0;
         _currentMinMoveDist = groundMinMoveDistance;
+
+        if (movementState.isGroundStanding)
+        {
+            _currentMaintainVelocityOnSurface = groundStandMaintainVelocityOnSurface;
+            _currentMaintainVelocityAlongSurface = groundStandMaintainVelocityAlongSurface;
+        }
+        else if (movementState.isGroundCrouching)
+        {
+            _currentMaintainVelocityOnSurface = groundCrouchMaintainVelocityOnSurface;
+            _currentMaintainVelocityAlongSurface = groundCrouchMaintainVelocityAlongSurface;
+        }
 
         switch (movementState.current)
         {
@@ -645,21 +680,24 @@ public class CharacterMovement : CharacterBehaviour
         }
     }
 
-    protected virtual void GroundMove(Vector3 move_orig)
+    protected virtual void GroundMove(Vector3 originalMove)
     {
-        Vector3 char_up = character.up;
         Vector3 last_pos = charCapsule.localPosition;
 
         GroundResizeCapsule();
 
-        Vector3 move_h = Vector3.ProjectOnPlane(move_orig, char_up);
-        Vector3 move_v = move_orig - move_h;
+        Vector3 move_h = Vector3.ProjectOnPlane(originalMove, _char_up);
+        Vector3 move_v = originalMove - move_h;
         float move_v_mag = move_v.magnitude;
 
         Vector3 move_rem = move_h;
 
         // perform the vertical move (usually jump)
-        CapsuleMove(move_v);
+        if (move_v_mag > 0f)
+        {
+            CapsuleMove(move_v);
+            _canGround = false;
+        }
 
         if (move_rem.magnitude > _currentMinMoveDist)
         {
@@ -710,7 +748,7 @@ public class CharacterMovement : CharacterBehaviour
                 }
 
                 // try sliding on the obstacle
-                if (GroundSlideOnSurface(move_orig, ref move_rem, moveHit, moveHitNormal))
+                if (GroundSlideOnSurface(originalMove, ref move_rem, moveHit, moveHitNormal))
                 {
                     continue;
                 }
@@ -724,13 +762,14 @@ public class CharacterMovement : CharacterBehaviour
                     positionBeforeStepUp = charCapsule.localPosition;
                     moveBeforeStepUp = move_rem;
 
-                    stepUpHeight = CapsuleMove(char_up * _currentStepUpHeight).magnitude;
+                    stepUpHeight = CapsuleMove(_char_up * _currentStepUpHeight).magnitude;
+                    Debug.Log($"[{Time.frameCount}] StepUp: [{stepUpHeight}]"); ;
 
                     continue;
                 }
 
                 // try sliding along the obstacle
-                if (GroundSlideAlongSurface(move_orig, ref move_rem, moveHit, moveHitNormal))
+                if (GroundSlideAlongSurface(originalMove, ref move_rem, moveHit, moveHitNormal))
                 {
                     continue;
                 }
@@ -738,21 +777,21 @@ public class CharacterMovement : CharacterBehaviour
                 // there's nothing we can do now, so stop the move
                 move_rem = Vector3.zero;
             }
-
         }
 
-        GroundStepDown(move_orig);
+        GroundStepDown(originalMove);
         CapsuleResolvePenetration();
 
         _velocity = charCapsule.localPosition - last_pos;
-        if (delta_time != 0f)
+
+        if (_delta_time != 0f)
         {
-            _velocity = _velocity / Time.deltaTime;
+            _velocity = _velocity / _delta_time;
         }
 
         if (move_v_mag == 0f)
         {
-            _velocity = Vector3.ProjectOnPlane(_velocity, char_up);
+            _velocity = Vector3.ProjectOnPlane(_velocity, _char_up);
         }
     }
 
@@ -793,20 +832,21 @@ public class CharacterMovement : CharacterBehaviour
         if (remainingMove == Vector3.zero)
             return false;
 
-        if (GroundCanStandOn(hit, hitNormal, out float slopeAngle))
+        if (GroundCanStandOn(hit, hitNormal, out float slope_angle))
         {
-            if (slopeAngle == 0f)
+            if (slope_angle == 0f)
             {
                 return false;
             }
 
-            Vector3 slopeMove = Vector3.ProjectOnPlane(remainingMove, hitNormal);
+            Vector3 slope_move = Vector3.ProjectOnPlane(remainingMove, hitNormal);
+
             if (_currentMaintainVelocityOnSurface)
             {
-                slopeMove = slopeMove.normalized * remainingMove.magnitude;
+                slope_move = slope_move.normalized * remainingMove.magnitude;
             }
 
-            remainingMove = slopeMove;
+            remainingMove = slope_move;
             return true;
         }
 
@@ -820,12 +860,9 @@ public class CharacterMovement : CharacterBehaviour
         if (hit.collider == null || remainingMoveSize == 0f)
             return false;
 
-        if (hitNormal == Vector3.zero)
-        {
-            RecalculateNormal(hit, out hitNormal);
-        }
+        RecalculateNormalIfZero(hit, ref hitNormal);
 
-        Vector3 hitProject = Vector3.ProjectOnPlane(hitNormal, character.up);
+        Vector3 hitProject = Vector3.ProjectOnPlane(hitNormal, _char_up);
         Vector3 slideMove = Vector3.ProjectOnPlane(originalMove.normalized * remainingMoveSize, hitProject);
         if (_currentMaintainVelocityAlongSurface)
         {
@@ -837,13 +874,15 @@ public class CharacterMovement : CharacterBehaviour
             }
         }
 
+        Debug.Log($"[{Time.frameCount}] GroundSlideAlongSurface: SlideMove[{slideMove.normalized}, {slideMove.magnitude}]"); ;
+
         remainingMove = slideMove;
         return true;
     }
 
     protected virtual bool GroundStepDown(Vector3 originalMove)
     {
-        var verticalMove = Vector3.Project(originalMove, character.up).magnitude;
+        var verticalMove = Vector3.Project(originalMove, _char_up).magnitude;
         if (verticalMove != 0f || _currentStepDownDepth <= 0)
             return false;
 
@@ -891,16 +930,12 @@ public class CharacterMovement : CharacterBehaviour
                 return false;
             }
 
-            if (slopeNormal == Vector3.zero)
-            {
-                RecalculateNormal(hit, out slopeNormal);
-            }
+            RecalculateNormalIfZero(hit, ref slopeNormal);
 
             float maxSlopeAngle = Math.Clamp(_currentSlopeUpAngle,
                 k_minGroundSlopeUpAngle, k_maxGroundSlopeUpAngle);
 
-            slopeAngle = Vector3.Angle(character.up, slopeNormal);
-
+            slopeAngle = Vector3.Angle(_char_up, slopeNormal);
 
             if (FloatExtensions.IsInRange(slopeAngle, k_minGroundSlopeUpAngle, maxSlopeAngle))
             {
@@ -914,19 +949,28 @@ public class CharacterMovement : CharacterBehaviour
     protected virtual bool GroundCast(float depth, out CharacterMovementGroundResult result)
     {
         BaseSphereCast(character.down * depth, out RaycastHit hit, out Vector3 hitNormal);
+        if (hitNormal == Vector3.zero)
+        {
+            hitNormal = hit.normal;
+        }
+
         result = new CharacterMovementGroundResult();
 
-        // if (GroundCheck(hit.collider) == false)
-        if (GroundCanStandOn(hit) == false)
+        // Debug.DrawRay(hit.point, hitNormal, Color.red);
+
+        if (GroundCanStandOn(hit, hitNormal, out float slopeAngle) == false)
         {
-            return false;
+            if (slopeAngle < 90f)
+            {
+                return false;
+            }
         }
 
         result.collider = hit.collider;
         result.direction = character.down;
         result.distance = hit.distance;
 
-        result.angle = Vector3.Angle(character.up, hitNormal);
+        result.angle = slopeAngle;
 
         result.basePosition = result.collider.transform.position;
         result.baseRotation = result.collider.transform.rotation;
@@ -950,13 +994,13 @@ public class CharacterMovement : CharacterBehaviour
     {
         AirCalculateValues();
 
-        Vector3 char_up = character.up;
+        Vector3 char_up = _char_up;
         Vector3 char_forward = character.forward;
         Vector3 char_right = character.right;
         float mass = character.mass;
-        float gravity_speed = airGravityAcceleration * mass * delta_time * delta_time * .1f;
+        float gravity_speed = airGravityAcceleration * mass * _delta_time * _delta_time * k_gravityMultiplier;
 
-        Vector3 velocity = _velocity * delta_time;
+        Vector3 velocity = _velocity * _delta_time;
         Vector3 velocity_h = Vector3.ProjectOnPlane(velocity, char_up);
         Vector3 velocity_v = velocity - velocity_h;
 
@@ -972,7 +1016,7 @@ public class CharacterMovement : CharacterBehaviour
         move_input = character.rotation * move_input;
 
         // helping movement in air
-        Vector3 move_help_h = _currentMoveSpeed * move_input * delta_time;
+        Vector3 move_help_h = _currentMoveSpeed * move_input * _delta_time;
         Vector3 move_help_h_x = Vector3.ProjectOnPlane(move_help_h, char_forward);
         Vector3 move_help_h_z = move_help_h - move_help_h_x;
 
@@ -1059,9 +1103,9 @@ public class CharacterMovement : CharacterBehaviour
 
         _velocity = charCapsule.localPosition - lastPosition;
 
-        if (delta_time != 0f)
+        if (_delta_time != 0f)
         {
-            _velocity = _velocity / delta_time;
+            _velocity = _velocity / _delta_time;
         }
     }
 
@@ -1070,18 +1114,18 @@ public class CharacterMovement : CharacterBehaviour
         if (hit.collider == null || remainingMove == global::UnityEngine.Vector3.zero)
             return;
 
-        if (GroundCanStandOn(hit))
+        RecalculateNormalIfZero(hit, ref hitNormal);
+
+        if (GroundCanStandOn(hit, hitNormal, out float slopeAngle))
         {
-            remainingMove = global::UnityEngine.Vector3.zero;
+            remainingMove = Vector3.zero;
+            _canGround = true;
             return;
         }
 
-        if (hitNormal == Vector3.zero)
-        {
-            RecalculateNormal(hit, out hitNormal);
-        }
-
-        Vector3 slideMove = Vector3.ProjectOnPlane(remainingMove, hitNormal);
+        // hit.normal gives normal respective to capsule's body,
+        // useful for sliding off on corners
+        Vector3 slideMove = Vector3.ProjectOnPlane(remainingMove, hit.normal);
         if (_currentMaintainVelocityAlongSurface)
         {
             slideMove = slideMove.normalized * remainingMove.magnitude;
@@ -1110,38 +1154,5 @@ public struct CharacterMovementGroundResult
     public bool isValid
     {
         get => collider != null;
-    }
-
-    public CharacterMovementGroundResult(RaycastHit hit, Vector3 direction)
-    {
-        direction.Normalize();
-
-        this.collider = hit.collider;
-        this.direction = direction;
-        this.distance = hit.distance;
-
-        if (direction != Vector3.zero)
-        {
-            Vector3 leftDirection = Quaternion.Euler(0, -90, 0) * direction;
-            Vector3 obstacleForward = Vector3.ProjectOnPlane(-hit.normal, leftDirection).normalized;
-            this.angle = 90f - Vector3.SignedAngle(direction, obstacleForward, -leftDirection);
-        }
-        else
-        {
-            this.angle = 0;
-        }
-
-        this.edgeDistance = default;
-
-        if (this.collider)
-        {
-            this.basePosition = collider.transform.position;
-            this.baseRotation = collider.transform.rotation;
-        }
-        else
-        {
-            this.basePosition = Vector3.zero;
-            this.baseRotation = Quaternion.identity;
-        }
     }
 }

@@ -75,7 +75,6 @@ public abstract class Weapon : Equipable
 
     public virtual void OnPrimaryFire()
     {
-        Debug.Log("Weapon | OnPrimaryFire");
     }
 
     public virtual void OnSecondaryFire()

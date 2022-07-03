@@ -20,21 +20,21 @@ MonoBehaviour:
     m_Bits: 64
   m_groundMinMoveDistance: 0.001
   m_groundStandIdleSpeed: 0
-  m_groundStandIdleAcceleration: 0.2
+  m_groundStandIdleAcceleration: 0.4
   m_groundStandWalkSpeed: 3
-  m_groundStandWalkAcceleration: 0.5
+  m_groundStandWalkAcceleration: 0.7
   m_groundStandRunSpeed: 5
-  m_groundStandRunAcceleration: 0.4
+  m_groundStandRunAcceleration: 0.6
   m_groundStandSprintSpeed: 10
-  m_groundStandSprintAcceleration: 0.3
+  m_groundStandSprintAcceleration: 0.5
   m_groundStandSprintLeftAngleMax: -46
   m_groundStandSprintRightAngleMax: 46
-  m_groundStandJumpForce: 40
+  m_groundStandJumpForce: 15
   m_groundStandStepUpPercent: 40
   m_groundStandStepDownPercent: 40
   m_groundStandSlopeUpAngle: 50
   m_groundStandSlopeDownAngle: -89
-  m_groundStandMaintainVelocityOnSurface: 0
+  m_groundStandMaintainVelocityOnSurface: 1
   m_groundStandMaintainVelocityAlongSurface: 0
   m_groundStandCapsuleCenter: {x: 0, y: 0, z: 0}
   m_groundStandCapsuleHeight: 2
