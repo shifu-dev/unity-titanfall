@@ -839,12 +839,21 @@ public class CharacterMovement : CharacterBehaviour
                 return false;
             }
 
-            Vector3 slope_move = Vector3.ProjectOnPlane(remainingMove, hitNormal);
+            Plane plane = new Plane(hitNormal, hit.point);
+            Ray ray = new Ray(hit.point + remainingMove, _char_up);
+            plane.Raycast(ray, out float enter);
 
-            if (_currentMaintainVelocityOnSurface)
+            Vector3 slope_move = remainingMove + (_char_up * enter);
+
+            if (_currentMaintainVelocityOnSurface == false)
             {
                 slope_move = slope_move.normalized * remainingMove.magnitude;
             }
+
+            const float debug = 15f;
+            Debug.DrawRay(hit.point, remainingMove * debug, Color.red);
+            Debug.DrawRay(hit.point + remainingMove * debug, _char_up * enter * debug, Color.green);
+            Debug.DrawRay(hit.point, slope_move * debug, Color.blue);
 
             remainingMove = slope_move;
             return true;

@@ -20,13 +20,13 @@ MonoBehaviour:
     m_Bits: 64
   m_groundMinMoveDistance: 0.001
   m_groundStandIdleSpeed: 0
-  m_groundStandIdleAcceleration: 0.4
+  m_groundStandIdleAcceleration: 0.6
   m_groundStandWalkSpeed: 3
-  m_groundStandWalkAcceleration: 0.7
+  m_groundStandWalkAcceleration: 0.6
   m_groundStandRunSpeed: 5
-  m_groundStandRunAcceleration: 0.6
+  m_groundStandRunAcceleration: 0.8
   m_groundStandSprintSpeed: 10
-  m_groundStandSprintAcceleration: 0.5
+  m_groundStandSprintAcceleration: 1
   m_groundStandSprintLeftAngleMax: -46
   m_groundStandSprintRightAngleMax: 46
   m_groundStandJumpForce: 15
