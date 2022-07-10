@@ -9,7 +9,6 @@ public enum GrenadeCategory
 }
 
 [DisallowMultipleComponent]
-[RequireComponent(typeof(Interactable))]
 [RequireComponent(typeof(Projectile))]
 public abstract class Grenade : Equipable
 {
@@ -18,24 +17,15 @@ public abstract class Grenade : Equipable
 
     public abstract GrenadeAsset grenadeAsset { get; }
     public Projectile projectile { get; protected set; }
-    public Interactable interactable { get; protected set; }
 
-    [Header("GRENADE"), Space]
+    public abstract GrenadeCategory category { get; }
 
-    [SerializeField] protected GrenadeCategory m_Category;
-    public GrenadeCategory category => m_Category;
-
-    [SerializeField, Min(0)] protected float m_TriggerTime;
-    public float triggerTime => m_TriggerTime;
-
-    [SerializeField] protected bool m_CanStopTrigger;
-
-    [field: SerializeField, ReadOnly]
     public bool isTriggered { get; protected set; }
 
-    [Space]
-    [SerializeField] protected bool m_disablePhysicsOnEquip;
-    [SerializeField] protected Collider[] m_Colliders;
+    [field: Header("GRENADE"), Space, SerializeField, Min(0)]
+    public float triggerTime { get; protected set; }
+
+    [SerializeField] protected bool canStopTrigger;
 
     //////////////////////////////////////////////////////////////////
     /// Events
@@ -43,18 +33,14 @@ public abstract class Grenade : Equipable
 
     public Grenade()
     {
-        m_Category = GrenadeCategory.Unknown;
-        m_TriggerTime = 0;
-        m_CanStopTrigger = false;
-        m_disablePhysicsOnEquip = true;
+        triggerTime = 0;
+        canStopTrigger = false;
         isTriggered = false;
-        m_Colliders = new Collider[0];
     }
 
     void Awake()
     {
         projectile = GetComponent<Projectile>();
-        interactable = GetComponent<Interactable>();
     }
 
     public virtual bool CanEquip()
@@ -68,30 +54,11 @@ public abstract class Grenade : Equipable
         return true;
     }
 
-    public virtual void OnEquip()
+    public override void OnUnequipStart()
     {
-        if (interactable)
-        {
-            interactable.canInteract = false;
-        }
+        base.OnUnequipStart();
 
-        if (m_disablePhysicsOnEquip)
-        {
-            DisablePhysics();
-        }
-    }
-
-    public virtual void OnUnequip()
-    {
-        if (interactable)
-        {
-            interactable.canInteract = isTriggered ? false : true;
-        }
-
-        if (m_disablePhysicsOnEquip)
-        {
-            EnablePhysics();
-        }
+        canInteract = isTriggered ? false : true;
     }
 
     //////////////////////////////////////////////////////////////////
@@ -100,20 +67,17 @@ public abstract class Grenade : Equipable
 
     public virtual bool CanStartTrigger()
     {
-        return m_CanStopTrigger;
+        return canStopTrigger;
     }
 
     public virtual bool StartTrigger()
     {
-        if (interactable)
-        {
-            interactable.canInteract = false;
-        }
+        canInteract = false;
 
         if (CanStartTrigger() == false)
             return false;
 
-        if (m_TriggerTime == 0)
+        if (triggerTime == 0)
         {
             OnTriggerFinish();
             return true;
@@ -125,7 +89,7 @@ public abstract class Grenade : Equipable
 
     protected IEnumerator StartTriggerCoroutine()
     {
-        yield return new WaitForSeconds(m_TriggerTime);
+        yield return new WaitForSeconds(triggerTime);
 
         if (isTriggered)
         {
@@ -143,7 +107,7 @@ public abstract class Grenade : Equipable
 
     public virtual bool CanStopTrigger()
     {
-        return m_CanStopTrigger && isTriggered;
+        return canStopTrigger && isTriggered;
     }
 
     public virtual bool StopTrigger()
@@ -162,32 +126,6 @@ public abstract class Grenade : Equipable
     //////////////////////////////////////////////////////////////////
     /// Physics & Geometry
     //////////////////////////////////////////////////////////////////
-
-    protected virtual void DisablePhysics()
-    {
-        if (projectile)
-        {
-            projectile.Stop();
-        }
-
-        foreach (var collider in m_Colliders)
-        {
-            collider.enabled = false;
-        }
-    }
-
-    protected virtual void EnablePhysics()
-    {
-        if (projectile)
-        {
-            projectile.Stop();
-        }
-
-        foreach (var collider in m_Colliders)
-        {
-            collider.enabled = true;
-        }
-    }
 
     protected virtual void DisableGeometry()
     {

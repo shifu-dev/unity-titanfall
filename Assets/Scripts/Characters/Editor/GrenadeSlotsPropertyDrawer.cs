@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 
-[CustomPropertyDrawer(typeof(GrenadeSlots))]
+// [CustomPropertyDrawer(typeof(GrenadeSlots))]
 public class GrenadeSlotsPropertyDrawer : PropertyDrawer
 {
     private bool show = false;
@@ -20,7 +20,7 @@ public class GrenadeSlotsPropertyDrawer : PropertyDrawer
             //////////////////////////////////////////////////////////////////
             /// collect Serialized Properties
 
-            SerializedProperty sp_catergory = property.FindPropertyRelative("m_category");
+            SerializedProperty sp_category = property.FindPropertyRelative("m_category");
             SerializedProperty sp_locked = property.FindPropertyRelative("m_fixedCategory");
             SerializedProperty sp_capacity = property.FindPropertyRelative("m_capacity");
             SerializedProperty sp_count = property.FindPropertyRelative("m_count");
@@ -47,7 +47,7 @@ public class GrenadeSlotsPropertyDrawer : PropertyDrawer
             /// display properties
 
             if (sp_locked.boolValue) EditorGUI.BeginDisabledGroup(true);
-            EditorGUI.PropertyField(rect_category, sp_catergory, new GUIContent("Category"));
+            EditorGUI.PropertyField(rect_category, sp_category, new GUIContent("Category"));
             if (sp_locked.boolValue) EditorGUI.EndDisabledGroup();
 
             EditorGUI.PropertyField(rect_locked, sp_locked, GUIContent.none);

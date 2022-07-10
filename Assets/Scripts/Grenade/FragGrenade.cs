@@ -2,6 +2,8 @@
 
 public class FragGrenade : Grenade
 {
+    public override GrenadeCategory category => GrenadeCategory.FragGrenade;
+
     public override GrenadeAsset grenadeAsset => m_fragGrenadeAsset;
     public FragGrenadeAsset fragGrenadeAsset => m_fragGrenadeAsset;
 
@@ -15,7 +17,8 @@ public class FragGrenade : Grenade
 
     protected override void OnTriggerFinish()
     {
-        DisablePhysics();
+        // DisablePhysics();
+        DisableColliders();
         DisableGeometry();
 
         // process colliders in range

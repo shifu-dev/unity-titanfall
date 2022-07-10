@@ -363,6 +363,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52bd1b64252dfb244975e478bec0a6c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_Interactor: {fileID: 0}
+  canInteract: 0
+  m_RequireRaycast: 0
+  m_FaceAngleX: 0
+  m_FaceAngleY: 0
+  m_FaceAngleZ: 0
+  _colliders: []
   <charDataAsset>k__BackingField: {fileID: 11400000, guid: dab369d3de5b62a4da379f1d2e86bc3a, type: 2}
 --- !u!114 &8863942587269995025
 MonoBehaviour:
@@ -389,7 +396,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   autoPickup: 1
-  m_weaponSlots:
+  _weaponSlots:
   - category: 496
     slot: {fileID: 3070141978124218766}
     weapon: {fileID: 0}
@@ -399,7 +406,31 @@ MonoBehaviour:
   - category: 12
     slot: {fileID: 8115276785642817472}
     weapon: {fileID: 0}
-  m_grenadeSlots: []
+  _grenadeSlots:
+  - m_category: 0
+    m_fixedCategory: 0
+    m_count: 0
+    m_capacity: 0
+    m_transforms: []
+    m_grenades: []
+  - m_category: 0
+    m_fixedCategory: 0
+    m_count: 0
+    m_capacity: 0
+    m_transforms: []
+    m_grenades: []
+  - m_category: 0
+    m_fixedCategory: 0
+    m_count: 0
+    m_capacity: 0
+    m_transforms: []
+    m_grenades: []
+  - m_category: 0
+    m_fixedCategory: 0
+    m_count: 0
+    m_capacity: 0
+    m_transforms: []
+    m_grenades: []
 --- !u!114 &3335872080112416175
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -450,7 +481,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cac58382007caac49bf49f9de1683ba4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_interactables:
+  _interactables:
   - interactable: {fileID: 0}
     manualFrame: 0
     raycastFrame: 0
@@ -463,21 +494,29 @@ MonoBehaviour:
     manualFrame: 0
     raycastFrame: 0
     overlapFrame: 0
-  m_interactablesCount: 0
-  m_updateInterval: 2
-  m_layerMask:
+  - interactable: {fileID: 0}
+    manualFrame: 0
+    raycastFrame: 0
+    overlapFrame: 0
+  - interactable: {fileID: 0}
+    manualFrame: 0
+    raycastFrame: 0
+    overlapFrame: 0
+  _interactablesCount: 0
+  _updateInterval: 0
+  _layerMask:
     serializedVersion: 2
     m_Bits: 128
-  m_triggerQuery: 2
-  m_generateOnAddedEvent: 1
-  m_generateOnUpdatedEvent: 1
-  m_generateOnRemovedEvent: 1
-  m_performOverlaps: 1
-  m_overlapSize: {x: 1.8, y: 1.5, z: 2}
-  m_overlapCenterOffset: {x: 0, y: 0, z: 0.2}
-  m_performRaycasts: 1
-  m_raycastSource: {fileID: 7662503284909734823}
-  m_raycastLength: 3
+  _triggerQuery: 2
+  _generateOnAddedEvent: 1
+  _generateOnUpdatedEvent: 0
+  _generateOnRemovedEvent: 0
+  _performOverlaps: 0
+  _overlapSize: {x: 1.8, y: 1.5, z: 2}
+  _overlapCenterOffset: {x: 0, y: 0, z: 0.2}
+  _performRaycasts: 1
+  _raycastSource: {fileID: 7662503284909734823}
+  _raycastLength: 2
 --- !u!114 &2890709128893624832
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -492,15 +531,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _left_current:
     equipable: {fileID: 0}
-    weight:
-      m_value: 0
+    weight: 0
     equip_speed: 0
     unequip_speed: 0
     slot: 0
   _left_next:
     equipable: {fileID: 0}
-    weight:
-      m_value: 0
+    weight: 0
     equip_speed: 0
     unequip_speed: 0
     slot: 0
@@ -508,15 +545,13 @@ MonoBehaviour:
   _left_locked: 0
   _right_current:
     equipable: {fileID: 0}
-    weight:
-      m_value: 0
+    weight: 0
     equip_speed: 0
     unequip_speed: 0
     slot: 0
   _right_next:
     equipable: {fileID: 0}
-    weight:
-      m_value: 0
+    weight: 0
     equip_speed: 0
     unequip_speed: 0
     slot: 0
@@ -539,9 +574,9 @@ MonoBehaviour:
   _eyesData:
     eyes: {fileID: 0}
   _firstPersonData:
-    standPos: {x: 0, y: 0, z: 0}
+    standPos: {x: 0, y: 0.9, z: 0}
     standCrouchTransition: {fileID: 0}
-    crouchPos: {x: 0, y: 0, z: 0}
+    crouchPos: {x: 0, y: 0.9, z: 0}
     minRotation: {x: -180, y: -89, z: 0}
     maxRotation: {x: 180, y: 89, z: 0}
   _thirdPersonData:

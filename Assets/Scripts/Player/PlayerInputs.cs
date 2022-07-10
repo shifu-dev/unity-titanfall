@@ -89,7 +89,7 @@ public class PlayerInputs : MonoBehaviour
 
         peekLeft = Input.GetKey(KeyCode.Q);
         peekRight = Input.GetKey(KeyCode.E);
-        action = Input.GetKey(KeyCode.Tab);
+        action = Input.GetKeyDown(KeyCode.Tab);
 
         //////////////////////////////////////////////////////////////////
         /// weapons

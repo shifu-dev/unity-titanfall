@@ -4,223 +4,188 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class CharacterInventory : CharacterBehaviour
 {
+    [Serializable]
+    protected struct WeaponSlot
+    {
+        public static WeaponSlot invalid;
+
+        public WeaponCategory category;
+        public Transform index;
+        public Weapon weapon;
+    }
+
+    [Serializable]
+    protected struct GrenadeSlots
+    {
+        [SerializeField] private GrenadeCategory m_category;
+        public GrenadeCategory category => m_category;
+
+        [SerializeField] private bool m_fixedCategory;
+        public bool fixedCategory => m_fixedCategory;
+
+        [SerializeField] private int m_count;
+        public int count => m_count;
+
+        [SerializeField] private int m_capacity;
+        public int capacity => grenades.Length;
+
+        [SerializeField] private Transform[] m_transforms;
+        public Transform[] transforms => m_transforms;
+
+        [SerializeField] private Grenade[] m_grenades;
+        public Grenade[] grenades => m_grenades;
+
+        public void Init()
+        {
+            m_count = 0;
+
+            if (m_grenades == null)
+            {
+                m_grenades = new Grenade[0];
+            }
+
+            if (m_fixedCategory == false)
+            {
+                m_category = GrenadeCategory.Unknown;
+            }
+        }
+
+        public bool Add(Grenade grenade)
+        {
+            if (grenade == null || grenade.category == GrenadeCategory.Unknown)
+            {
+                return false;
+            }
+
+            // check category
+            if (category == GrenadeCategory.Unknown)
+            {
+                if (fixedCategory || m_count > 0)
+                {
+                    return false;
+                }
+            }
+
+            // find space
+            if (m_count < capacity)
+            {
+                grenades[m_count] = grenade;
+                m_category = grenade.category;
+                m_count++;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public Grenade Get()
+        {
+            int index = m_count - 1;
+            if (index < 0)
+            {
+                return null;
+            }
+
+            m_count--;
+            if (count == 0)
+            {
+                m_category = GrenadeCategory.Unknown;
+            }
+
+            return grenades[index];
+        }
+
+        public Grenade Pop()
+        {
+            int index = m_count - 1;
+            if (index < 0)
+            {
+                return null;
+            }
+
+            m_count--;
+            if (count == 0)
+            {
+                m_category = GrenadeCategory.Unknown;
+            }
+
+            return grenades[index];
+        }
+    }
+
     //////////////////////////////////////////////////////////////////
     /// Variables
     //////////////////////////////////////////////////////////////////
 
-    public CharacterInputs charInputs { get; protected set; }
-    public bool autoPickup = true;
-
-    [SerializeField] protected WeaponSlot[] m_weaponSlots;
-    [SerializeField] protected GrenadeSlots[] m_grenadeSlots;
-
-    //////////////////////////////////////////////////////////////////
-    /// Updates
-    //////////////////////////////////////////////////////////////////
-
-    public override void OnInitCharacter(Character character, CharacterInitializer initializer)
-    {
-        base.OnInitCharacter(character, initializer);
-
-        charInputs = character.charInputs;
-    }
+    [SerializeField] protected WeaponSlot[] _weaponSlots;
+    [SerializeField] protected GrenadeSlots[] _grenadeSlots;
 
     //////////////////////////////////////////////////////////////////
     /// Weapons
     //////////////////////////////////////////////////////////////////
 
-    public void OnWeaponFound(Weapon weapon)
+    public bool ValidateWeapon(int index, Weapon weapon)
     {
-        if (weapon == null)
-            return;
+        // always allow storing null, works as remove weapon
+        if (weapon == null) return true;
 
-        bool pickup = autoPickup || charInputs.action;
+        if (index < 0 || index > _weaponSlots.Length) return false;
 
-        if (pickup)
+        return _weaponSlots[index].category.HasFlag(weapon.category);
+    }
+
+    public bool StoreWeapon(int index, Weapon weapon)
+    {
+        if (ValidateWeapon(index, weapon))
         {
-            AddWeapon(weapon);
-        }
-    }
-
-    public uint AddWeapon(Weapon weapon)
-    {
-        for (uint i = 0; i < m_weaponSlots.Length; i++)
-        {
-            if (m_weaponSlots[i].Store(weapon))
-            {
-                return i + 1;
-            }
-        }
-
-        return 0;
-    }
-
-    public bool AddWeaponAtSlot(uint slot, Weapon weapon)
-    {
-        return m_weaponSlots[slot - 1].Store(weapon);
-    }
-
-    public Weapon GetWeaponAtSlot(uint slot)
-    {
-        if (slot < 1 || slot > m_weaponSlots.Length)
-        {
-            return null;
-        }
-
-        return m_weaponSlots[slot - 1].weapon;
-    }
-
-    //////////////////////////////////////////////////////////////////
-    /// Grenades
-    //////////////////////////////////////////////////////////////////
-
-    public void OnGrenadeFound(Grenade grenade)
-    {
-    }
-
-    public Grenade GetGrenadeAtSlot(uint slot)
-    {
-        if (slot < 1 || slot > m_grenadeSlots.Length)
-        {
-            return null;
-        }
-
-        return m_grenadeSlots[slot - 1].Get();
-    }
-}
-
-[Serializable]
-public struct WeaponSlot
-{
-    public static WeaponSlot invalid;
-
-    public WeaponCategory category;
-    public Transform slot;
-    public Weapon weapon;
-
-    public WeaponSlot(WeaponCategory category)
-    {
-        this.category = category;
-        this.slot = null;
-        this.weapon = null;
-    }
-
-    public bool ValidateCategory(Weapon weapon)
-    {
-        return category.HasFlag(weapon.category);
-    }
-
-    public bool Store(Weapon weapon)
-    {
-        if (ValidateCategory(weapon) == false)
-            return false;
-
-        this.weapon = weapon;
-        return true;
-    }
-
-    public void Remove()
-    {
-        this.weapon = null;
-    }
-}
-
-[Serializable]
-public struct GrenadeSlots
-{
-    [SerializeField] private GrenadeCategory m_category;
-    public GrenadeCategory category => m_category;
-
-    [SerializeField] private bool m_fixedCategory;
-    public bool fixedCategory => m_fixedCategory;
-
-    [SerializeField] private int m_count;
-    public int count => m_count;
-
-    [SerializeField] private uint m_capacity;
-    public int capacity => grenades.Length;
-
-    [SerializeField] private Transform[] m_transforms;
-    public Transform[] transforms => m_transforms;
-
-    [SerializeField] private Grenade[] m_grenades;
-    public Grenade[] grenades => m_grenades;
-
-    public void Init()
-    {
-        m_count = 0;
-
-        if (m_grenades == null)
-        {
-            m_grenades = new Grenade[0];
-        }
-
-        if (m_fixedCategory == false)
-        {
-            m_category = GrenadeCategory.Unknown;
-        }
-    }
-
-    public bool Add(Grenade grenade)
-    {
-        if (grenade == null || grenade.category == GrenadeCategory.Unknown)
-        {
-            return false;
-        }
-
-        // check category
-        if (category == GrenadeCategory.Unknown)
-        {
-            if (fixedCategory || m_count > 0)
-            {
-                return false;
-            }
-        }
-
-        // find space
-        if (m_count < capacity)
-        {
-            grenades[m_count] = grenade;
-            m_category = grenade.category;
-            m_count++;
-
+            _weaponSlots[index].weapon = weapon;
             return true;
         }
 
         return false;
     }
 
-    public Grenade Get()
+    public Weapon GetWeapon(int index)
     {
-        int slot = m_count - 1;
-        if (slot < 0)
+        if (index < 0 || index > _weaponSlots.Length)
         {
             return null;
         }
 
-        m_count--;
-        if (count == 0)
-        {
-            m_category = GrenadeCategory.Unknown;
-        }
-
-        return grenades[slot];
+        return _weaponSlots[index].weapon;
     }
 
-    public Grenade Pop()
+    public int GetEmptySlotForWeapon(Weapon weapon)
     {
-        int slot = m_count - 1;
-        if (slot < 0)
+        if (weapon != null)
         {
-            return null;
+            for (int i = 0; i < _weaponSlots.Length; i++)
+            {
+                if (_weaponSlots[i].weapon == null &&
+                    _weaponSlots[i].category.HasFlag(weapon.category))
+                {
+                    return i;
+                }
+            }
         }
 
-        m_count--;
-        if (count == 0)
+        return -1;
+    }
+
+    public int GetFirstSlotForWeapon(Weapon weapon)
+    {
+        if (weapon != null)
         {
-            m_category = GrenadeCategory.Unknown;
+            for (int i = 0; i < _weaponSlots.Length; i++)
+            {
+                if (_weaponSlots[i].category.HasFlag(weapon.category))
+                {
+                    return i;
+                }
+            }
         }
 
-        return grenades[slot];
+        return -1;
     }
 }

@@ -9,108 +9,122 @@ public class CharacterEquip : CharacterBehaviour
         public static readonly EquipData empty;
 
         public Equipable equipable;
-        public Weight weight;
+        public float weight;
         public float equip_speed;
         public float unequip_speed;
-        public uint slot;
+        public int slot;
     }
 
     protected enum EquipStatus
     {
         Unknown,
-        Equip,
-        Equipped,
-        Unequip,
-        Unequipped
+
+        EquipStart,
+        Equipping,
+        EquipFinish,
+
+        UnequipStart,
+        Unequipping,
+        UnequipFinish
     }
 
-    public CharacterInputs charInputs { get; protected set; }
-    public CharacterInventory charInventory { get; protected set; }
+    protected CharacterInputs _charInputs;
+    protected CharacterInventory _charInventory;
+    protected CharacterInteraction _charInteraction;
 
-    [ReadOnly, SerializeField] protected EquipData _left_current;
-    [ReadOnly, SerializeField] protected EquipData _left_next;
-    [ReadOnly, SerializeField] protected EquipStatus _left_status;
-    [ReadOnly, SerializeField] protected bool _left_locked;
+    [SerializeField, ReadOnly] protected EquipData l_current;
+    [SerializeField, ReadOnly] protected EquipData l_next;
+    [SerializeField, ReadOnly] protected EquipStatus l_status;
+    [SerializeField, ReadOnly] protected bool l_locked;
+    [SerializeField, ReadOnly] protected bool l_supporting;
 
-    [ReadOnly, SerializeField] protected EquipData _right_current;
-    [ReadOnly, SerializeField] protected EquipData _right_next;
-    [ReadOnly, SerializeField] protected EquipStatus _right_status;
-    [ReadOnly, SerializeField] protected bool _right_locked;
+    [SerializeField, ReadOnly] protected EquipData r_current;
+    [SerializeField, ReadOnly] protected EquipData r_next;
+    [SerializeField, ReadOnly] protected EquipStatus r_status;
+    [SerializeField, ReadOnly] protected bool r_locked;
+    [SerializeField, ReadOnly] protected bool r_supporting;
 
     protected float deltaTime;
 
     public CharacterEquip()
     {
-        _left_current = EquipData.empty;
-        _left_next = EquipData.empty;
-        _left_locked = false;
+        l_current = EquipData.empty;
+        l_next = EquipData.empty;
+        l_status = EquipStatus.Unknown;
+        l_locked = false;
+        l_supporting = false;
 
-        _right_current = EquipData.empty;
-        _right_next = EquipData.empty;
-        _right_locked = false;
+        r_current = EquipData.empty;
+        r_next = EquipData.empty;
+        r_status = EquipStatus.Unknown;
+        r_locked = false;
+        r_supporting = false;
     }
 
     public override void OnInitCharacter(Character character, CharacterInitializer initializer)
     {
         base.OnInitCharacter(character, initializer);
 
-        charInputs = character.charInputs;
-        charInventory = character.charInventory;
+        _charInputs = character.charInputs;
+        _charInventory = character.charInventory;
+        _charInteraction = character.charInteraction;
     }
 
     public override void OnUpdateCharacter()
     {
         deltaTime = Time.deltaTime;
 
-        bool fire1 = charInputs.use1;
-        var rightEquipData = _right_current;
-        Weapon rightWeapon = _right_current.equipable == null ? null : _right_current.equipable.weapon;
-        uint rightWeaponSlot = _right_current.slot;
+        CheckEquipInputs();
 
-        if (rightWeapon && fire1 && _right_current.weight.value > 0.9f)
+        bool fire1 = _charInputs.use1;
+        var right_equip_data = r_current;
+        Weapon right_weapon = r_current.equipable == null ? null : r_current.equipable.weapon;
+        int right_weapon_slot = r_current.slot;
+
+        if (right_weapon && fire1 && r_current.weight > 0.9f)
         {
-            rightWeapon.OnPrimaryFire();
+            right_weapon.OnPrimaryFire();
         }
 
         bool processedInput = false;
         if (processedInput == false)
         {
-            if (processedInput == false && charInputs.weapon1)
+            if (processedInput == false && _charInputs.weapon1)
+            {
+                processedInput = ProcessWeaponInput(0);
+            }
+
+            if (processedInput == false && _charInputs.weapon2)
             {
                 processedInput = ProcessWeaponInput(1);
             }
 
-            if (processedInput == false && charInputs.weapon2)
+            if (processedInput == false && _charInputs.weapon3)
             {
                 processedInput = ProcessWeaponInput(2);
             }
 
-            if (processedInput == false && charInputs.weapon3)
+            if (processedInput == false && _charInputs.grenade1)
             {
-                processedInput = ProcessWeaponInput(3);
+                processedInput = ProcessGrenadeInput(0);
             }
 
-            if (processedInput == false && charInputs.grenade1)
+            if (processedInput == false && _charInputs.grenade2)
             {
                 processedInput = ProcessGrenadeInput(1);
             }
-
-            if (processedInput == false && charInputs.grenade2)
-            {
-                processedInput = ProcessGrenadeInput(2);
-            }
         }
 
-        bool ProcessWeaponInput(uint slot)
+        bool ProcessWeaponInput(int slot)
         {
-            if (rightWeaponSlot == slot && (_right_status == EquipStatus.Equip ||
-                _right_status == EquipStatus.Equipped))
+            if (right_weapon_slot == slot && (r_status == EquipStatus.Equipping ||
+                r_status == EquipStatus.EquipFinish))
             {
                 RightHandUnequip();
                 return true;
             }
 
-            Weapon weapon = charInventory.GetWeaponAtSlot(slot);
+            Weapon weapon = _charInventory.GetWeapon(slot);
             if (weapon == null)
                 return false;
 
@@ -132,205 +146,508 @@ public class CharacterEquip : CharacterBehaviour
         RightHandUpdate();
     }
 
-    protected virtual bool LeftHandEquip(EquipData data)
+    protected virtual void CheckEquipInputs()
     {
-        if (_left_locked)
+        if (_charInputs.action)
+        {
+            InteractableScanResult scan_result = _charInteraction.FindScanResult(
+                (InteractableScanResult scan_result) => scan_result.raycasted);
+
+            Interactable interactable = scan_result.interactable;
+            if (interactable != null)
+            {
+                Equipable equipable = interactable.GetComponent<Equipable>();
+                if (equipable != null)
+                {
+                    if (equipable.weapon)
+                    {
+                        RightHandPickWeapon(equipable.weapon);
+                    }
+                }
+            }
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////
+    /// Left Hand
+    //////////////////////////////////////////////////////////////////
+
+    protected virtual bool LeftHandEquip(EquipData data, bool force = false)
+    {
+        if (force)
+        {
+            // open the look if forced
+            l_locked = false;
+        }
+
+        if (l_locked)
         {
             return false;
         }
 
-        if (_left_status == EquipStatus.Unknown)
+        l_next = data;
+        l_status = EquipStatus.UnequipStart;
+
+        if (l_current.equipable != null &&
+            l_current.equipable == l_next.equipable)
         {
-            _left_current = data;
-            _left_status = EquipStatus.Equip;
-            _left_next = EquipData.empty;
-            return true;
+            l_next.weight = l_current.weight;
+            l_current = EquipData.empty;
+            l_status = EquipStatus.Unknown;
         }
 
-        if (_left_current.equipable == data.equipable)
-        {
-            _left_current = data;
-            _left_status = EquipStatus.Equip;
-            _left_next = EquipData.empty;
-            return true;
-        }
-
-        _left_next = data;
-        _left_status = EquipStatus.Unequip;
         return true;
+    }
+
+    protected virtual bool LeftHandEquipInstant(EquipData data, bool force = false)
+    {
+        if (LeftHandEquip(data, force))
+        {
+            // 0f speed is considered as instant
+            l_next.equip_speed = 0f;
+
+            return true;
+        }
+
+        return false;
     }
 
     protected virtual void LeftHandUpdate()
     {
-        if (_right_status == EquipStatus.Unknown ||
-            _right_status == EquipStatus.Equipped ||
-            _right_status == EquipStatus.Unequipped)
+        if (l_status == EquipStatus.Unknown && l_next.equipable != null)
         {
-            return;
-        }
-        else if (_left_status == EquipStatus.Equip)
-        {
-            _left_current.weight.value = Mathf.MoveTowards(_left_current.weight.value,
-                0f, _left_current.equip_speed * deltaTime);
-
-            if (_left_current.weight.value == 0f)
-            {
-                _left_status = EquipStatus.Equipped;
-            }
-        }
-        else if (_left_status == EquipStatus.Unequip)
-        {
-            _left_current.weight.value = Mathf.MoveTowards(_left_current.weight.value,
-                1f, _left_current.unequip_speed * deltaTime);
-
-            if (_left_current.weight.value == 1f)
-            {
-                _left_status = EquipStatus.Unequipped;
-            }
+            l_current = l_next;
+            l_status = EquipStatus.EquipStart;
+            l_next = EquipData.empty;
         }
 
-        OnLeftHandUpdate();
-
-        // if current is unequipped, set next to equip
-        if (_left_status == EquipStatus.Unequipped)
+        switch (l_status)
         {
-            _left_current = EquipData.empty;
+            case EquipStatus.Unknown:
+            case EquipStatus.EquipFinish:
+            case EquipStatus.UnequipFinish:
+                return;
 
-            if (_left_next.equipable != null)
-            {
-                _left_current = _left_next;
-                _left_status = EquipStatus.Equip;
-                _left_next = EquipData.empty;
+            case EquipStatus.EquipStart:
+            case EquipStatus.Equipping:
+
+                if (l_status == EquipStatus.EquipStart)
+                {
+                    OnLeftHandUpdate();
+                    l_status = EquipStatus.Equipping;
+                }
+
+                // 0f speed is considered as instant
+                if (l_current.equip_speed == 0f)
+                {
+                    l_current.weight = 1f;
+                }
+                else
+                {
+                    l_current.weight = Mathf.MoveTowards(l_current.weight,
+                        1f, l_current.equip_speed * deltaTime);
+                }
+
+                if (l_current.weight == 1f)
+                {
+                    l_status = EquipStatus.EquipFinish;
+                }
 
                 OnLeftHandUpdate();
-            }
+
+                break;
+
+            case EquipStatus.UnequipStart:
+            case EquipStatus.Unequipping:
+
+                if (l_status == EquipStatus.UnequipStart)
+                {
+                    OnLeftHandUpdate();
+                    l_status = EquipStatus.Unequipping;
+                }
+
+                // 0f speed is considered as instant
+                if (l_current.unequip_speed == 0f)
+                {
+                    l_current.weight = 0f;
+                }
+                else
+                {
+                    l_current.weight = Mathf.MoveTowards(l_current.weight,
+                        0f, l_current.unequip_speed * deltaTime);
+                }
+
+                if (l_current.weight == 0f)
+                {
+                    l_status = EquipStatus.UnequipFinish;
+                }
+
+                OnLeftHandUpdate();
+
+                break;
+        }
+
+        // if current is unequipped, empty current
+        // so that next can be processed
+        if (l_status == EquipStatus.UnequipFinish)
+        {
+            l_current = EquipData.empty;
+            l_status = EquipStatus.Unknown;
         }
     }
 
-    protected virtual bool LeftHandUnequip()
+    protected virtual bool LeftHandUnequip(bool force = false)
     {
-        _left_status = EquipStatus.Unequip;
-        return true;
-    }
+        if (force)
+        {
+            // open the look if forced
+            l_locked = false;
+        }
 
-    protected virtual void OnLeftHandUpdate()
-    {
-    }
-
-    protected virtual bool RightHandEquip(EquipData data)
-    {
-        if (_right_locked)
+        if (l_locked)
         {
             return false;
         }
 
-        if (_right_status == EquipStatus.Unknown)
-        {
-            _right_current = data;
-            _right_status = EquipStatus.Equip;
-            _right_next = EquipData.empty;
-            return true;
-        }
-
-        if (_right_current.equipable != null &&
-            _right_current.equipable == data.equipable)
-        {
-            data.weight = _right_current.weight;
-
-            _right_current = data;
-            _right_status = EquipStatus.Equip;
-            _right_next = EquipData.empty;
-            return true;
-        }
-
-        _right_next = data;
-        _right_status = EquipStatus.Unequip;
+        l_status = EquipStatus.UnequipStart;
         return true;
+    }
+
+    protected virtual bool LeftHandUnequipInstant(bool force = false)
+    {
+        if (LeftHandUnequip(force))
+        {
+            l_current.unequip_speed = 0f;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    protected virtual void OnLeftHandUpdate()
+    {
+        Equipable equipable = l_current.equipable;
+        if (equipable == null) return;
+
+        switch (l_status)
+        {
+            case EquipStatus.EquipStart:
+                equipable.OnEquipStart();
+                break;
+
+            case EquipStatus.EquipFinish:
+                equipable.OnEquipFinish();
+                break;
+
+            case EquipStatus.UnequipStart:
+                equipable.OnUnequipStart();
+                break;
+
+            case EquipStatus.UnequipFinish:
+                equipable.OnUnequipFinish();
+                break;
+        }
+
+        if (equipable.weapon)
+        {
+            OnLeftWeaponUpdate();
+            return;
+        }
+    }
+
+    protected virtual void OnLeftWeaponUpdate()
+    {
+    }
+
+    //////////////////////////////////////////////////////////////////
+    /// Right Hand
+    //////////////////////////////////////////////////////////////////
+
+    protected virtual bool RightHandEquip(EquipData data, bool force = false)
+    {
+        if (force)
+        {
+            // open the look if forced
+            r_locked = false;
+        }
+
+        if (r_locked)
+        {
+            return false;
+        }
+
+        r_next = data;
+        r_status = EquipStatus.UnequipStart;
+
+        if (r_current.equipable != null &&
+            r_current.equipable == r_next.equipable)
+        {
+            r_next.weight = r_current.weight;
+            r_current = EquipData.empty;
+            r_status = EquipStatus.Unknown;
+        }
+
+        return true;
+    }
+
+    protected virtual bool RightHandEquipInstant(EquipData data, bool force = false)
+    {
+        if (RightHandEquip(data, force))
+        {
+            // 0f speed is considered as instant
+            r_next.equip_speed = 0f;
+
+            return true;
+        }
+
+        return false;
     }
 
     protected virtual void RightHandUpdate()
     {
-        if (_right_status == EquipStatus.Unknown ||
-            _right_status == EquipStatus.Equipped ||
-            _right_status == EquipStatus.Unequipped)
+        if (r_status == EquipStatus.Unknown && r_next.equipable != null)
         {
-            return;
-        }
-        else if (_right_status == EquipStatus.Equip)
-        {
-            _right_current.weight.value = Mathf.MoveTowards(_right_current.weight.value,
-                1f, _right_current.equip_speed * deltaTime);
-
-            if (_right_current.weight.value == 1f)
-            {
-                _right_status = EquipStatus.Equipped;
-            }
-        }
-        else if (_right_status == EquipStatus.Unequip)
-        {
-            _right_current.weight.value = Mathf.MoveTowards(_right_current.weight.value,
-                0f, _right_current.unequip_speed * deltaTime);
-
-            if (_right_current.weight.value == 0f)
-            {
-                _right_status = EquipStatus.Unequipped;
-            }
+            r_current = r_next;
+            r_status = EquipStatus.EquipStart;
+            r_next = EquipData.empty;
         }
 
-        OnRightHandUpdate();
-
-        // if current is unequipped, set next to equip
-        if (_right_status == EquipStatus.Unequipped)
+        switch (r_status)
         {
-            _right_current = EquipData.empty;
-            _right_status = EquipStatus.Unknown;
+            case EquipStatus.Unknown:
+            case EquipStatus.EquipFinish:
+            case EquipStatus.UnequipFinish:
+                return;
 
-            if (_right_next.equipable != null)
-            {
-                _right_current = _right_next;
-                _right_status = EquipStatus.Equip;
-                _right_next = EquipData.empty;
+            case EquipStatus.EquipStart:
+            case EquipStatus.Equipping:
+
+                if (r_status == EquipStatus.EquipStart)
+                {
+                    OnRightHandUpdate();
+                    r_status = EquipStatus.Equipping;
+                }
+
+                // 0f speed is considered as instant
+                if (r_current.equip_speed == 0f)
+                {
+                    r_current.weight = 1f;
+                }
+                else
+                {
+                    r_current.weight = Mathf.MoveTowards(r_current.weight,
+                        1f, r_current.equip_speed * deltaTime);
+                }
+
+                if (r_current.weight == 1f)
+                {
+                    r_status = EquipStatus.EquipFinish;
+                }
 
                 OnRightHandUpdate();
-            }
+
+                break;
+
+            case EquipStatus.UnequipStart:
+            case EquipStatus.Unequipping:
+
+                if (r_status == EquipStatus.UnequipStart)
+                {
+                    OnRightHandUpdate();
+                    r_status = EquipStatus.Unequipping;
+                }
+
+                // 0f speed is considered as instant
+                if (r_current.unequip_speed == 0f)
+                {
+                    r_current.weight = 0f;
+                }
+                else
+                {
+                    r_current.weight = Mathf.MoveTowards(r_current.weight,
+                        0f, r_current.unequip_speed * deltaTime);
+                }
+
+                if (r_current.weight == 0f)
+                {
+                    r_status = EquipStatus.UnequipFinish;
+                }
+
+                OnRightHandUpdate();
+
+                break;
+        }
+
+        // if current is unequipped, empty current
+        // so that next can be processed
+        if (r_status == EquipStatus.UnequipFinish)
+        {
+            r_current = EquipData.empty;
+            r_status = EquipStatus.Unknown;
         }
     }
 
-    protected virtual bool RightHandUnequip()
+    protected virtual bool RightHandUnequip(bool force = false)
     {
-        _right_status = EquipStatus.Unequip;
+        if (force)
+        {
+            // open the look if forced
+            r_locked = false;
+        }
+
+        if (r_locked)
+        {
+            return false;
+        }
+
+        r_status = EquipStatus.UnequipStart;
         return true;
+    }
+
+    protected virtual bool RightHandUnequipInstant(bool force = false)
+    {
+        if (RightHandUnequip(force))
+        {
+            r_current.unequip_speed = 0f;
+
+            return true;
+        }
+
+        return false;
     }
 
     protected virtual void OnRightHandUpdate()
     {
-        if (_right_status == EquipStatus.Equipped)
-        {
-            if (_right_current.equipable.weapon)
-            {
-                OnRightWeaponEquipped();
-            }
-        }
-    }
+        Equipable equipable = r_current.equipable;
+        if (equipable == null) return;
 
-    protected virtual void OnRightWeaponEquipped()
-    {
-        var weapon = _right_current.equipable.weapon;
-        if (weapon)
+        switch (r_status)
         {
+            case EquipStatus.EquipStart:
+                equipable.OnEquipStart();
+                break;
+
+            case EquipStatus.EquipFinish:
+                equipable.OnEquipFinish();
+                break;
+
+            case EquipStatus.UnequipStart:
+                equipable.OnUnequipStart();
+                break;
+
+            case EquipStatus.UnequipFinish:
+                equipable.OnUnequipFinish();
+                break;
+        }
+
+        if (equipable.weapon)
+        {
+            OnRightWeaponUpdate();
             return;
         }
     }
 
-    public void OnWeaponFound(InteractableScanResult scanResult, Weapon weapon)
+    protected virtual void OnRightWeaponUpdate()
     {
-        // Debug.Log($"CharacterEquip | WeaponFound {{{weapon.name}}}");
-        uint slot = charInventory.AddWeapon(weapon);
-        if (slot > 0)
-        {
-            scanResult.interactable.canInteract = false;
+        Weapon weapon = RightHandWeapon();
+        if (weapon == null) return;
+    }
 
-            // Debug.Log($"CharacterEquip | Weapon added in inventory {{{weapon.name}, {{{slot}}}}}");
+    protected virtual void OnRightWeaponEquipFinish()
+    {
+        var weapon = r_current.equipable.weapon;
+        if (weapon)
+        {
+            weapon.OnEquipFinish();
+
+            return;
+        }
+    }
+
+    protected virtual void RightHand(out Weapon weapon, out int slot)
+    {
+        if (r_current.equipable != null &&
+            r_current.equipable.weapon != null)
+        {
+            slot = r_current.slot;
+            weapon = r_current.equipable.weapon;
+            return;
+        }
+
+        slot = -1;
+        weapon = null;
+    }
+
+    protected virtual Weapon RightHandWeapon()
+    {
+        if (r_current.equipable != null)
+        {
+            return r_current.equipable.weapon;
+        }
+
+        return null;
+    }
+
+    protected virtual int RightHandWeaponSlot()
+    {
+        if (r_current.equipable != null &&
+            r_current.equipable.weapon != null)
+        {
+            return r_current.slot;
+        }
+
+        return -1;
+    }
+
+    /// picks up weapon and stores in inventory
+    protected virtual void RightHandPickWeapon(Weapon weapon)
+    {
+        int slot = GetSlotForWeaponInInventory(weapon);
+        if (slot < 0) return;
+
+        RightHand(out Weapon curr_weapon, out int curr_slot);
+
+        if (curr_weapon != null && curr_slot == slot)
+        {
+            // drop the current weapon
+            RightHandUnequipInstant();
+
+            // throw weapon
+        }
+
+        // clear the slot for new weapon
+        DropWeaponFromInventory(slot);
+
+        bool added = StoreWeaponInInventory(slot, weapon);
+        if (added == false) return;
+
+        // added the item to the inventory successfully
+        weapon.OnPickup();
+
+        if (curr_weapon != null && curr_slot == slot)
+        {
+            RightHandEquipWeapon(slot);
+        }
+    }
+
+    /// picks up weapon temporarily, does not stores in inventory
+    protected virtual void RightHandPickWeaponTemp(Weapon weapon)
+    {
+        RightHandUnequip();
+
+        // added the item to the inventory successfully
+        weapon.OnPickup();
+
+        RightHandEquipWeapon(weapon);
+    }
+
+    protected virtual void RightHandEquipWeapon(int slot)
+    {
+        Weapon weapon = GetWeaponInInventory(slot);
+
+        if (weapon != null)
+        {
             EquipData equipData = new EquipData();
             equipData.equipable = weapon;
             equipData.equip_speed = 1f;
@@ -339,13 +656,85 @@ public class CharacterEquip : CharacterBehaviour
 
             if (RightHandEquip(equipData))
             {
-                // weapon.OnPickup();
-                // Debug.Log($"CharacterEquip | EquipWeapon {{{weapon.name}}}");
+                weapon.OnEquipStart();
             }
         }
     }
 
-    public void OnGrenadeFound(Grenade grenade)
+    protected virtual void RightHandEquipWeapon(Weapon weapon)
     {
+        EquipData equipData = new EquipData();
+        equipData.equipable = weapon;
+        equipData.equip_speed = 1f;
+        equipData.unequip_speed = 1f;
+        equipData.slot = 0;
+
+        if (RightHandEquip(equipData))
+        {
+            weapon.OnEquipStart();
+        }
+    }
+
+    protected virtual void RightHandDropWeapon()
+    {
+        RightHand(out Weapon weapon, out int slot);
+        if (weapon != null)
+        {
+            RightHandUnequipInstant();
+            DropWeaponFromInventory(slot);
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////
+    /// Character Inventory API
+    //////////////////////////////////////////////////////////////////
+
+    protected int GetSlotForWeaponInInventory(Weapon weapon)
+    {
+        // check for empty slots
+        int slot = _charInventory.GetEmptySlotForWeapon(weapon);
+        if (slot >= 0) return slot;
+
+        // check if the weapon can enter currently equipped slot
+        // useful to swap weapons
+        int curr_slot = RightHandWeaponSlot();
+        if (curr_slot >= 0)
+        {
+            if (_charInventory.ValidateWeapon(curr_slot, weapon))
+            {
+                return curr_slot;
+            }
+        }
+
+        // return any slot even if slot is already filled
+        return _charInventory.GetFirstSlotForWeapon(weapon);
+    }
+
+    protected bool StoreWeaponInInventory(int slot, Weapon weapon)
+    {
+        return _charInventory.StoreWeapon(slot, weapon);
+    }
+
+    protected Weapon GetWeaponInInventory(int slot)
+    {
+        return _charInventory.GetWeapon(slot);
+    }
+
+    protected bool DropWeaponFromInventory(int slot)
+    {
+        Weapon weapon = _charInventory.GetWeapon(slot);
+        bool dropped = _charInventory.StoreWeapon(slot, null);
+
+        if (dropped)
+        {
+            if (weapon != null)
+            {
+                weapon.OnDrop();
+            }
+
+            return true;
+        }
+
+        return false;
     }
 }

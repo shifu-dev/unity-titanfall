@@ -65,66 +65,66 @@ public class CharacterInteraction : CharacterBehaviour
     public CharacterCapsule charCapsule { get; protected set; }
     public CharacterEquip charEquip { get; protected set; }
 
-    [SerializeField] protected InteractableScanResult[] m_interactables;
-    [SerializeField, ReadOnly] protected int m_interactablesCount;
+    [SerializeField] protected InteractableScanResult[] _interactables;
+    [SerializeField, ReadOnly] protected int _interactablesCount;
 
     public int interactablesCapacity
     {
-        get => m_interactables.Length;
+        get => _interactables.Length;
         set
         {
             if (value >= 0 && value != interactablesCapacity)
             {
-                Array.Resize(ref m_interactables, value);
+                Array.Resize(ref _interactables, value);
                 interactablesCount = Math.Min(value, interactablesCount);
             }
         }
     }
     public int interactablesCount
     {
-        get => m_interactablesCount;
+        get => _interactablesCount;
         protected set
         {
-            m_interactablesCount = Math.Max(0, value);
+            _interactablesCount = Math.Max(0, value);
         }
     }
 
     [Space]
-    [SerializeField, Min(0)] protected float m_updateInterval;
-    [SerializeField] protected LayerMask m_layerMask;
-    [SerializeField] protected QueryTriggerInteraction m_triggerQuery;
-    [SerializeField, Label("On Added Event")] protected bool m_generateOnAddedEvent;
-    [SerializeField, Label("On Updated Event")] protected bool m_generateOnUpdatedEvent;
-    [SerializeField, Label("On Removed Event")] protected bool m_generateOnRemovedEvent;
-    protected float m_lastUpdateTime;
+    [SerializeField, Min(0)] protected float _updateInterval;
+    [SerializeField] protected LayerMask _layerMask;
+    [SerializeField] protected QueryTriggerInteraction _triggerQuery;
+    [SerializeField, Label("On Added Event")] protected bool _generateOnAddedEvent;
+    [SerializeField, Label("On Updated Event")] protected bool _generateOnUpdatedEvent;
+    [SerializeField, Label("On Removed Event")] protected bool _generateOnRemovedEvent;
+    protected float _lastUpdateTime;
 
     [Header("Overlaps"), Space]
-    [SerializeField] protected bool m_performOverlaps;
-    [SerializeField] protected Vector3 m_overlapSize;
-    [SerializeField] protected Vector3 m_overlapCenterOffset;
+    [SerializeField] protected bool _performOverlaps;
+    [SerializeField] protected Vector3 _overlapSize;
+    [SerializeField] protected Vector3 _overlapCenterOffset;
 
     [Header("Raycasts"), Space]
-    [SerializeField] protected bool m_performRaycasts;
-    [SerializeField] protected Transform m_raycastSource;
-    [SerializeField, Min(0)] protected float m_raycastLength;
+    [SerializeField] protected bool _performRaycasts;
+    [SerializeField] protected Transform _raycastSource;
+    [SerializeField, Min(0)] protected float _raycastLength;
 
     public CharacterInteraction()
     {
-        m_interactables = Array.Empty<InteractableScanResult>();
+        _interactables = Array.Empty<InteractableScanResult>();
         interactablesCapacity = 0;
 
-        m_layerMask = default;
-        m_triggerQuery = QueryTriggerInteraction.Collide;
-        m_generateOnAddedEvent = true;
-        m_generateOnRemovedEvent = false;
-        m_updateInterval = .5f;
-        m_lastUpdateTime = 0;
-        m_performOverlaps = false;
-        m_overlapSize = new Vector3(1.8f, 1.5f, 2f);
-        m_overlapCenterOffset = new Vector3(0, 0, .2f);
-        m_performRaycasts = false;
-        m_raycastSource = null;
-        m_raycastLength = 3;
+        _layerMask = default;
+        _triggerQuery = QueryTriggerInteraction.Collide;
+        _generateOnAddedEvent = true;
+        _generateOnRemovedEvent = false;
+        _updateInterval = .5f;
+        _lastUpdateTime = 0;
+        _performOverlaps = false;
+        _overlapSize = new Vector3(1.8f, 1.5f, 2f);
+        _overlapCenterOffset = new Vector3(0, 0, .2f);
+        _performRaycasts = false;
+        _raycastSource = null;
+        _raycastLength = 3;
     }
 
     //////////////////////////////////////////////////////////////////
@@ -149,13 +149,13 @@ public class CharacterInteraction : CharacterBehaviour
     {
         if (force == false)
         {
-            if (Time.time < m_lastUpdateTime + m_updateInterval)
+            if (Time.time < _lastUpdateTime + _updateInterval)
             {
                 return false;
             }
         }
 
-        m_lastUpdateTime = Time.time;
+        _lastUpdateTime = Time.time;
 
         FindInteractables();
         RemovePreviousScanResults();
@@ -169,12 +169,18 @@ public class CharacterInteraction : CharacterBehaviour
             return;
 
         InteractableScanResult raycastScanResult = InteractableScanResult.invalid;
-        if (m_performRaycasts)
+        if (_performRaycasts)
         {
-            if (m_raycastSource != null)
+            if (_raycastSource != null)
             {
-                bool hit = Physics.Raycast(m_raycastSource.position, m_raycastSource.forward, out RaycastHit hitInfo,
-                    m_raycastLength, m_layerMask, m_triggerQuery);
+                Transform source = character.charView.camera.transform;
+                _raycastSource.position = source.position;
+                _raycastSource.rotation = source.rotation;
+
+                Debug.DrawRay(_raycastSource.position, _raycastSource.forward * _raycastLength, Color.red);
+
+                bool hit = Physics.Raycast(_raycastSource.position, _raycastSource.forward, out RaycastHit hitInfo,
+                    _raycastLength, _layerMask, _triggerQuery);
 
                 if (hit)
                 {
@@ -187,13 +193,13 @@ public class CharacterInteraction : CharacterBehaviour
             }
         }
 
-        if (m_performOverlaps)
+        if (_performOverlaps)
         {
             /// @todo calculate halfExtents with respect to character size
-            Vector3 halfExtents = m_overlapSize * .5f;
-            Vector3 center = charCapsule.basePosition + (charCapsule.up * halfExtents.y) + m_overlapCenterOffset;
+            Vector3 halfExtents = _overlapSize * .5f;
+            Vector3 center = charCapsule.basePosition + (charCapsule.up * halfExtents.y) + _overlapCenterOffset;
             Collider[] overlapResults = overlapResults = Physics.OverlapBox(center, halfExtents, Quaternion.identity,
-                    m_layerMask, m_triggerQuery);
+                    _layerMask, _triggerQuery);
 
             foreach (var collider in overlapResults)
             {
@@ -226,10 +232,10 @@ public class CharacterInteraction : CharacterBehaviour
         var thisFrame = Time.frameCount;
         for (int i = 0; i < interactablesCapacity; i++)
         {
-            if (m_interactables[i].interactable == null)
+            if (_interactables[i].interactable == null)
                 continue;
 
-            if (m_interactables[i].HasThisFrame(thisFrame) == false)
+            if (_interactables[i].HasThisFrame(thisFrame) == false)
             {
                 RemoveScanResult(i);
                 i--;
@@ -280,16 +286,16 @@ public class CharacterInteraction : CharacterBehaviour
 
         // find if scanResult with this interactable already exists
         bool wasPresent = false;
-        for (int i = 0; i < m_interactablesCount; i++)
+        for (int i = 0; i < _interactablesCount; i++)
         {
-            if (m_interactables[i].interactable == scanResult.interactable)
+            if (_interactables[i].interactable == scanResult.interactable)
             {
                 wasPresent = true;
-                scanResult = UpdateScanResult(m_interactables[i], scanResult);
+                scanResult = UpdateScanResult(_interactables[i], scanResult);
 
                 // if previous scanResult exists, remove it
-                m_interactables.Remove(i, InteractableScanResult.invalid);
-                m_interactablesCount--;
+                _interactables.Remove(i, InteractableScanResult.invalid);
+                _interactablesCount--;
 
                 break;
             }
@@ -304,7 +310,7 @@ public class CharacterInteraction : CharacterBehaviour
         // find sorted position position for the scanResult (based on priority)
         for (int i = 0; i < interactablesCapacity; i++)
         {
-            if (i < interactablesCount && CompareScanResult(m_interactables[i], scanResult) <= 0)
+            if (i < interactablesCount && CompareScanResult(_interactables[i], scanResult) <= 0)
             {
                 continue;
             }
@@ -321,12 +327,12 @@ public class CharacterInteraction : CharacterBehaviour
 
             if (wasPresent)
             {
-                if (m_generateOnUpdatedEvent)
+                if (_generateOnUpdatedEvent)
                 {
                     OnInteractableUpdated(scanResult);
                 }
             }
-            else if (m_generateOnAddedEvent)
+            else if (_generateOnAddedEvent)
             {
                 OnInteractableAdded(scanResult);
             }
@@ -346,17 +352,17 @@ public class CharacterInteraction : CharacterBehaviour
             RemoveScanResult(interactablesCount - 1);
         }
 
-        m_interactables.Insert(scanResult, index);
-        m_interactablesCount++;
+        _interactables.Insert(scanResult, index);
+        _interactablesCount++;
     }
 
     protected void RemoveScanResult(int index)
     {
-        var scanResult = m_interactables[index];
-        m_interactables.Remove(index);
-        m_interactablesCount--;
+        var scanResult = _interactables[index];
+        _interactables.Remove(index);
+        _interactablesCount--;
 
-        if (m_generateOnRemovedEvent)
+        if (_generateOnRemovedEvent)
         {
             OnInteractableRemoved(scanResult.interactable);
         }
@@ -424,14 +430,14 @@ public class CharacterInteraction : CharacterBehaviour
         Grenade grenade = interactable.GetComponent<Grenade>();
         if (grenade != null)
         {
-            charEquip.OnGrenadeFound(grenade);
+            // charEquip.OnGrenadeFound(scanResult, grenade);
             return;
         }
 
         Weapon weapon = interactable.GetComponent<Weapon>();
         if (weapon != null)
         {
-            charEquip.OnWeaponFound(scanResult, weapon);
+            // charEquip.OnWeaponFound(scanResult, weapon);
             return;
         }
     }
@@ -454,7 +460,7 @@ public class CharacterInteraction : CharacterBehaviour
         {
             for (int i = 0; i < interactablesCount; i++)
             {
-                action(m_interactables[i]);
+                action(_interactables[i]);
             }
         }
     }
@@ -465,7 +471,7 @@ public class CharacterInteraction : CharacterBehaviour
         {
             for (int i = 0; i < interactablesCount; i++)
             {
-                action(m_interactables[i].interactable);
+                action(_interactables[i].interactable);
             }
         }
     }
@@ -476,9 +482,9 @@ public class CharacterInteraction : CharacterBehaviour
         {
             for (int i = 0; i < interactablesCount; i++)
             {
-                if (pred(m_interactables[i]))
+                if (pred(_interactables[i]))
                 {
-                    return m_interactables[i];
+                    return _interactables[i];
                 }
             }
         }
@@ -492,9 +498,9 @@ public class CharacterInteraction : CharacterBehaviour
         {
             for (int i = 0; i < interactablesCount; i++)
             {
-                if (pred(m_interactables[i]))
+                if (pred(_interactables[i]))
                 {
-                    return m_interactables[i].interactable;
+                    return _interactables[i].interactable;
                 }
             }
         }
@@ -508,9 +514,9 @@ public class CharacterInteraction : CharacterBehaviour
         {
             for (int i = 0; i < interactablesCount; i++)
             {
-                if (pred(m_interactables[i].interactable))
+                if (pred(_interactables[i].interactable))
                 {
-                    return m_interactables[i].interactable;
+                    return _interactables[i].interactable;
                 }
             }
         }
@@ -524,8 +530,8 @@ public class CharacterInteraction : CharacterBehaviour
         {
             for (int i = 0; i < interactablesCount; i++)
             {
-                if (m_interactables[i].interactable == interactable)
-                    return m_interactables[i];
+                if (_interactables[i].interactable == interactable)
+                    return _interactables[i];
             }
         }
 
@@ -538,7 +544,7 @@ public class CharacterInteraction : CharacterBehaviour
         {
             for (int i = 0; i < interactablesCount; i++)
             {
-                if (m_interactables[i].interactable == interactable)
+                if (_interactables[i].interactable == interactable)
                 {
                     return true;
                 }
@@ -552,11 +558,11 @@ public class CharacterInteraction : CharacterBehaviour
     {
         for (int i = 0; i < interactablesCount; i++)
         {
-            if (m_interactables[i].interactable &&
-                m_interactables[i].interactable.TryGetComponent<T>(out T foundComp))
+            if (_interactables[i].interactable &&
+                _interactables[i].interactable.TryGetComponent<T>(out T foundComp))
             {
                 comp = foundComp;
-                return m_interactables[i].interactable;
+                return _interactables[i].interactable;
             }
         }
 

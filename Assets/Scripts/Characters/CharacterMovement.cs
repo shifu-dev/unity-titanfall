@@ -763,7 +763,6 @@ public class CharacterMovement : CharacterBehaviour
                     moveBeforeStepUp = move_rem;
 
                     stepUpHeight = CapsuleMove(_char_up * _currentStepUpHeight).magnitude;
-                    Debug.Log($"[{Time.frameCount}] StepUp: [{stepUpHeight}]"); ;
 
                     continue;
                 }
@@ -850,11 +849,6 @@ public class CharacterMovement : CharacterBehaviour
                 slope_move = slope_move.normalized * remainingMove.magnitude;
             }
 
-            const float debug = 15f;
-            Debug.DrawRay(hit.point, remainingMove * debug, Color.red);
-            Debug.DrawRay(hit.point + remainingMove * debug, _char_up * enter * debug, Color.green);
-            Debug.DrawRay(hit.point, slope_move * debug, Color.blue);
-
             remainingMove = slope_move;
             return true;
         }
@@ -882,8 +876,6 @@ public class CharacterMovement : CharacterBehaviour
                 slideMove = slideMove.normalized * remainingMoveSize;
             }
         }
-
-        Debug.Log($"[{Time.frameCount}] GroundSlideAlongSurface: SlideMove[{slideMove.normalized}, {slideMove.magnitude}]"); ;
 
         remainingMove = slideMove;
         return true;
@@ -964,8 +956,6 @@ public class CharacterMovement : CharacterBehaviour
         }
 
         result = new CharacterMovementGroundResult();
-
-        // Debug.DrawRay(hit.point, hitNormal, Color.red);
 
         if (GroundCanStandOn(hit, hitNormal, out float slopeAngle) == false)
         {
