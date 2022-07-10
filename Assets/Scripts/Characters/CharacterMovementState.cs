@@ -55,9 +55,7 @@ public interface CharacterMovementState
     /// Member Fields
     //////////////////////////////////////////////////////////////////
 
-    public uint previous { get; }
     public uint current { get; set; }
-    public float weight { get; set; }
 
     public bool isCustom
     {
@@ -177,47 +175,35 @@ public struct CharacterMovementStateImpl : CharacterMovementState
 {
     private CharacterMovementState pimpl => this as CharacterMovementState;
 
-    [SerializeField] private uint m_previous;
-    [SerializeField] private uint m_current;
-    [SerializeField, Range(0, 1)] private float m_weight;
+#if UNITY_EDITOR
+    [Label("Current"), SerializeField] private string editor_current;
+#endif
 
-    public uint previous
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => m_previous;
-    }
+    private uint _current;
+
     public uint current
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => m_current;
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _current;
         set
         {
-            if (value != m_current)
-            {
-                m_previous = m_current;
-                m_current = value;
-                m_weight = 1 - m_weight;
-            }
+            _current = value;
+
+#if UNITY_EDITOR
+            editor_current = ToString();
+#endif
         }
     }
-    public float weight
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => m_weight;
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        set => m_weight = value;
-    }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public CharacterMovementStateImpl(uint state, float weight = 1)
     {
-        this.m_previous = CharacterMovementState.NONE;
-        this.m_current = state;
-        this.m_weight = weight;
+        _current = state;
+
+#if UNITY_EDITOR
+        editor_current = null;
+        editor_current = ToString();
+#endif
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override string ToString()
     {
         return pimpl.getString;

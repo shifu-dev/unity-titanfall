@@ -177,8 +177,6 @@ public class CharacterInteraction : CharacterBehaviour
                 _raycastSource.position = source.position;
                 _raycastSource.rotation = source.rotation;
 
-                Debug.DrawRay(_raycastSource.position, _raycastSource.forward * _raycastLength, Color.red);
-
                 bool hit = Physics.Raycast(_raycastSource.position, _raycastSource.forward, out RaycastHit hitInfo,
                     _raycastLength, _layerMask, _triggerQuery);
 

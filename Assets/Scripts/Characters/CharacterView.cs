@@ -146,10 +146,6 @@ public class CharacterView : CharacterBehaviour
         _lookVector.y = _lookVector.y < -180 || _lookVector.y > 180 ? -_lookVector.y : _lookVector.y;
         _lookVector.z = _lookVector.z < -180 || _lookVector.z > 180 ? -_lookVector.z : _lookVector.z;
 
-        // _lookVector.x = 0f;
-        // _lookVector.y = 0f;
-        // _lookVector.z = 0f;
-
         _lookVector.x = Math.Clamp(_lookVector.x, _firstPersonData.minRotation.x, _firstPersonData.maxRotation.x);
         _lookVector.y = Math.Clamp(_lookVector.y, _firstPersonData.minRotation.y, _firstPersonData.maxRotation.y);
         _lookVector.z = Math.Clamp(_lookVector.z, _firstPersonData.minRotation.z, _firstPersonData.maxRotation.z);
