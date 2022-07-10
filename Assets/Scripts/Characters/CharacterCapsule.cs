@@ -82,6 +82,8 @@ public class CharacterCapsule : CharacterBehaviour
 
     public override void OnUpdateCharacter()
     {
+        base.OnUpdateCharacter();
+
         PerformMove();
     }
 

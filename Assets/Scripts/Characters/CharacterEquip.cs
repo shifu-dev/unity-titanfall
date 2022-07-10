@@ -9,7 +9,6 @@ public class CharacterEquip : CharacterBehaviour
         public static readonly EquipData empty;
 
         public Equipable equipable;
-        public float weight;
         public float equip_speed;
         public float unequip_speed;
         public int slot;
@@ -32,33 +31,35 @@ public class CharacterEquip : CharacterBehaviour
     protected CharacterInventory _charInventory;
     protected CharacterInteraction _charInteraction;
 
-    [SerializeField, ReadOnly] protected EquipData l_current;
-    [SerializeField, ReadOnly] protected EquipData l_next;
-    [SerializeField, ReadOnly] protected EquipStatus l_status;
-    [SerializeField, ReadOnly] protected bool l_locked;
-    [SerializeField, ReadOnly] protected bool l_supporting;
+    [SerializeField, ReadOnly, Space] protected EquipData _leftCurrent;
+    [SerializeField, ReadOnly] protected EquipData _leftNext;
+    [SerializeField, ReadOnly] protected EquipStatus _leftStatus;
+    [SerializeField, ReadOnly, Range(0, 1)] protected float _leftWeight;
+    [SerializeField, ReadOnly] protected bool _leftLocked;
+    [SerializeField, ReadOnly] protected bool _leftSupporting;
 
-    [SerializeField, ReadOnly] protected EquipData r_current;
-    [SerializeField, ReadOnly] protected EquipData r_next;
-    [SerializeField, ReadOnly] protected EquipStatus r_status;
-    [SerializeField, ReadOnly] protected bool r_locked;
-    [SerializeField, ReadOnly] protected bool r_supporting;
-
-    protected float deltaTime;
+    [SerializeField, ReadOnly, Space] protected EquipData _rightCurrent;
+    [SerializeField, ReadOnly] protected EquipData _rightNext;
+    [SerializeField, ReadOnly] protected EquipStatus _rightStatus;
+    [SerializeField, ReadOnly, Range(0, 1)] protected float _rightWeight;
+    [SerializeField, ReadOnly] protected bool _rightLocked;
+    [SerializeField, ReadOnly] protected bool _rightSupporting;
 
     public CharacterEquip()
     {
-        l_current = EquipData.empty;
-        l_next = EquipData.empty;
-        l_status = EquipStatus.Unknown;
-        l_locked = false;
-        l_supporting = false;
+        _leftCurrent = EquipData.empty;
+        _leftNext = EquipData.empty;
+        _leftStatus = EquipStatus.Unknown;
+        _leftWeight = 0f;
+        _leftLocked = false;
+        _leftSupporting = false;
 
-        r_current = EquipData.empty;
-        r_next = EquipData.empty;
-        r_status = EquipStatus.Unknown;
-        r_locked = false;
-        r_supporting = false;
+        _rightCurrent = EquipData.empty;
+        _rightNext = EquipData.empty;
+        _rightStatus = EquipStatus.Unknown;
+        _rightWeight = 0f;
+        _rightLocked = false;
+        _rightSupporting = false;
     }
 
     public override void OnInitCharacter(Character character, CharacterInitializer initializer)
@@ -72,16 +73,16 @@ public class CharacterEquip : CharacterBehaviour
 
     public override void OnUpdateCharacter()
     {
-        deltaTime = Time.deltaTime;
+        base.OnUpdateCharacter();
 
         CheckEquipInputs();
 
         bool fire1 = _charInputs.use1;
-        var right_equip_data = r_current;
-        Weapon right_weapon = r_current.equipable == null ? null : r_current.equipable.weapon;
-        int right_weapon_slot = r_current.slot;
+        var right_equip_data = _rightCurrent;
+        Weapon right_weapon = _rightCurrent.equipable == null ? null : _rightCurrent.equipable.weapon;
+        int right_weapon_slot = _rightCurrent.slot;
 
-        if (right_weapon && fire1 && r_current.weight > 0.9f)
+        if (right_weapon && fire1 && _rightWeight > 0.9f)
         {
             right_weapon.OnPrimaryFire();
         }
@@ -117,8 +118,8 @@ public class CharacterEquip : CharacterBehaviour
 
         bool ProcessWeaponInput(int slot)
         {
-            if (right_weapon_slot == slot && (r_status == EquipStatus.Equipping ||
-                r_status == EquipStatus.EquipFinish))
+            if (right_weapon_slot == slot && (_rightStatus == EquipStatus.Equipping ||
+                _rightStatus == EquipStatus.EquipFinish))
             {
                 RightHandUnequip();
                 return true;
@@ -177,23 +178,22 @@ public class CharacterEquip : CharacterBehaviour
         if (force)
         {
             // open the look if forced
-            l_locked = false;
+            _leftLocked = false;
         }
 
-        if (l_locked)
+        if (_leftLocked)
         {
             return false;
         }
 
-        l_next = data;
-        l_status = EquipStatus.UnequipStart;
+        _leftNext = data;
+        _leftStatus = EquipStatus.UnequipStart;
 
-        if (l_current.equipable != null &&
-            l_current.equipable == l_next.equipable)
+        if (_leftCurrent.equipable != null &&
+            _leftCurrent.equipable == _leftNext.equipable)
         {
-            l_next.weight = l_current.weight;
-            l_current = EquipData.empty;
-            l_status = EquipStatus.Unknown;
+            _leftCurrent = EquipData.empty;
+            _leftStatus = EquipStatus.Unknown;
         }
 
         return true;
@@ -204,7 +204,7 @@ public class CharacterEquip : CharacterBehaviour
         if (LeftHandEquip(data, force))
         {
             // 0f speed is considered as instant
-            l_next.equip_speed = 0f;
+            _leftNext.equip_speed = 0f;
 
             return true;
         }
@@ -214,14 +214,14 @@ public class CharacterEquip : CharacterBehaviour
 
     protected virtual void LeftHandUpdate()
     {
-        if (l_status == EquipStatus.Unknown && l_next.equipable != null)
+        if (_leftStatus == EquipStatus.Unknown && _leftNext.equipable != null)
         {
-            l_current = l_next;
-            l_status = EquipStatus.EquipStart;
-            l_next = EquipData.empty;
+            _leftCurrent = _leftNext;
+            _leftStatus = EquipStatus.EquipStart;
+            _leftNext = EquipData.empty;
         }
 
-        switch (l_status)
+        switch (_leftStatus)
         {
             case EquipStatus.Unknown:
             case EquipStatus.EquipFinish:
@@ -231,26 +231,26 @@ public class CharacterEquip : CharacterBehaviour
             case EquipStatus.EquipStart:
             case EquipStatus.Equipping:
 
-                if (l_status == EquipStatus.EquipStart)
+                if (_leftStatus == EquipStatus.EquipStart)
                 {
                     OnLeftHandUpdate();
-                    l_status = EquipStatus.Equipping;
+                    _leftStatus = EquipStatus.Equipping;
                 }
 
                 // 0f speed is considered as instant
-                if (l_current.equip_speed == 0f)
+                if (_leftCurrent.equip_speed == 0f)
                 {
-                    l_current.weight = 1f;
+                    _leftWeight = 1f;
                 }
                 else
                 {
-                    l_current.weight = Mathf.MoveTowards(l_current.weight,
-                        1f, l_current.equip_speed * deltaTime);
+                    _leftWeight = Mathf.MoveTowards(_leftWeight,
+                        1f, _leftCurrent.equip_speed * delta_time);
                 }
 
-                if (l_current.weight == 1f)
+                if (_leftWeight == 1f)
                 {
-                    l_status = EquipStatus.EquipFinish;
+                    _leftStatus = EquipStatus.EquipFinish;
                 }
 
                 OnLeftHandUpdate();
@@ -260,26 +260,26 @@ public class CharacterEquip : CharacterBehaviour
             case EquipStatus.UnequipStart:
             case EquipStatus.Unequipping:
 
-                if (l_status == EquipStatus.UnequipStart)
+                if (_leftStatus == EquipStatus.UnequipStart)
                 {
                     OnLeftHandUpdate();
-                    l_status = EquipStatus.Unequipping;
+                    _leftStatus = EquipStatus.Unequipping;
                 }
 
                 // 0f speed is considered as instant
-                if (l_current.unequip_speed == 0f)
+                if (_leftCurrent.unequip_speed == 0f)
                 {
-                    l_current.weight = 0f;
+                    _leftWeight = 0f;
                 }
                 else
                 {
-                    l_current.weight = Mathf.MoveTowards(l_current.weight,
-                        0f, l_current.unequip_speed * deltaTime);
+                    _leftWeight = Mathf.MoveTowards(_leftWeight,
+                        0f, _leftCurrent.unequip_speed * delta_time);
                 }
 
-                if (l_current.weight == 0f)
+                if (_leftWeight == 0f)
                 {
-                    l_status = EquipStatus.UnequipFinish;
+                    _leftStatus = EquipStatus.UnequipFinish;
                 }
 
                 OnLeftHandUpdate();
@@ -289,10 +289,10 @@ public class CharacterEquip : CharacterBehaviour
 
         // if current is unequipped, empty current
         // so that next can be processed
-        if (l_status == EquipStatus.UnequipFinish)
+        if (_leftStatus == EquipStatus.UnequipFinish)
         {
-            l_current = EquipData.empty;
-            l_status = EquipStatus.Unknown;
+            _leftCurrent = EquipData.empty;
+            _leftStatus = EquipStatus.Unknown;
         }
     }
 
@@ -301,15 +301,15 @@ public class CharacterEquip : CharacterBehaviour
         if (force)
         {
             // open the look if forced
-            l_locked = false;
+            _leftLocked = false;
         }
 
-        if (l_locked)
+        if (_leftLocked)
         {
             return false;
         }
 
-        l_status = EquipStatus.UnequipStart;
+        _leftStatus = EquipStatus.UnequipStart;
         return true;
     }
 
@@ -317,7 +317,7 @@ public class CharacterEquip : CharacterBehaviour
     {
         if (LeftHandUnequip(force))
         {
-            l_current.unequip_speed = 0f;
+            _leftCurrent.unequip_speed = 0f;
 
             return true;
         }
@@ -327,10 +327,10 @@ public class CharacterEquip : CharacterBehaviour
 
     protected virtual void OnLeftHandUpdate()
     {
-        Equipable equipable = l_current.equipable;
+        Equipable equipable = _leftCurrent.equipable;
         if (equipable == null) return;
 
-        switch (l_status)
+        switch (_leftStatus)
         {
             case EquipStatus.EquipStart:
                 equipable.OnEquipStart();
@@ -369,23 +369,22 @@ public class CharacterEquip : CharacterBehaviour
         if (force)
         {
             // open the look if forced
-            r_locked = false;
+            _rightLocked = false;
         }
 
-        if (r_locked)
+        if (_rightLocked)
         {
             return false;
         }
 
-        r_next = data;
-        r_status = EquipStatus.UnequipStart;
+        _rightNext = data;
+        _rightStatus = EquipStatus.UnequipStart;
 
-        if (r_current.equipable != null &&
-            r_current.equipable == r_next.equipable)
+        if (_rightCurrent.equipable != null &&
+            _rightCurrent.equipable == _rightNext.equipable)
         {
-            r_next.weight = r_current.weight;
-            r_current = EquipData.empty;
-            r_status = EquipStatus.Unknown;
+            _rightCurrent = EquipData.empty;
+            _rightStatus = EquipStatus.Unknown;
         }
 
         return true;
@@ -396,7 +395,7 @@ public class CharacterEquip : CharacterBehaviour
         if (RightHandEquip(data, force))
         {
             // 0f speed is considered as instant
-            r_next.equip_speed = 0f;
+            _rightNext.equip_speed = 0f;
 
             return true;
         }
@@ -406,14 +405,14 @@ public class CharacterEquip : CharacterBehaviour
 
     protected virtual void RightHandUpdate()
     {
-        if (r_status == EquipStatus.Unknown && r_next.equipable != null)
+        if (_rightStatus == EquipStatus.Unknown && _rightNext.equipable != null)
         {
-            r_current = r_next;
-            r_status = EquipStatus.EquipStart;
-            r_next = EquipData.empty;
+            _rightCurrent = _rightNext;
+            _rightStatus = EquipStatus.EquipStart;
+            _rightNext = EquipData.empty;
         }
 
-        switch (r_status)
+        switch (_rightStatus)
         {
             case EquipStatus.Unknown:
             case EquipStatus.EquipFinish:
@@ -423,26 +422,26 @@ public class CharacterEquip : CharacterBehaviour
             case EquipStatus.EquipStart:
             case EquipStatus.Equipping:
 
-                if (r_status == EquipStatus.EquipStart)
+                if (_rightStatus == EquipStatus.EquipStart)
                 {
                     OnRightHandUpdate();
-                    r_status = EquipStatus.Equipping;
+                    _rightStatus = EquipStatus.Equipping;
                 }
 
                 // 0f speed is considered as instant
-                if (r_current.equip_speed == 0f)
+                if (_rightCurrent.equip_speed == 0f)
                 {
-                    r_current.weight = 1f;
+                    _rightWeight = 1f;
                 }
                 else
                 {
-                    r_current.weight = Mathf.MoveTowards(r_current.weight,
-                        1f, r_current.equip_speed * deltaTime);
+                    _rightWeight = Mathf.MoveTowards(_rightWeight,
+                        1f, _rightCurrent.equip_speed * delta_time);
                 }
 
-                if (r_current.weight == 1f)
+                if (_rightWeight == 1f)
                 {
-                    r_status = EquipStatus.EquipFinish;
+                    _rightStatus = EquipStatus.EquipFinish;
                 }
 
                 OnRightHandUpdate();
@@ -452,26 +451,26 @@ public class CharacterEquip : CharacterBehaviour
             case EquipStatus.UnequipStart:
             case EquipStatus.Unequipping:
 
-                if (r_status == EquipStatus.UnequipStart)
+                if (_rightStatus == EquipStatus.UnequipStart)
                 {
                     OnRightHandUpdate();
-                    r_status = EquipStatus.Unequipping;
+                    _rightStatus = EquipStatus.Unequipping;
                 }
 
                 // 0f speed is considered as instant
-                if (r_current.unequip_speed == 0f)
+                if (_rightCurrent.unequip_speed == 0f)
                 {
-                    r_current.weight = 0f;
+                    _rightWeight = 0f;
                 }
                 else
                 {
-                    r_current.weight = Mathf.MoveTowards(r_current.weight,
-                        0f, r_current.unequip_speed * deltaTime);
+                    _rightWeight = Mathf.MoveTowards(_rightWeight,
+                        0f, _rightCurrent.unequip_speed * delta_time);
                 }
 
-                if (r_current.weight == 0f)
+                if (_rightWeight == 0f)
                 {
-                    r_status = EquipStatus.UnequipFinish;
+                    _rightStatus = EquipStatus.UnequipFinish;
                 }
 
                 OnRightHandUpdate();
@@ -481,10 +480,10 @@ public class CharacterEquip : CharacterBehaviour
 
         // if current is unequipped, empty current
         // so that next can be processed
-        if (r_status == EquipStatus.UnequipFinish)
+        if (_rightStatus == EquipStatus.UnequipFinish)
         {
-            r_current = EquipData.empty;
-            r_status = EquipStatus.Unknown;
+            _rightCurrent = EquipData.empty;
+            _rightStatus = EquipStatus.Unknown;
         }
     }
 
@@ -493,15 +492,15 @@ public class CharacterEquip : CharacterBehaviour
         if (force)
         {
             // open the look if forced
-            r_locked = false;
+            _rightLocked = false;
         }
 
-        if (r_locked)
+        if (_rightLocked)
         {
             return false;
         }
 
-        r_status = EquipStatus.UnequipStart;
+        _rightStatus = EquipStatus.UnequipStart;
         return true;
     }
 
@@ -509,7 +508,7 @@ public class CharacterEquip : CharacterBehaviour
     {
         if (RightHandUnequip(force))
         {
-            r_current.unequip_speed = 0f;
+            _rightCurrent.unequip_speed = 0f;
 
             return true;
         }
@@ -519,10 +518,10 @@ public class CharacterEquip : CharacterBehaviour
 
     protected virtual void OnRightHandUpdate()
     {
-        Equipable equipable = r_current.equipable;
+        Equipable equipable = _rightCurrent.equipable;
         if (equipable == null) return;
 
-        switch (r_status)
+        switch (_rightStatus)
         {
             case EquipStatus.EquipStart:
                 equipable.OnEquipStart();
@@ -552,26 +551,23 @@ public class CharacterEquip : CharacterBehaviour
     {
         Weapon weapon = RightHandWeapon();
         if (weapon == null) return;
-    }
 
-    protected virtual void OnRightWeaponEquipFinish()
-    {
-        var weapon = r_current.equipable.weapon;
-        if (weapon)
+        if (_rightStatus == EquipStatus.EquipFinish)
         {
-            weapon.OnEquipFinish();
-
-            return;
+            if (_charInputs.use1)
+            {
+                weapon.OnPrimaryFire();
+            }
         }
     }
 
     protected virtual void RightHand(out Weapon weapon, out int slot)
     {
-        if (r_current.equipable != null &&
-            r_current.equipable.weapon != null)
+        if (_rightCurrent.equipable != null &&
+            _rightCurrent.equipable.weapon != null)
         {
-            slot = r_current.slot;
-            weapon = r_current.equipable.weapon;
+            slot = _rightCurrent.slot;
+            weapon = _rightCurrent.equipable.weapon;
             return;
         }
 
@@ -581,9 +577,9 @@ public class CharacterEquip : CharacterBehaviour
 
     protected virtual Weapon RightHandWeapon()
     {
-        if (r_current.equipable != null)
+        if (_rightCurrent.equipable != null)
         {
-            return r_current.equipable.weapon;
+            return _rightCurrent.equipable.weapon;
         }
 
         return null;
@@ -591,10 +587,10 @@ public class CharacterEquip : CharacterBehaviour
 
     protected virtual int RightHandWeaponSlot()
     {
-        if (r_current.equipable != null &&
-            r_current.equipable.weapon != null)
+        if (_rightCurrent.equipable != null &&
+            _rightCurrent.equipable.weapon != null)
         {
-            return r_current.slot;
+            return _rightCurrent.slot;
         }
 
         return -1;

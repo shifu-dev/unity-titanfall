@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 [DisallowMultipleComponent]
+[RequireComponent(typeof(CharacterBody))]
 [RequireComponent(typeof(CharacterInputs))]
 [RequireComponent(typeof(CharacterInventory))]
 [RequireComponent(typeof(CharacterMovement))]
@@ -25,6 +26,7 @@ public class Character : Equipable
     public CharacterDataAsset charDataAsset { get; protected set; }
     public CharacterBehaviour[] charBehaviours { get; protected set; }
     public CharacterInputs charInputs { get; protected set; }
+    public CharacterBody charBody { get; protected set; }
     public CharacterInventory charInventory { get; protected set; }
     public CharacterMovement charMovement { get; protected set; }
     public CharacterInteraction charInteraction { get; protected set; }
@@ -52,6 +54,7 @@ public class Character : Equipable
         CollectBehaviours();
 
         charInputs = GetBehaviour<CharacterInputs>();
+        charBody = GetBehaviour<CharacterBody>();
         charInventory = GetBehaviour<CharacterInventory>();
         charMovement = GetBehaviour<CharacterMovement>();
         charInteraction = GetBehaviour<CharacterInteraction>();

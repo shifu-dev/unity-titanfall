@@ -142,6 +142,8 @@ public class CharacterInteraction : CharacterBehaviour
 
     public override void OnUpdateCharacter()
     {
+        base.OnUpdateCharacter();
+
         CollectInteractables();
     }
 

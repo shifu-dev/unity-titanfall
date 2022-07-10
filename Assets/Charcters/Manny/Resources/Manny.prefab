@@ -315,6 +315,7 @@ GameObject:
   - component: {fileID: 6081539459817332691}
   - component: {fileID: 1561319467078266631}
   - component: {fileID: 8863942587269995025}
+  - component: {fileID: 6770542791026616596}
   - component: {fileID: 3178208661893971848}
   - component: {fileID: 3335872080112416175}
   - component: {fileID: 1210957656046409178}
@@ -383,6 +384,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6fe7157e1080ee48a8a2c9b6d09ed47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &6770542791026616596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6526974782931169490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a89ec780f635da140b40314f3c65b54c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &3178208661893971848
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -395,16 +408,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08df7f10a02b700419d99728de845233, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  autoPickup: 1
   _weaponSlots:
   - category: 496
-    slot: {fileID: 3070141978124218766}
+    index: {fileID: 0}
     weapon: {fileID: 0}
   - category: 496
-    slot: {fileID: 8801453827726266181}
+    index: {fileID: 0}
     weapon: {fileID: 0}
   - category: 12
-    slot: {fileID: 8115276785642817472}
+    index: {fileID: 0}
     weapon: {fileID: 0}
   _grenadeSlots:
   - m_category: 0
@@ -444,9 +456,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _movementState:
-    m_previous: 0
-    m_current: 0
-    m_weight: 1
+    editor_current: NONE
+  movement_state_weight: 0
   _velocity: {x: 0, y: 0, z: 0}
 --- !u!114 &1210957656046409178
 MonoBehaviour:
@@ -529,34 +540,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb7d0c9f08f8c0d4f85611f9bd4a91f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _left_current:
+  l_current:
     equipable: {fileID: 0}
     weight: 0
     equip_speed: 0
     unequip_speed: 0
     slot: 0
-  _left_next:
+  l_next:
     equipable: {fileID: 0}
     weight: 0
     equip_speed: 0
     unequip_speed: 0
     slot: 0
-  _left_status: 0
-  _left_locked: 0
-  _right_current:
+  l_status: 0
+  l_locked: 0
+  l_supporting: 0
+  r_current:
     equipable: {fileID: 0}
     weight: 0
     equip_speed: 0
     unequip_speed: 0
     slot: 0
-  _right_next:
+  r_next:
     equipable: {fileID: 0}
     weight: 0
     equip_speed: 0
     unequip_speed: 0
     slot: 0
-  _right_status: 0
-  _right_locked: 0
+  r_status: 0
+  r_locked: 0
+  r_supporting: 0
 --- !u!114 &5399984233667666123
 MonoBehaviour:
   m_ObjectHideFlags: 0

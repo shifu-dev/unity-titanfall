@@ -33,8 +33,6 @@ public class CharacterMovement : CharacterBehaviour
     [SerializeField] protected CharacterMovementGroundResult _previousGroundResult;
     [SerializeField] protected CharacterMovementGroundResult _groundResult;
 
-    // protected float delta_time = 1f;
-    protected float _delta_time;
     [ReadOnly, SerializeField] protected Vector3 _velocity;
     protected Vector3 _char_up = Vector3.up;
     protected Vector3 _char_right = Vector3.right;
@@ -94,7 +92,6 @@ public class CharacterMovement : CharacterBehaviour
         _previousGroundResult = CharacterMovementGroundResult.invalid;
         _groundResult = CharacterMovementGroundResult.invalid;
         _velocity = Vector3.zero;
-        _delta_time = 1f;
     }
 
     //////////////////////////////////////////////////////////////////
@@ -169,7 +166,7 @@ public class CharacterMovement : CharacterBehaviour
 
     public override void OnUpdateCharacter()
     {
-        _delta_time = Time.deltaTime;
+        base.OnUpdateCharacter();
 
         UpdatePhysicsData();
         UpdateMovementState();
@@ -528,10 +525,10 @@ public class CharacterMovement : CharacterBehaviour
 
         _velocity = Vector3.ProjectOnPlane(_velocity, _char_up);
 
-        Vector3 move = move_input * _currentMoveSpeed * _delta_time;
-        move = Vector3.MoveTowards(_velocity * _delta_time, move, _currentMoveAccel * _delta_time);
+        Vector3 move = move_input * _currentMoveSpeed * delta_time;
+        move = Vector3.MoveTowards(_velocity * delta_time, move, _currentMoveAccel * delta_time);
 
-        move += _char_up * _currentJumpPower * _delta_time;
+        move += _char_up * _currentJumpPower * delta_time;
 
         GroundMove(move);
     }
@@ -785,9 +782,9 @@ public class CharacterMovement : CharacterBehaviour
 
         _velocity = _char_capsule.localPosition - last_pos;
 
-        if (_delta_time != 0f)
+        if (delta_time != 0f)
         {
-            _velocity = _velocity / _delta_time;
+            _velocity = _velocity / delta_time;
         }
 
         if (move_v_mag == 0f)
@@ -809,14 +806,14 @@ public class CharacterMovement : CharacterBehaviour
             targetCenter = groundCrouchCapsuleCenter;
             targetHeight = groundCrouchCapsuleHeight;
             targetRadius = groundCrouchCapsuleRadius;
-            speed = groundStandToCrouchTransitionSpeed * Time.deltaTime;
+            speed = groundStandToCrouchTransitionSpeed * delta_time;
         }
         else
         {
             targetCenter = groundStandCapsuleCenter;
             targetHeight = groundStandCapsuleHeight;
             targetRadius = groundStandCapsuleRadius;
-            speed = groundCrouchToStandTransitionSpeed * Time.deltaTime;
+            speed = groundCrouchToStandTransitionSpeed * delta_time;
         }
 
         // charCapsule.localPosition += charCapsule.up * Mathf.MoveTowards(charCapsule.localHeight, targetHeight, speed);
@@ -999,9 +996,9 @@ public class CharacterMovement : CharacterBehaviour
         Vector3 char_forward = character.forward;
         Vector3 char_right = character.right;
         float mass = character.mass;
-        float gravity_speed = airGravityAcceleration * mass * _delta_time * _delta_time * k_gravityMultiplier;
+        float gravity_speed = airGravityAcceleration * mass * delta_time * delta_time * k_gravityMultiplier;
 
-        Vector3 velocity = _velocity * _delta_time;
+        Vector3 velocity = _velocity * delta_time;
         Vector3 velocity_h = Vector3.ProjectOnPlane(velocity, char_up);
         Vector3 velocity_v = velocity - velocity_h;
 
@@ -1017,7 +1014,7 @@ public class CharacterMovement : CharacterBehaviour
         move_input = character.rotation * move_input;
 
         // helping movement in air
-        Vector3 move_help_h = _currentMoveSpeed * move_input * _delta_time;
+        Vector3 move_help_h = _currentMoveSpeed * move_input * delta_time;
         Vector3 move_help_h_x = Vector3.ProjectOnPlane(move_help_h, char_forward);
         Vector3 move_help_h_z = move_help_h - move_help_h_x;
 
@@ -1104,9 +1101,9 @@ public class CharacterMovement : CharacterBehaviour
 
         _velocity = _char_capsule.localPosition - lastPosition;
 
-        if (_delta_time != 0f)
+        if (delta_time != 0f)
         {
-            _velocity = _velocity / _delta_time;
+            _velocity = _velocity / delta_time;
         }
     }
 

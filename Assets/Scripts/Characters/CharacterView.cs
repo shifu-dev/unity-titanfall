@@ -104,6 +104,8 @@ public class CharacterView : CharacterBehaviour
 
     public override void OnUpdateCharacter()
     {
+        base.OnUpdateCharacter();
+
         _stateMachine.Update();
     }
 
@@ -197,7 +199,7 @@ public class CharacterView : CharacterBehaviour
             }
             else
             {
-                lerpSpeed = lerpSpeed * Time.deltaTime;
+                lerpSpeed = lerpSpeed * delta_time;
             }
 
             camPos.x = Mathf.Lerp(camPos.x, targetCamPos.x, lerpSpeed.x);

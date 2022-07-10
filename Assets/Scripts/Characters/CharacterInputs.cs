@@ -36,6 +36,8 @@ public class CharacterInputs : CharacterBehaviour
 
     public override void OnUpdateCharacter()
     {
+        base.OnUpdateCharacter();
+
         lookProcessed += look;
     }
 
