@@ -9,32 +9,32 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff56eab6ca6150041bff6f6c012bd576, type: 3}
-  m_Name: Manny Character Asset
+  m_Script: {fileID: 11500000, guid: 755f1a64ef3e63f4a8a0b5fda84276cf, type: 3}
+  m_Name: Manny Source
   m_EditorClassIdentifier: 
   m_characterName: Manny
   m_characterMass: 80
-  m_groundCheckDepth: 0.5
+  m_groundCheckDepth: 0.05
   m_groundLayer:
     serializedVersion: 2
     m_Bits: 64
   m_groundMinMoveDistance: 0.001
   m_groundStandIdleSpeed: 0
   m_groundStandIdleAcceleration: 0.6
-  m_groundStandWalkSpeed: 3
-  m_groundStandWalkAcceleration: 0.6
-  m_groundStandRunSpeed: 5
-  m_groundStandRunAcceleration: 0.8
-  m_groundStandSprintSpeed: 10
+  m_groundStandWalkSpeed: 6
+  m_groundStandWalkAcceleration: 0.5
+  m_groundStandRunSpeed: 8
+  m_groundStandRunAcceleration: 0.5
+  m_groundStandSprintSpeed: 15
   m_groundStandSprintAcceleration: 1
   m_groundStandSprintLeftAngleMax: -46
   m_groundStandSprintRightAngleMax: 46
-  m_groundStandJumpForce: 15
-  m_groundStandStepUpPercent: 40
-  m_groundStandStepDownPercent: 40
-  m_groundStandSlopeUpAngle: 50
-  m_groundStandSlopeDownAngle: -89
-  m_groundStandMaintainVelocityOnSurface: 1
+  m_groundStandJumpForce: 10
+  m_groundStandStepUpPercent: 30
+  m_groundStandStepDownPercent: 30
+  m_groundStandSlopeUpAngle: 45
+  m_groundStandSlopeDownAngle: 0
+  m_groundStandMaintainVelocityOnSurface: 0
   m_groundStandMaintainVelocityAlongSurface: 0
   m_groundStandCapsuleCenter: {x: 0, y: 0, z: 0}
   m_groundStandCapsuleHeight: 2
@@ -47,21 +47,21 @@ MonoBehaviour:
   m_groundCrouchRunSpeed: 12
   m_groundCrouchRunAcceleration: 0
   m_groundCrouchAutoRiseToStandSprint: 1
-  m_groundCrouchJumpForce: 50
-  m_groundCrouchStepUpPercent: 5
-  m_groundCrouchStepDownPercent: 5
+  m_groundCrouchJumpForce: 15
+  m_groundCrouchStepUpPercent: 20
+  m_groundCrouchStepDownPercent: 20
   m_groundCrouchSlopeUpAngle: 55
-  m_groundCrouchSlopeDownAngle: 65
+  m_groundCrouchSlopeDownAngle: 0
   m_groundCrouchMaintainVelocityOnSurface: 0
   m_groundCrouchMaintainVelocityAlongSurface: 0
   m_groundCrouchCapsuleCenter: {x: 0, y: 0, z: 0}
-  m_groundCrouchCapsuleHeight: 1.25
+  m_groundCrouchCapsuleHeight: 1
   m_groundCrouchCapsuleRadius: 0.5
   m_groundCrouchToStandTransitionSpeed: 10
   m_airGravityAcceleration: -9.8
   m_airGravityMaxSpeed: Infinity
   m_airMinMoveDistance: 0
-  m_airMoveSpeed: 0
-  m_airMoveAcceleration: 0.8
+  m_airMoveSpeed: 0.1
+  m_airMoveAcceleration: 0.1
   m_airJumpPower: 10
   m_airMaxJumpCount: 0

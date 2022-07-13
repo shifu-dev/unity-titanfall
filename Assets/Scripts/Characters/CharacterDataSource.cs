@@ -2,7 +2,7 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Character Asset")]
-public class CharacterDataAsset : ScriptableObject
+public class CharacterDataSource : ScriptableObject
 {
     [Space]
 
@@ -307,7 +307,7 @@ public class CharacterDataAsset : ScriptableObject
 
     #endregion
 
-    public CharacterDataAsset()
+    public CharacterDataSource()
     {
         m_characterName = "UNNAMED";
         m_characterMass = 80f;

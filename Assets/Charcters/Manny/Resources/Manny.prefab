@@ -371,7 +371,7 @@ MonoBehaviour:
   m_FaceAngleY: 0
   m_FaceAngleZ: 0
   _colliders: []
-  <charDataAsset>k__BackingField: {fileID: 11400000, guid: dab369d3de5b62a4da379f1d2e86bc3a, type: 2}
+  <charDataSource>k__BackingField: {fileID: 11400000, guid: dab369d3de5b62a4da379f1d2e86bc3a, type: 2}
 --- !u!114 &8863942587269995025
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -540,36 +540,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb7d0c9f08f8c0d4f85611f9bd4a91f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  l_current:
+  _leftCurrent:
     equipable: {fileID: 0}
-    weight: 0
     equip_speed: 0
     unequip_speed: 0
     slot: 0
-  l_next:
+  _leftNext:
     equipable: {fileID: 0}
-    weight: 0
     equip_speed: 0
     unequip_speed: 0
     slot: 0
-  l_status: 0
-  l_locked: 0
-  l_supporting: 0
-  r_current:
+  _leftStatus: 0
+  _leftWeight: 0
+  _leftLocked: 0
+  _leftSupporting: 0
+  _rightCurrent:
     equipable: {fileID: 0}
-    weight: 0
     equip_speed: 0
     unequip_speed: 0
     slot: 0
-  r_next:
+  _rightNext:
     equipable: {fileID: 0}
-    weight: 0
     equip_speed: 0
     unequip_speed: 0
     slot: 0
-  r_status: 0
-  r_locked: 0
-  r_supporting: 0
+  _rightStatus: 0
+  _rightWeight: 0
+  _rightLocked: 0
+  _rightSupporting: 0
+  _rightWeaponReloading: 0
 --- !u!114 &5399984233667666123
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -15,34 +15,43 @@ public enum WeaponCategory
 }
 
 [DisallowMultipleComponent]
-[RequireComponent(typeof(WeaponInputs))]
 public abstract class Weapon : Equipable
 {
+    //////////////////////////////////////////////////////////////////
+    /// Equipable | START
+
     public override EquipableType type => EquipableType.Grenade;
     public override Weapon weapon => this;
 
-    public WeaponInputs inputs { get; protected set; }
+    /// Equipable | END
+    //////////////////////////////////////////////////////////////////
+
+    public WeaponDataSource source => _source;
+    [NonSerialized] private WeaponDataSource _source;
 
     public abstract WeaponCategory category { get; }
 
-    //////////////////////////////////////////////////////////////////
-    /// Events
-    //////////////////////////////////////////////////////////////////
-
-    protected virtual void Awake()
+    public virtual void Init()
     {
-        inputs = GetComponent<WeaponInputs>();
+        WeaponInitializer initializer = GetComponent<WeaponInitializer>();
+
+        if (initializer)
+        {
+            SetSource(initializer.source);
+
+            if (initializer.destroyAfterUse)
+            {
+                Destroy(initializer);
+            }
+        }
     }
 
-    public virtual void OnPrimaryFire()
+    protected virtual void SetSource(WeaponDataSource source)
     {
+        _source = source;
     }
 
-    public virtual void OnSecondaryFire()
-    {
-    }
-
-    public virtual void OnMelee()
+    public virtual void ShowOff()
     {
     }
 }

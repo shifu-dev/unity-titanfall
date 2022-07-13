@@ -31,19 +31,22 @@ public class CharacterEquip : CharacterBehaviour
     protected CharacterInventory _charInventory;
     protected CharacterInteraction _charInteraction;
 
-    [SerializeField, ReadOnly, Space] protected EquipData _leftCurrent;
+    [Header("Left Hand"), Space]
+    [SerializeField, ReadOnly] protected EquipData _leftCurrent;
     [SerializeField, ReadOnly] protected EquipData _leftNext;
     [SerializeField, ReadOnly] protected EquipStatus _leftStatus;
     [SerializeField, ReadOnly, Range(0, 1)] protected float _leftWeight;
     [SerializeField, ReadOnly] protected bool _leftLocked;
     [SerializeField, ReadOnly] protected bool _leftSupporting;
 
-    [SerializeField, ReadOnly, Space] protected EquipData _rightCurrent;
+    [Header("Right Hand"), Space]
+    [SerializeField, ReadOnly] protected EquipData _rightCurrent;
     [SerializeField, ReadOnly] protected EquipData _rightNext;
     [SerializeField, ReadOnly] protected EquipStatus _rightStatus;
     [SerializeField, ReadOnly, Range(0, 1)] protected float _rightWeight;
     [SerializeField, ReadOnly] protected bool _rightLocked;
     [SerializeField, ReadOnly] protected bool _rightSupporting;
+    [SerializeField, ReadOnly] protected bool _rightWeaponReloading;
 
     public CharacterEquip()
     {
@@ -81,11 +84,6 @@ public class CharacterEquip : CharacterBehaviour
         var right_equip_data = _rightCurrent;
         Weapon right_weapon = _rightCurrent.equipable == null ? null : _rightCurrent.equipable.weapon;
         int right_weapon_slot = _rightCurrent.slot;
-
-        if (right_weapon && fire1 && _rightWeight > 0.9f)
-        {
-            right_weapon.OnPrimaryFire();
-        }
 
         bool processedInput = false;
         if (processedInput == false)
@@ -547,19 +545,9 @@ public class CharacterEquip : CharacterBehaviour
         }
     }
 
-    protected virtual void OnRightWeaponUpdate()
-    {
-        Weapon weapon = RightHandWeapon();
-        if (weapon == null) return;
-
-        if (_rightStatus == EquipStatus.EquipFinish)
-        {
-            if (_charInputs.use1)
-            {
-                weapon.OnPrimaryFire();
-            }
-        }
-    }
+    //////////////////////////////////////////////////////////////////
+    /// Right Weapon
+    //////////////////////////////////////////////////////////////////
 
     protected virtual void RightHand(out Weapon weapon, out int slot)
     {
@@ -678,6 +666,17 @@ public class CharacterEquip : CharacterBehaviour
         {
             RightHandUnequipInstant();
             DropWeaponFromInventory(slot);
+        }
+    }
+
+    protected virtual void OnRightWeaponUpdate()
+    {
+        Weapon weapon = RightHandWeapon();
+        if (weapon == null) return;
+
+        if (_rightStatus != EquipStatus.EquipFinish)
+        {
+            return;
         }
     }
 

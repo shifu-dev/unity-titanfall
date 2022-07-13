@@ -23,7 +23,7 @@ public class Character : Equipable
     /// Variables
     //////////////////////////////////////////////////////////////////
     [field: Label("Data Asset"), SerializeField]
-    public CharacterDataAsset charDataAsset { get; protected set; }
+    public CharacterDataSource charDataSource { get; protected set; }
     public CharacterBehaviour[] charBehaviours { get; protected set; }
     public CharacterInputs charInputs { get; protected set; }
     public CharacterBody charBody { get; protected set; }
@@ -35,7 +35,7 @@ public class Character : Equipable
     public CharacterCapsule charCapsule { get; protected set; }
     public CharacterAnimation charAnimation { get; protected set; }
 
-    public float mass => charDataAsset.characterMass;
+    public float mass => charDataSource.characterMass;
     public float scaledMass
     {
         get => transform.lossyScale.magnitude * mass;

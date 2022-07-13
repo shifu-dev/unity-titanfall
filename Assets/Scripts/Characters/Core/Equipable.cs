@@ -14,7 +14,7 @@ public abstract class Equipable : Interactable
     public virtual Weapon weapon => GetComponent<Weapon>();
     public virtual Grenade grenade => GetComponent<Grenade>();
 
-    [Header("Equipable"), Space]
+    [Header("EQUIPABLE ----------------------------------------------------------------------------------------------------"), Space]
     [SerializeField] protected Collider[] _colliders;
 
     public virtual void OnPickup()

@@ -16,7 +16,7 @@ public class CharacterMovement : CharacterBehaviour
 
     protected const float k_gravityMultiplier = .05f;
 
-    protected CharacterDataAsset _char_data_asset;
+    protected CharacterDataSource _char_data_asset;
     protected CharacterCapsule _char_capsule;
     protected CharacterInputs _char_inputs;
     protected CharacterView _char_view;
@@ -102,12 +102,12 @@ public class CharacterMovement : CharacterBehaviour
     {
         base.OnInitCharacter(character, initializer);
 
-        _char_data_asset = character.charDataAsset;
+        _char_data_asset = character.charDataSource;
         _char_inputs = character.charInputs;
         _char_capsule = character.charCapsule;
         _char_view = character.charView;
 
-        // Copy Data from CharacterDataAsset
+        // Copy Data from CharacterDataSource
         groundCheckDepth = _char_data_asset.groundCheckDepth;
         groundLayer = _char_data_asset.groundLayer;
         groundMinMoveDistance = _char_data_asset.groundMinMoveDistance;

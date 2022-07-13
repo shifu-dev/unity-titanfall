@@ -30,6 +30,7 @@ public class CharacterInputs : CharacterBehaviour
     public bool weapon3 => playerInputs ? playerInputs.weapon3 : false;
     public bool grenade1 => playerInputs ? playerInputs.grenade1 : false;
     public bool grenade2 => playerInputs ? playerInputs.grenade2 : false;
+    public bool reload => playerInputs ? playerInputs.reload : false;
     public bool use1 => playerInputs ? playerInputs.use1 : false;
     public bool use2 => playerInputs ? playerInputs.use2 : false;
     public bool use3 => playerInputs ? playerInputs.use3 : false;
