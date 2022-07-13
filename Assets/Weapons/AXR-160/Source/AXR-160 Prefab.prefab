@@ -328,9 +328,7 @@ MonoBehaviour:
   m_Interactor: {fileID: 0}
   canInteract: 1
   m_RequireRaycast: 1
-  m_FaceAngleX: 0
-  m_FaceAngleY: 0
-  m_FaceAngleZ: 0
+  _faceAngle: {x: 0, y: 0, z: 0}
   _colliders:
   - {fileID: 48649554291540861}
   _fireRate: 0

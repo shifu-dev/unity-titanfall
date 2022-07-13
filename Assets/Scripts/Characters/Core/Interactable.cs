@@ -42,10 +42,8 @@ public class Interactable : MonoBehaviour
     [SerializeField] protected bool m_RequireRaycast;
     public bool requireRaycast => m_RequireRaycast;
 
-    [SerializeField, Range(0, 180)] protected float m_FaceAngleX;
-    [SerializeField, Range(0, 180)] protected float m_FaceAngleY;
-    [SerializeField, Range(0, 180)] protected float m_FaceAngleZ;
-    public Vector3 requireFaceAngle => new Vector3(m_FaceAngleX, m_FaceAngleY, m_FaceAngleZ);
+    [SerializeField, Vector3Range(0, 180)] protected Vector3 _faceAngle;
+    public Vector3 faceAngle => _faceAngle;
 
     public bool CanInteract(CharacterInteraction interactor)
     {

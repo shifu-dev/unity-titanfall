@@ -58,6 +58,7 @@
         "Equipable",
         "lradius",
         "Mathf",
+        "maxx",
         "wposition"
     ],
     "cSpell.ignoreWords": [
