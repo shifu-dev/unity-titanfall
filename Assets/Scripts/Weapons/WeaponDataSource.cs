@@ -1,7 +1,9 @@
 using UnityEngine;
 
-public abstract class WeaponDataSource : ScriptableObject
+public abstract class WeaponDataSource : DataSource
 {
+    [Header("WEAPON"), Space]
+
     [Label("Weapon Name"), SerializeField]
     protected string _weaponName;
     public string weaponName => _weaponName;

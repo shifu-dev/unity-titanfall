@@ -32,7 +32,7 @@ public class Interactable : MonoBehaviour
     /// Variables
     //////////////////////////////////////////////////////////////////
 
-    [Header("INTERACTABLE ----------------------------------------------------------------------------------------------------"), Space]
+    [Header("INTERACTABLE"), Space]
 
     [SerializeField, ReadOnly] protected CharacterInteraction m_Interactor;
     public CharacterInteraction interactor => m_Interactor;

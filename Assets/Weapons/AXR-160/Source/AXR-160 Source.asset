@@ -14,3 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _weaponName: AXR-160
   _prefab: {fileID: 4537889726513756679, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
+  _bulletSource: {fileID: 11400000, guid: 9763fcc7935803b4eb1b32a2a71aa136, type: 2}
+  _fireRate: 50
+  _fireForce: 20
+  _fireRecoil: 5
+  _fireAudio: {fileID: 0}
+  _capacity: 30
+  _initial: 30

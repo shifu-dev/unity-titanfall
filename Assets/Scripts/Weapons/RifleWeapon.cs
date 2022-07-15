@@ -3,15 +3,15 @@ using UnityEngine;
 
 public class RifleWeapon : ReloadableWeapon
 {
-    public new RifleWeaponDataSource source => _source;
     [NonSerialized] private RifleWeaponDataSource _source;
+    public new RifleWeaponDataSource source => _source;
 
     public override WeaponCategory category => WeaponCategory.ASSAULT;
 
-    protected override void SetSource(WeaponDataSource source)
+    protected override void OnInit(WeaponInitializer initializer)
     {
-        base.SetSource(source);
+        base.OnInit(initializer);
 
-        _source = source as RifleWeaponDataSource;
+        _source = initializer.source as RifleWeaponDataSource;
     }
 }

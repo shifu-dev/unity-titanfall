@@ -26,8 +26,8 @@ public abstract class Weapon : Equipable
     /// Equipable | END
     //////////////////////////////////////////////////////////////////
 
+    private WeaponDataSource _source;
     public WeaponDataSource source => _source;
-    [NonSerialized] private WeaponDataSource _source;
 
     public abstract WeaponCategory category { get; }
 
@@ -37,7 +37,7 @@ public abstract class Weapon : Equipable
 
         if (initializer)
         {
-            SetSource(initializer.source);
+            OnInit(initializer);
 
             if (initializer.destroyAfterUse)
             {
@@ -46,12 +46,8 @@ public abstract class Weapon : Equipable
         }
     }
 
-    protected virtual void SetSource(WeaponDataSource source)
+    protected virtual void OnInit(WeaponInitializer initializer)
     {
-        _source = source;
-    }
-
-    public virtual void ShowOff()
-    {
+        _source = initializer.source as WeaponDataSource;
     }
 }

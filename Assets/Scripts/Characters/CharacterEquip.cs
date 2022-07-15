@@ -47,6 +47,7 @@ public class CharacterEquip : CharacterBehaviour
     [SerializeField, ReadOnly] protected bool _rightLocked;
     [SerializeField, ReadOnly] protected bool _rightSupporting;
     [SerializeField, ReadOnly] protected bool _rightWeaponReloading;
+    [SerializeField, ReadOnly] protected bool _rightCanStopWeaponReloading;
 
     public CharacterEquip()
     {
@@ -678,6 +679,48 @@ public class CharacterEquip : CharacterBehaviour
         {
             return;
         }
+
+        bool fire1 = _charInputs.use1;
+        bool reload = _charInputs.use1;
+
+        FireableWeapon fireableWeapon = weapon as FireableWeapon;
+        ReloadableWeapon reloadableWeapon = weapon as ReloadableWeapon;
+        if (fireableWeapon != null)
+        {
+            if (reloadableWeapon != null)
+            {
+                if (_rightWeaponReloading == false)
+                {
+                    if (reloadableWeapon.NeedReload() ||
+                        reload && reloadableWeapon.ShouldReload())
+                    {
+                        StartRightWeaponReload();
+                    }
+                }
+            }
+
+            if (fire1)
+            {
+                if (_rightWeaponReloading && _rightCanStopWeaponReloading)
+                {
+                    StopRightWeaponReload();
+                }
+
+                fireableWeapon.OnTriggerDown();
+            }
+            else
+            {
+                fireableWeapon.OnTriggerUp();
+            }
+        }
+    }
+
+    protected virtual void StartRightWeaponReload()
+    {
+    }
+
+    protected virtual void StopRightWeaponReload()
+    {
     }
 
     //////////////////////////////////////////////////////////////////
