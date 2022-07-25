@@ -8,9 +8,9 @@ public class RifleWeapon : ReloadableWeapon
 
     public override WeaponCategory category => WeaponCategory.ASSAULT;
 
-    protected override void OnInit(WeaponInitializer initializer)
+    protected override void Init(WeaponInitializer initializer)
     {
-        base.OnInit(initializer);
+        base.Init(initializer);
 
         _source = initializer.source as RifleWeaponDataSource;
     }

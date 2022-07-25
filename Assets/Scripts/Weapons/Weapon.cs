@@ -17,18 +17,19 @@ public enum WeaponCategory
 [DisallowMultipleComponent]
 public abstract class Weapon : Equipable
 {
+    [SerializeField, ReadOnly]
     private WeaponDataSource _source;
     public WeaponDataSource source => _source;
 
     public abstract WeaponCategory category { get; }
 
-    public virtual void Init()
+    protected virtual void Awake()
     {
         WeaponInitializer initializer = GetComponent<WeaponInitializer>();
 
         if (initializer)
         {
-            OnInit(initializer);
+            Init(initializer);
 
             if (initializer.destroyAfterUse)
             {
@@ -37,7 +38,7 @@ public abstract class Weapon : Equipable
         }
     }
 
-    protected virtual void OnInit(WeaponInitializer initializer)
+    protected virtual void Init(WeaponInitializer initializer)
     {
         _source = initializer.source as WeaponDataSource;
     }

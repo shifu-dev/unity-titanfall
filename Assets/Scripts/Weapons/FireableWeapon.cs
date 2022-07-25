@@ -31,9 +31,9 @@ public abstract class FireableWeapon : Weapon
         _recoil = 0f;
     }
 
-    protected override void OnInit(WeaponInitializer initializer)
+    protected override void Init(WeaponInitializer initializer)
     {
-        base.OnInit(initializer);
+        base.Init(initializer);
 
         _bulletSource = initializer.bulletDataSource;
         _source = initializer.source as FireableWeaponDataSource;

@@ -613,14 +613,13 @@ public class CharacterEquip : CharacterBehaviour
 
         if (equipable is Weapon)
         {
-            OnRightWeaponUpdate();
+            RightHandHandleWeapon();
             return;
         }
     }
 
     //////////////////////////////////////////////////////////////////
-    /// Right Weapon
-    //////////////////////////////////////////////////////////////////
+    /// Right Weapon | BEGIN
 
     protected virtual void RightHand(out Weapon weapon, out int slot)
     {
@@ -670,7 +669,7 @@ public class CharacterEquip : CharacterBehaviour
             // drop the current weapon
             RightHandUnequipInstant();
 
-            // throw weapon
+            // TODO: throw weapon
         }
 
         // clear the slot for new weapon
@@ -682,6 +681,7 @@ public class CharacterEquip : CharacterBehaviour
         // added the item to the inventory successfully
         weapon.OnPickup();
 
+        // equip the new weapon if we swapped with the current one
         if (curr_weapon != null && curr_slot == slot)
         {
             RightHandEquipWeapon(slot);
@@ -742,7 +742,7 @@ public class CharacterEquip : CharacterBehaviour
         }
     }
 
-    protected virtual void OnRightWeaponUpdate()
+    protected virtual void RightHandHandleWeapon()
     {
         Weapon weapon = RightHandWeapon();
         if (weapon == null) return;
@@ -751,9 +751,6 @@ public class CharacterEquip : CharacterBehaviour
         {
             return;
         }
-
-        bool fire1 = _rightFire;
-        bool reload = _rightReload;
 
         FireableWeapon fireableWeapon = weapon as FireableWeapon;
         ReloadableWeapon reloadableWeapon = weapon as ReloadableWeapon;
@@ -764,14 +761,14 @@ public class CharacterEquip : CharacterBehaviour
                 if (_rightWeaponReloading == false)
                 {
                     if (reloadableWeapon.NeedReload() ||
-                        reload && reloadableWeapon.ShouldReload())
+                        _rightReload && reloadableWeapon.ShouldReload())
                     {
                         StartRightWeaponReload();
                     }
                 }
             }
 
-            if (fire1)
+            if (_rightFire)
             {
                 if (_rightWeaponReloading && _rightCanStopWeaponReloading)
                 {
@@ -794,6 +791,9 @@ public class CharacterEquip : CharacterBehaviour
     protected virtual void StopRightWeaponReload()
     {
     }
+
+    /// Right Weapon | END
+    //////////////////////////////////////////////////////////////////
 
     /// Right Hand | END
     //////////////////////////////////////////////////////////////////

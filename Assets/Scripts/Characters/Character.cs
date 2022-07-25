@@ -81,7 +81,7 @@ public class Character : Equipable
     //////////////////////////////////////////////////////////////////
     /// Events | BEGIN
 
-    public virtual void Init()
+    protected virtual void Awake()
     {
         CollectBehaviours();
         GetInitializer();

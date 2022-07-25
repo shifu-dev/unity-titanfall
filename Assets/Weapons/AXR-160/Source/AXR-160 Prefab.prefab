@@ -331,4 +331,4 @@ MonoBehaviour:
   _faceAngle: {x: 0, y: 0, z: 0}
   _colliders:
   - {fileID: 48649554291540861}
-  _fireRate: 0
+  _source: {fileID: 0}

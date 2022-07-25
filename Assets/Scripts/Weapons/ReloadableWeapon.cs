@@ -26,9 +26,9 @@ public abstract class ReloadableWeapon : FireableWeapon
         _isTriggered = false;
     }
 
-    protected override void OnInit(WeaponInitializer initializer)
+    protected override void Init(WeaponInitializer initializer)
     {
-        base.OnInit(initializer);
+        base.Init(initializer);
 
         _source = initializer.source as ReloadableWeaponDataSource;
         if (_source != null)

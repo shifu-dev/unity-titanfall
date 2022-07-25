@@ -31,13 +31,17 @@ public abstract class WeaponDataSource : DataSource
     {
         if (_prefab != null)
         {
+            // deactivate the prefab to avoid calling Awake()
+            // on instantiated instances
+            _prefab.gameObject.SetActive(false);
             GameObject instance = GameObject.Instantiate(_prefab.gameObject, pos, rot, parent);
+            _prefab.gameObject.SetActive(true);
+
             Weapon weapon = instance.GetComponent<Weapon>();
 
             AddWeaponInitializer(instance);
 
-            weapon.Init();
-
+            instance.SetActive(true);
             return weapon;
         }
 

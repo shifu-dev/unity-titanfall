@@ -371,17 +371,20 @@ public class CharacterDataSource : ScriptableObject
             return null;
         }
 
-        GameObject go = GameObject.Instantiate(_tppPrefab, pos, rot);
-        Character character = go.GetComponent<Character>();
+        // deactivate the prefab to avoid calling Awake()
+        // on instantiated instances
+        _tppPrefab.SetActive(false);
+        GameObject instance = GameObject.Instantiate(_tppPrefab, pos, rot);
+        _tppPrefab.SetActive(true);
+
+        Character character = instance.GetComponent<Character>();
 
         // add the character initializer
-        CharacterInitializer initializer = go.AddComponent<CharacterInitializer>();
+        CharacterInitializer initializer = instance.AddComponent<CharacterInitializer>();
         initializer.destroyOnUse = true;
         initializer.source = this;
 
-        // init the character
-        character.Init();
-
+        instance.SetActive(true);
         return character;
     }
 }
