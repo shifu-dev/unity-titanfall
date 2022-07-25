@@ -28,16 +28,12 @@ public class TrainingLevel : Level
             var localPlayer = PlayerManager.localPlayer;
             if (localPlayer != null)
             {
-                // Create Character
-                GameObject CharacterPrefab = Resources.Load<GameObject>("Manny");
-                GameObject CharacterGameObject = GameObject.Instantiate(CharacterPrefab,
-                    spawnPoint.position, spawnPoint.rotation);
-
-                CharacterGameObject.name = "Manny";
-                Character character = CharacterGameObject.GetComponent<Character>();
+                // create character
+                CharacterDataSource charDataSource = Resources.Load<CharacterDataSource>("Manny Source");
+                Character character = charDataSource.InstantiateTPP(spawnPoint.position, spawnPoint.rotation);
                 logger.Info("Created Character");
 
-                // Player Possess Character
+                // player possess character
                 localPlayer.Possess(character);
                 logger.Info("Player Possessed Character");
             }

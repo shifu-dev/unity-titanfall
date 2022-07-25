@@ -17,15 +17,6 @@ public enum WeaponCategory
 [DisallowMultipleComponent]
 public abstract class Weapon : Equipable
 {
-    //////////////////////////////////////////////////////////////////
-    /// Equipable | START
-
-    public override EquipableType type => EquipableType.Grenade;
-    public override Weapon weapon => this;
-
-    /// Equipable | END
-    //////////////////////////////////////////////////////////////////
-
     private WeaponDataSource _source;
     public WeaponDataSource source => _source;
 

@@ -1,60 +1,51 @@
 using System;
 using UnityEngine;
 
-public class PlayerCamera : MonoBehaviour
+public class PlayerCamera : PlayerBehaviour
 {
-    public Player Player { get => _Player; }
-    [NonSerialized] protected Player _Player;
+    protected Character _character;
 
-    Camera ThirdPersonCamera;
-    Camera FirstPersonCamera;
+    protected Camera _tppCamera;
+    protected Camera _fppCamera;
 
-    public void Init(Player player)
+    public override void OnPlayerCreate(Player player)
     {
-        _Player = player;
+        base.OnPlayerCreate(player);
 
-        GameObject ThirdPersonCameraObjectPrefab = Resources.Load<GameObject>("ThirdPersonCameraObject");
-        GameObject FirstPersonCameraObjectPrefab = Resources.Load<GameObject>("FirstPersonCameraObject");
+        GameObject tppCameraObjectPrefab = Resources.Load<GameObject>("ThirdPersonCameraObject");
+        GameObject fppCameraObjectPrefab = Resources.Load<GameObject>("FirstPersonCameraObject");
 
-        GameObject ThirdPersonCameraObject = GameObject.Instantiate(ThirdPersonCameraObjectPrefab);
-        GameObject FirstPersonCameraObject = GameObject.Instantiate(FirstPersonCameraObjectPrefab);
+        GameObject tppCameraObject = GameObject.Instantiate(tppCameraObjectPrefab);
+        GameObject fppCameraObject = GameObject.Instantiate(fppCameraObjectPrefab);
 
-        ThirdPersonCameraObject.name = "ThirdPersonPlayerCamera";
-        FirstPersonCameraObject.name = "FirstPersonPlayerCamera";
+        tppCameraObject.name = "ThirdPersonPlayerCamera";
+        fppCameraObject.name = "FirstPersonPlayerCamera";
 
-        GameObject.DontDestroyOnLoad(ThirdPersonCameraObject);
-        GameObject.DontDestroyOnLoad(FirstPersonCameraObject);
+        GameObject.DontDestroyOnLoad(tppCameraObject);
+        GameObject.DontDestroyOnLoad(fppCameraObject);
 
-        // ThirdPersonCameraObject.SetActive(false);
-        FirstPersonCameraObject.SetActive(false);
+        // tppCameraObject.SetActive(false);
+        fppCameraObject.SetActive(false);
 
-        ThirdPersonCamera = ThirdPersonCameraObject.GetComponent<Camera>();
-        FirstPersonCamera = FirstPersonCameraObject.GetComponent<Camera>();
+        _tppCamera = tppCameraObject.GetComponent<Camera>();
+        _fppCamera = fppCameraObject.GetComponent<Camera>();
     }
 
-    public void UpdateImpl()
+    public override void OnPlayerPossess(Character character)
     {
-    }
-
-    public virtual void OnPossessed(Character character)
-    {
-        if (character)
+        // unpossess if value is null
+        if (character == null)
         {
-            var charView = character.charView;
+            _character.charView.camera = null;
 
-            charView.camera = ThirdPersonCamera;
-            charView.SwitchView(CharacterView.Mode.FirstPerson);
+            _character = character;
+            return;
         }
-    }
 
-    public virtual void OnUnpossessed(Character character)
-    {
-        if (character)
-        {
-            var charView = character.charView;
+        _character = character;
+        CharacterView charView = _character.charView;
 
-            charView.camera = null;
-            charView.SwitchView(CharacterView.Mode.FirstPerson);
-        }
+        charView.camera = _tppCamera;
+        charView.SwitchView(CharacterView.Mode.FirstPerson);
     }
 }

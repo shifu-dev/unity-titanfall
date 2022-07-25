@@ -4,4 +4,5 @@ using UnityEngine;
 public class CharacterInitializer : MonoBehaviour
 {
     public CharacterDataSource source;
+    public bool destroyOnUse;
 }

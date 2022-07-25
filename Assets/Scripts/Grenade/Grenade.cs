@@ -1,73 +1,41 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public enum GrenadeCategory
-{
-    Unknown,
-    FragGrenade,
-    SmokeGrenade
-}
-
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Projectile))]
 public abstract class Grenade : Equipable
 {
-    public override EquipableType type => EquipableType.Grenade;
-    public override Grenade grenade => this;
+    protected Projectile _projectile;
 
-    public abstract GrenadeAsset grenadeAsset { get; }
-    public Projectile projectile { get; protected set; }
+    protected bool _isTriggered;
+    public bool isTriggered => _isTriggered;
 
-    public abstract GrenadeCategory category { get; }
+    [Header("GRENADE"), Space]
+    [SerializeField, Min(0)]
+    protected float _triggerTime;
+    public float triggerTime => _triggerTime;
 
-    public bool isTriggered { get; protected set; }
-
-    [field: Header("GRENADE"), Space, SerializeField, Min(0)]
-    public float triggerTime { get; protected set; }
-
-    [SerializeField] protected bool canStopTrigger;
-
-    //////////////////////////////////////////////////////////////////
-    /// Events
-    //////////////////////////////////////////////////////////////////
+    [SerializeField]
+    protected bool _canStopTrigger;
 
     public Grenade()
     {
-        triggerTime = 0;
-        canStopTrigger = false;
-        isTriggered = false;
+        _triggerTime = 0;
+        _canStopTrigger = false;
+        _isTriggered = false;
     }
 
-    void Awake()
+    protected virtual void Awake()
     {
-        projectile = GetComponent<Projectile>();
-    }
-
-    public virtual bool CanEquip()
-    {
-        if (isTriggered)
-            return false;
-
-        if (category == GrenadeCategory.Unknown)
-            return false;
-
-        return true;
-    }
-
-    public override void OnUnequipStart()
-    {
-        base.OnUnequipStart();
-
-        canInteract = isTriggered ? false : true;
+        _projectile = GetComponent<Projectile>();
     }
 
     //////////////////////////////////////////////////////////////////
-    /// StartTrigger
-    //////////////////////////////////////////////////////////////////
+    /// Trigger | START
 
     public virtual bool CanStartTrigger()
     {
-        return canStopTrigger;
+        return _canStopTrigger;
     }
 
     public virtual bool StartTrigger()
@@ -77,7 +45,7 @@ public abstract class Grenade : Equipable
         if (CanStartTrigger() == false)
             return false;
 
-        if (triggerTime == 0)
+        if (_triggerTime == 0)
         {
             OnTriggerFinish();
             return true;
@@ -89,9 +57,9 @@ public abstract class Grenade : Equipable
 
     protected IEnumerator StartTriggerCoroutine()
     {
-        yield return new WaitForSeconds(triggerTime);
+        yield return new WaitForSeconds(_triggerTime);
 
-        if (isTriggered)
+        if (_isTriggered)
         {
             OnTriggerFinish();
         }
@@ -101,13 +69,9 @@ public abstract class Grenade : Equipable
     {
     }
 
-    //////////////////////////////////////////////////////////////////
-    /// StopTrigger
-    //////////////////////////////////////////////////////////////////
-
     public virtual bool CanStopTrigger()
     {
-        return canStopTrigger && isTriggered;
+        return _canStopTrigger && _isTriggered;
     }
 
     public virtual bool StopTrigger()
@@ -115,7 +79,7 @@ public abstract class Grenade : Equipable
         if (CanStopTrigger() == false)
             return false;
 
-        isTriggered = false;
+        _isTriggered = false;
         return true;
     }
 
@@ -123,9 +87,11 @@ public abstract class Grenade : Equipable
     {
     }
 
+    /// Trigger | END
     //////////////////////////////////////////////////////////////////
-    /// Physics & Geometry
+
     //////////////////////////////////////////////////////////////////
+    /// Physics & Geometry | BEGIN
 
     protected virtual void DisableGeometry()
     {
@@ -134,4 +100,7 @@ public abstract class Grenade : Equipable
     protected virtual void EnableGeometry()
     {
     }
+
+    /// Physics & Geometry | END
+    //////////////////////////////////////////////////////////////////
 }

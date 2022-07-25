@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 755f1a64ef3e63f4a8a0b5fda84276cf, type: 3}
   m_Name: Manny Source
   m_EditorClassIdentifier: 
-  m_characterName: Manny
-  m_characterMass: 80
+  _characterName: Manny
+  _tppPrefab: {fileID: 6526974782931169490, guid: 6b66c241476452548a8769ce8b2a69e3, type: 3}
+  _fppPrefab: {fileID: 0}
+  _characterMass: 80
   m_groundCheckDepth: 0.05
   m_groundLayer:
     serializedVersion: 2

@@ -2,18 +2,10 @@
 
 public class FragGrenade : Grenade
 {
-    public override GrenadeCategory category => GrenadeCategory.FragGrenade;
-
-    public override GrenadeAsset grenadeAsset => m_fragGrenadeAsset;
-    public FragGrenadeAsset fragGrenadeAsset => m_fragGrenadeAsset;
-
-    [Header("FRAG GRENADE"), Space]
-
-    [SerializeField] protected FragGrenadeAsset m_fragGrenadeAsset;
-    [SerializeField] protected ParticleSystem m_effect;
-    [SerializeField, Min(0)] protected float m_force;
-    [SerializeField, Min(0)] protected float m_damage;
-    [SerializeField, Min(0)] protected float m_radius;
+    protected ParticleSystem _effect;
+    protected float _force;
+    protected float _damage;
+    protected float _radius;
 
     protected override void OnTriggerFinish()
     {
@@ -22,7 +14,7 @@ public class FragGrenade : Grenade
         DisableGeometry();
 
         // process colliders in range
-        Collider[] colliders = Physics.OverlapSphere(transform.position, m_radius);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, _radius);
         foreach (Collider collider in colliders)
         {
             // cast a ray to check if there is no obstacle between collider adn explosion center
@@ -40,27 +32,27 @@ public class FragGrenade : Grenade
             Rigidbody rigidbody = collider.GetComponent<Rigidbody>();
             if (rigidbody)
             {
-                rigidbody.AddExplosionForce(m_force, transform.position, m_radius, 0.1f, ForceMode.Impulse);
+                rigidbody.AddExplosionForce(_force, transform.position, _radius, 0.1f, ForceMode.Impulse);
             }
 
             // add damage to health component
             Health health = collider.GetComponent<Health>();
             if (health)
             {
-                float damage = m_damage;
+                float damage = _damage;
                 health.health -= damage;
             }
         }
 
-        if (m_effect == null)
+        if (_effect == null)
         {
             Destroy(gameObject);
             return;
         }
 
         // run visual effects
-        m_effect.Play();
-        Destroy(gameObject, m_effect.main.duration);
+        _effect.Play();
+        Destroy(gameObject, _effect.main.duration);
         return;
     }
 }

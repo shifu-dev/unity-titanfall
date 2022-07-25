@@ -1,114 +1,113 @@
 using UnityEngine;
 
-public class PlayerInputs : MonoBehaviour
+public class PlayerInputs : PlayerBehaviour
 {
-    [field: SerializeField] public bool useDebugInputs { get; protected set; }
-    [field: SerializeField] public Vector3 debugMove { get; protected set; }
+    protected Character _character;
 
-    // Movement Inputs
-    [field: SerializeField, ReadOnly] public Vector3 move { get; protected set; }
-    [field: SerializeField, ReadOnly] public float moveAngle { get; protected set; }
-    [field: SerializeField, ReadOnly] public bool walk { get; protected set; }
-    [field: SerializeField, ReadOnly] public bool sprint { get; protected set; }
-    [field: SerializeField, ReadOnly] public bool jump { get; protected set; }
-    [field: SerializeField, ReadOnly] public bool crouch { get; protected set; }
-    [field: SerializeField, ReadOnly] public bool prone { get; protected set; }
-    [field: SerializeField, ReadOnly] public bool peekLeft { get; protected set; }
-    [field: SerializeField, ReadOnly] public bool peekRight { get; protected set; }
+    protected Vector2 _move = Vector2.zero;
+    protected Vector2 _look = Vector2.zero;
+    protected bool _walk = false;
+    protected bool _sprint = false;
+    protected bool _crouch = false;
+    protected bool _prone = false;
+    protected bool _jump = false;
+    protected bool _weapon1;
+    protected bool _weapon2;
+    protected bool _weapon3;
+    protected bool _grenade1;
+    protected bool _grenade2;
+    protected bool _reload;
+    protected bool _leftFire;
+    protected bool _rightFire;
+    protected bool _sight;
+    protected bool _interact;
 
-    // Look Inputs
-    [field: SerializeField, ReadOnly] public Vector3 look { get; protected set; }
-
-    // Action Inputs
-    [field: SerializeField, ReadOnly] public bool action { get; protected set; }
-
-    // Weapon Inputs
-    [field: SerializeField, ReadOnly] public bool grenade1 { get; protected set; }
-    [field: SerializeField, ReadOnly] public bool grenade2 { get; protected set; }
-    [field: SerializeField, ReadOnly] public bool weapon1 { get; protected set; }
-    [field: SerializeField, ReadOnly] public bool weapon2 { get; protected set; }
-    [field: SerializeField, ReadOnly] public bool weapon3 { get; protected set; }
-    [field: SerializeField, ReadOnly] public bool use1 { get; protected set; }
-    [field: SerializeField, ReadOnly] public bool use2 { get; protected set; }
-    [field: SerializeField, ReadOnly] public bool use3 { get; protected set; }
-    [field: SerializeField, ReadOnly] public bool reload { get; protected set; }
-
-    [field: SerializeField] public VectorBool invertLook { get; protected set; }
-    [field: SerializeField] public Vector3 lookSensitivity { get; protected set; }
-
-    public void Init(Player character)
+    public override void OnPlayerPossess(Character character)
     {
+        _character = character;
     }
 
-    public void UpdateImpl()
+    public override void OnPlayerUpdate()
     {
-        //////////////////////////////////////////////////////////////////
-        /// move
-        Vector3 tmpMove = Vector3.zero;
-        if (useDebugInputs)
+        if (_character != null)
         {
-            tmpMove = debugMove;
+            ProcessInputs();
+
+            CharacterMovement charMovement = _character.charMovement;
+            if (charMovement != null)
+            {
+                charMovement.SetMoveVector(_move);
+
+                if (_sprint) charMovement.StartSprint();
+                if (_walk) charMovement.StartWalk();
+                if (_jump) charMovement.StartJump();
+                if (_crouch) charMovement.StartCrouch();
+                if (_prone) charMovement.StartProne();
+            }
+
+            CharacterView charView = _character.charView;
+            if (charView != null)
+            {
+                charView.SetLookVector(_look);
+            }
+
+            CharacterEquip charEquip = _character.charEquip;
+            if (charEquip != null)
+            {
+                if (_weapon1) charEquip.SwitchToWeapon1();
+                else if (_weapon2) charEquip.SwitchToWeapon2();
+                else if (_weapon3) charEquip.SwitchToWeapon3();
+
+                if (_grenade1) charEquip.SwitchToGrenade1();
+                else if (_grenade2) charEquip.SwitchToGrenade2();
+
+                if (_leftFire) charEquip.FireLeftWeapon();
+                if (_rightFire) charEquip.FireRightWeapon();
+
+                if (_reload) charEquip.ReloadRightWeapon();
+
+                if (_interact) charEquip.EquipCommand();
+            }
         }
-        else
-        {
-            tmpMove.y += Input.GetKey(KeyCode.W) ? 1 : 0;
-            tmpMove.x += Input.GetKey(KeyCode.A) ? -1 : 0;
-            tmpMove.y += Input.GetKey(KeyCode.S) ? -1 : 0;
-            tmpMove.x += Input.GetKey(KeyCode.D) ? 1 : 0;
-        }
-        move = tmpMove;
+    }
 
-        moveAngle = Vector3.SignedAngle(move, new Vector3(0, 1, 0), new Vector3(0, 0, 1));
+    protected virtual void ProcessInputs()
+    {
+        _move = GetMoveVector();
+        _look = GetLookVector();
+        _walk = Input.GetKey(KeyCode.LeftControl);
+        _sprint = Input.GetKey(KeyCode.LeftShift);
+        _crouch = Input.GetKey(KeyCode.C);
+        _prone = Input.GetKey(KeyCode.V);
+        _jump = Input.GetKeyDown(KeyCode.Space);
 
-        walk = Input.GetKey(KeyCode.LeftControl);
-        sprint = Input.GetKey(KeyCode.LeftShift);
-        jump = Input.GetKey(KeyCode.Space);
-        crouch = Input.GetKey(KeyCode.C);
-        prone = Input.GetKey(KeyCode.V);
+        _weapon1 = Input.GetKeyDown(KeyCode.Alpha1);
+        _weapon2 = Input.GetKeyDown(KeyCode.Alpha2);
+        _weapon3 = Input.GetKeyDown(KeyCode.Alpha3);
+        _grenade1 = Input.GetKeyDown(KeyCode.Alpha4);
+        _grenade2 = Input.GetKeyDown(KeyCode.Alpha5);
+        _reload = Input.GetKeyDown(KeyCode.R);
+        _leftFire = Input.GetMouseButton(2);
+        _rightFire = Input.GetMouseButton(0);
+        _sight = Input.GetMouseButton(1);
+        _interact = Input.GetKeyDown(KeyCode.E);
+    }
 
-        //////////////////////////////////////////////////////////////////
+    protected Vector2 GetMoveVector()
+    {
+        Vector2 move = Vector2.zero;
+        move.y += Input.GetKey(KeyCode.W) ? +1 : 0;
+        move.x += Input.GetKey(KeyCode.A) ? -1 : 0;
+        move.y += Input.GetKey(KeyCode.S) ? -1 : 0;
+        move.x += Input.GetKey(KeyCode.D) ? +1 : 0;
+        return move;
+    }
 
-        //////////////////////////////////////////////////////////////////
-        /// look
-
-        float look_x = Input.GetAxis("look x");
-        float look_y = -Input.GetAxis("look y");
-        float look_z = 0;
-
-        look_x = invertLook.x ? -look_x : look_x;
-        look_y = invertLook.y ? -look_y : look_y;
-        look_z = invertLook.z ? -look_z : look_z;
-
-        look_x *= lookSensitivity.x;
-        look_y *= lookSensitivity.y;
-        look_z *= lookSensitivity.z;
-
-        look = new Vector3(look_x, look_y, look_z);
-
-        //////////////////////////////////////////////////////////////////
-
-        peekLeft = Input.GetKey(KeyCode.Q);
-        peekRight = Input.GetKey(KeyCode.E);
-        action = Input.GetKeyDown(KeyCode.Tab);
-
-        //////////////////////////////////////////////////////////////////
-        /// weapons
-
-        weapon1 = Input.GetKeyDown(KeyCode.Alpha1);
-        weapon2 = Input.GetKeyDown(KeyCode.Alpha2);
-        weapon3 = Input.GetKeyDown(KeyCode.Alpha3);
-
-        grenade1 = Input.GetKey(KeyCode.Alpha4);
-        grenade2 = Input.GetKey(KeyCode.Alpha5);
-
-        //////////////////////////////////////////////////////////////////
-
-        //////////////////////////////////////////////////////////////////
-        /// actions
-
-        use1 = Input.GetMouseButton(0);
-        use2 = Input.GetMouseButton(1);
-        use3 = Input.GetMouseButton(2);
-        reload = Input.GetKey(KeyCode.R);
+    protected Vector2 GetLookVector()
+    {
+        Vector2 look = Vector2.zero;
+        look.x = Input.GetAxis("look x");
+        look.y = Input.GetAxis("look y");
+        return look;
     }
 }

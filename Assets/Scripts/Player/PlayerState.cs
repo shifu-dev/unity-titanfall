@@ -1,13 +1,6 @@
 using System;
 using UnityEngine;
 
-public class PlayerState : MonoBehaviour
+public class PlayerState : PlayerBehaviour
 {
-    public void Init(Player character)
-    {
-    }
-
-    public void UpdateImpl()
-    {
-    }
 }

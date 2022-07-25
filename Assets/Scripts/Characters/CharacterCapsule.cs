@@ -65,9 +65,9 @@ public class CharacterCapsule : CharacterBehaviour
     /// UpdateLoop
     //////////////////////////////////////////////////////////////////
 
-    public override void OnInitCharacter(Character character, CharacterInitializer initializer)
+    public override void OnCharacterCreate(Character character, CharacterInitializer initializer)
     {
-        base.OnInitCharacter(character, initializer);
+        base.OnCharacterCreate(character, initializer);
 
         localPosition = collider.transform.localPosition;
         localRotation = collider.transform.localRotation;
@@ -80,9 +80,9 @@ public class CharacterCapsule : CharacterBehaviour
         velocity = Vector3.zero;
     }
 
-    public override void OnUpdateCharacter()
+    public override void OnCharacterUpdate()
     {
-        base.OnUpdateCharacter();
+        base.OnCharacterUpdate();
 
         PerformMove();
     }
@@ -1000,7 +1000,7 @@ public class CharacterCapsule : CharacterBehaviour
     /// Debug
     //////////////////////////////////////////////////////////////////
 
-    protected virtual void OnDrawGizmos()
+    protected virtual void OnDrawGizmosDisabled()
     {
         CalculateSmallCapsuleGeometry(out var smallTopSphere, out var smallBaseSphere, out var smallRadius);
         GizmosExtensions.DrawWireCapsule(rotation, smallTopSphere, smallBaseSphere, smallRadius, Color.cyan);

@@ -27,7 +27,7 @@ public class CharacterEquip : CharacterBehaviour
         UnequipFinish
     }
 
-    protected CharacterInputs _charInputs;
+    // protected CharacterInputs _charInputs;
     protected CharacterInventory _charInventory;
     protected CharacterInteraction _charInteraction;
 
@@ -49,6 +49,15 @@ public class CharacterEquip : CharacterBehaviour
     [SerializeField, ReadOnly] protected bool _rightWeaponReloading;
     [SerializeField, ReadOnly] protected bool _rightCanStopWeaponReloading;
 
+    // inputs
+    protected int _weaponSlot;
+    protected int _grenadeSlot;
+    protected bool _equip;
+    protected bool _leftFire;
+    protected bool _rightFire;
+    protected bool _sight;
+    protected bool _rightReload;
+
     public CharacterEquip()
     {
         _leftCurrent = EquipData.empty;
@@ -66,58 +75,42 @@ public class CharacterEquip : CharacterBehaviour
         _rightSupporting = false;
     }
 
-    public override void OnInitCharacter(Character character, CharacterInitializer initializer)
+    public override void OnCharacterCreate(Character character, CharacterInitializer initializer)
     {
-        base.OnInitCharacter(character, initializer);
+        base.OnCharacterCreate(character, initializer);
 
-        _charInputs = character.charInputs;
         _charInventory = character.charInventory;
         _charInteraction = character.charInteraction;
     }
 
-    public override void OnUpdateCharacter()
+    public override void OnCharacterUpdate()
     {
-        base.OnUpdateCharacter();
+        base.OnCharacterUpdate();
 
         CheckEquipInputs();
 
-        bool fire1 = _charInputs.use1;
-        var right_equip_data = _rightCurrent;
-        Weapon right_weapon = _rightCurrent.equipable == null ? null : _rightCurrent.equipable.weapon;
-        int right_weapon_slot = _rightCurrent.slot;
+        var rightEquipData = _rightCurrent;
+        Weapon rightWeapon = _rightCurrent.equipable as Weapon;
+        int rightWeaponSlot = _rightCurrent.slot;
 
         bool processedInput = false;
-        if (processedInput == false)
+        if (processedInput == false && _weaponSlot >= 0 && _weaponSlot <= 2)
         {
-            if (processedInput == false && _charInputs.weapon1)
-            {
-                processedInput = ProcessWeaponInput(0);
-            }
-
-            if (processedInput == false && _charInputs.weapon2)
-            {
-                processedInput = ProcessWeaponInput(1);
-            }
-
-            if (processedInput == false && _charInputs.weapon3)
-            {
-                processedInput = ProcessWeaponInput(2);
-            }
-
-            if (processedInput == false && _charInputs.grenade1)
-            {
-                processedInput = ProcessGrenadeInput(0);
-            }
-
-            if (processedInput == false && _charInputs.grenade2)
-            {
-                processedInput = ProcessGrenadeInput(1);
-            }
+            processedInput = ProcessWeaponInput(_weaponSlot);
         }
+
+        if (processedInput == false && _grenadeSlot >= 0 && _grenadeSlot <= 1)
+        {
+            processedInput = ProcessGrenadeInput(_grenadeSlot);
+        }
+
+        // consume the inputs
+        _weaponSlot = -1;
+        _grenadeSlot = -1;
 
         bool ProcessWeaponInput(int slot)
         {
-            if (right_weapon_slot == slot && (_rightStatus == EquipStatus.Equipping ||
+            if (rightWeaponSlot == slot && (_rightStatus == EquipStatus.Equipping ||
                 _rightStatus == EquipStatus.EquipFinish))
             {
                 RightHandUnequip();
@@ -144,11 +137,13 @@ public class CharacterEquip : CharacterBehaviour
 
         LeftHandUpdate();
         RightHandUpdate();
+
+        ResetInputs();
     }
 
     protected virtual void CheckEquipInputs()
     {
-        if (_charInputs.action)
+        if (_equip)
         {
             InteractableScanResult scan_result = _charInteraction.FindScanResult(
                 (InteractableScanResult scan_result) => scan_result.raycasted);
@@ -159,9 +154,9 @@ public class CharacterEquip : CharacterBehaviour
                 Equipable equipable = interactable.GetComponent<Equipable>();
                 if (equipable != null)
                 {
-                    if (equipable.weapon)
+                    if (equipable is Weapon)
                     {
-                        RightHandPickWeapon(equipable.weapon);
+                        RightHandPickWeapon(equipable as Weapon);
                     }
                 }
             }
@@ -169,8 +164,83 @@ public class CharacterEquip : CharacterBehaviour
     }
 
     //////////////////////////////////////////////////////////////////
-    /// Left Hand
+    /// Inputs | BEGIN
+
+    protected virtual void ResetInputs()
+    {
+        _weaponSlot = -1;
+        _grenadeSlot = -1;
+        _equip = false;
+        _leftFire = false;
+        _rightFire = false;
+        _sight = false;
+        _rightReload = false;
+    }
+
+    public virtual void SwitchToHands()
+    {
+    }
+
+    public virtual void SwitchToWeapon1()
+    {
+        _weaponSlot = 0;
+    }
+
+    public virtual void SwitchToWeapon2()
+    {
+        _weaponSlot = 1;
+    }
+
+    public virtual void SwitchToWeapon3()
+    {
+        _weaponSlot = 2;
+    }
+
+    public virtual void SwitchToGrenade1()
+    {
+        _grenadeSlot = 0;
+    }
+
+    public virtual void SwitchToGrenade2()
+    {
+        _grenadeSlot = 1;
+    }
+
+    public virtual void ReloadLeftWeapon()
+    {
+        _rightReload = true;
+    }
+
+    public virtual void ReloadRightWeapon()
+    {
+        _rightReload = true;
+    }
+
+    public virtual void FireLeftWeapon()
+    {
+        _leftFire = true;
+    }
+
+    public virtual void FireRightWeapon()
+    {
+        _rightFire = true;
+    }
+
+    public virtual void SightWeapon()
+    {
+        _sight = true;
+    }
+
+    public virtual void EquipCommand()
+    {
+        _equip = true;
+    }
+
+    /// Inputs | END
     //////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////
+    /// Left Hand | BEGIN
 
     protected virtual bool LeftHandEquip(EquipData data, bool force = false)
     {
@@ -348,7 +418,7 @@ public class CharacterEquip : CharacterBehaviour
                 break;
         }
 
-        if (equipable.weapon)
+        if (equipable is Weapon)
         {
             OnLeftWeaponUpdate();
             return;
@@ -359,9 +429,11 @@ public class CharacterEquip : CharacterBehaviour
     {
     }
 
+    /// Left Hand | END
     //////////////////////////////////////////////////////////////////
-    /// Right Hand
+
     //////////////////////////////////////////////////////////////////
+    /// Right Hand | BEGIN
 
     protected virtual bool RightHandEquip(EquipData data, bool force = false)
     {
@@ -539,7 +611,7 @@ public class CharacterEquip : CharacterBehaviour
                 break;
         }
 
-        if (equipable.weapon)
+        if (equipable is Weapon)
         {
             OnRightWeaponUpdate();
             return;
@@ -553,10 +625,10 @@ public class CharacterEquip : CharacterBehaviour
     protected virtual void RightHand(out Weapon weapon, out int slot)
     {
         if (_rightCurrent.equipable != null &&
-            _rightCurrent.equipable.weapon != null)
+            _rightCurrent.equipable is Weapon)
         {
             slot = _rightCurrent.slot;
-            weapon = _rightCurrent.equipable.weapon;
+            weapon = _rightCurrent.equipable as Weapon;
             return;
         }
 
@@ -568,7 +640,7 @@ public class CharacterEquip : CharacterBehaviour
     {
         if (_rightCurrent.equipable != null)
         {
-            return _rightCurrent.equipable.weapon;
+            return _rightCurrent.equipable as Weapon;
         }
 
         return null;
@@ -577,7 +649,7 @@ public class CharacterEquip : CharacterBehaviour
     protected virtual int RightHandWeaponSlot()
     {
         if (_rightCurrent.equipable != null &&
-            _rightCurrent.equipable.weapon != null)
+            _rightCurrent.equipable is Weapon)
         {
             return _rightCurrent.slot;
         }
@@ -680,8 +752,8 @@ public class CharacterEquip : CharacterBehaviour
             return;
         }
 
-        bool fire1 = _charInputs.use1;
-        bool reload = _charInputs.use1;
+        bool fire1 = _rightFire;
+        bool reload = _rightReload;
 
         FireableWeapon fireableWeapon = weapon as FireableWeapon;
         ReloadableWeapon reloadableWeapon = weapon as ReloadableWeapon;
@@ -723,9 +795,11 @@ public class CharacterEquip : CharacterBehaviour
     {
     }
 
+    /// Right Hand | END
     //////////////////////////////////////////////////////////////////
-    /// Character Inventory API
+
     //////////////////////////////////////////////////////////////////
+    /// Character Inventory API | BEGIN
 
     protected int GetSlotForWeaponInInventory(Weapon weapon)
     {
@@ -775,4 +849,7 @@ public class CharacterEquip : CharacterBehaviour
 
         return false;
     }
+
+    /// Character Inventory API | END
+    //////////////////////////////////////////////////////////////////
 }

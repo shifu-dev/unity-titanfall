@@ -1,21 +1,10 @@
 using UnityEngine;
 
-public enum EquipableType
-{
-    Character,
-    Weapon,
-    Grenade
-}
-
 public abstract class Equipable : Interactable
 {
-    public abstract EquipableType type { get; }
-
-    public virtual Weapon weapon => GetComponent<Weapon>();
-    public virtual Grenade grenade => GetComponent<Grenade>();
-
     [Header("EQUIPABLE"), Space]
-    [SerializeField] protected Collider[] _colliders;
+    [SerializeField] 
+    protected Collider[] _colliders;
 
     public virtual void OnPickup()
     {

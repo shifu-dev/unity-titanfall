@@ -50,7 +50,6 @@ public class CharacterView : CharacterBehaviour
     /// Variables
     //////////////////////////////////////////////////////////////////
 
-    protected CharacterInputs _charInputs;
     protected CharacterCapsule _charCapsule;
     protected CharacterMovement _charMovement;
 
@@ -77,6 +76,8 @@ public class CharacterView : CharacterBehaviour
 
     protected StateMachine<Mode> _stateMachine;
 
+    protected Vector2 _look;
+
     public float turnAngle => _lookVector.x;
 
     public CharacterView()
@@ -89,24 +90,24 @@ public class CharacterView : CharacterBehaviour
         _stateMachine.Switch(Mode.None);
     }
 
-    //////////////////////////////////////////////////////////////////
-    /// Updates
-    //////////////////////////////////////////////////////////////////
-
-    public override void OnInitCharacter(Character character, CharacterInitializer initializer)
+    public override void OnCharacterCreate(Character character, CharacterInitializer initializer)
     {
-        base.OnInitCharacter(character, initializer);
+        base.OnCharacterCreate(character, initializer);
 
-        _charInputs = character.charInputs;
         _charCapsule = character.charCapsule;
         _charMovement = character.charMovement;
     }
 
-    public override void OnUpdateCharacter()
+    public override void OnCharacterUpdate()
     {
-        base.OnUpdateCharacter();
+        base.OnCharacterUpdate();
 
         _stateMachine.Update();
+    }
+
+    public virtual void SetLookVector(Vector2 look)
+    {
+        _look = look;
     }
 
     public virtual void SwitchView(Mode mode)
@@ -143,7 +144,7 @@ public class CharacterView : CharacterBehaviour
             return;
         }
 
-        _lookVector += _charInputs.look;
+        _lookVector += new Vector3(_look.x, _look.y, 0f);
         _lookVector.x = _lookVector.x < -180 || _lookVector.x > 180 ? -_lookVector.x : _lookVector.x;
         _lookVector.y = _lookVector.y < -180 || _lookVector.y > 180 ? -_lookVector.y : _lookVector.y;
         _lookVector.z = _lookVector.z < -180 || _lookVector.z > 180 ? -_lookVector.z : _lookVector.z;

@@ -7,12 +7,20 @@ public class CharacterDataSource : ScriptableObject
     [Space]
 
     [Label("Character Name"), SerializeField]
-    protected string m_characterName;
-    public string characterName => m_characterName;
+    protected string _characterName;
+    public string characterName => _characterName;
+
+    [Label("Character TPP Prefab"), SerializeField]
+    protected GameObject _tppPrefab;
+    public GameObject tppPrefab => _tppPrefab;
+
+    [Label("Character FPP Prefab"), SerializeField]
+    protected GameObject _fppPrefab;
+    public GameObject fppPrefab => _fppPrefab;
 
     [Label("Character Mass"), SerializeField, Min(0)]
-    protected float m_characterMass;
-    public float characterMass => m_characterMass;
+    protected float _characterMass;
+    public float characterMass => _characterMass;
 
     [Space, Header("CHARACTER MOVEMENT")]
 
@@ -309,8 +317,10 @@ public class CharacterDataSource : ScriptableObject
 
     public CharacterDataSource()
     {
-        m_characterName = "UNNAMED";
-        m_characterMass = 80f;
+        _characterName = "UNNAMED";
+        _tppPrefab = null;
+        _fppPrefab = null;
+        _characterMass = 80f;
 
         /// GroundData
         m_groundCheckDepth = 0.05f;
@@ -352,5 +362,26 @@ public class CharacterDataSource : ScriptableObject
         m_airMoveAcceleration = .1f;
         m_airJumpPower = 10;
         m_airMaxJumpCount = 1;
+    }
+
+    public Character InstantiateTPP(Vector3 pos, Quaternion rot)
+    {
+        if (_tppPrefab == null)
+        {
+            return null;
+        }
+
+        GameObject go = GameObject.Instantiate(_tppPrefab, pos, rot);
+        Character character = go.GetComponent<Character>();
+
+        // add the character initializer
+        CharacterInitializer initializer = go.AddComponent<CharacterInitializer>();
+        initializer.destroyOnUse = true;
+        initializer.source = this;
+
+        // init the character
+        character.Init();
+
+        return character;
     }
 }

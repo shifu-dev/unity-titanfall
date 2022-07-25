@@ -3,32 +3,34 @@ using UnityEngine;
 [RequireComponent(typeof(Character))]
 public abstract class CharacterBehaviour : MonoBehaviour
 {
-    public Character character { get; protected set; }
-    protected float delta_time { get; private set; }
-    protected int frame_count { get; private set; }
+    public Character character => _character;
+    protected Character _character;
 
-    public virtual void OnInitCharacter(Character character, CharacterInitializer initializer)
+    protected float delta_time => Time.deltaTime;
+    protected int frame_count => Time.frameCount;
+
+    public virtual void OnCharacterCreate(Character character, CharacterInitializer initializer)
     {
-        this.character = character;
-        delta_time = .1f;
-        frame_count = 0;
+        _character = character;
     }
 
-    public virtual void OnUpdateCharacter()
-    {
-        delta_time = Time.deltaTime;
-        frame_count = Time.frameCount;
-    }
+    public virtual void OnCharacterSpawn() { }
 
-    public virtual void OnFixedUpdateCharacter()
-    {
-        delta_time = Time.deltaTime;
-    }
+    public virtual void OnCharacterPreUpdate() { }
 
-    public virtual void OnDestroyCharacter() { }
+    public virtual void OnCharacterUpdate() { }
 
-    public virtual void OnPossessed(Player player) { }
+    public virtual void OnCharacterPostUpdate() { }
 
-    public virtual void OnUnPossessed() { }
+    public virtual void OnCharacterFixedUpdate() { }
 
+    public virtual void OnCharacterDead() { }
+
+    public virtual void OnCharacterDespawn() { }
+
+    public virtual void OnCharacterDestroy() { }
+
+    public virtual void OnCharacterPossess(Controller controller) { }
+
+    public virtual void OnCharacterReset() { }
 }

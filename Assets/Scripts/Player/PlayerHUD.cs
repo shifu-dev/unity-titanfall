@@ -1,13 +1,6 @@
 using System;
 using UnityEngine;
 
-public class PlayerHUD : MonoBehaviour
+public class PlayerHUD : PlayerBehaviour
 {
-    public void Init(Player character)
-    {
-    }
-
-    public void UpdateImpl()
-    {
-    }
 }
