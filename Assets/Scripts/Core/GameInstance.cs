@@ -3,9 +3,10 @@ using UnityEngine;
 
 public class GameInstance : IGameInstanceChannelPipeline
 {
-    #region Singeltion Interface
+    //////////////////////////////////////////////////////////////////
+    /// Singleton Interface | BEGIN
 
-    protected static GameInstance Instance = new GameInstance();
+    protected static GameInstance instance = new GameInstance();
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void StaticSubsystemRegistrationRuntimeMethod() { }
@@ -19,53 +20,54 @@ public class GameInstance : IGameInstanceChannelPipeline
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void StaticBeforeSceneLoadRuntimeMethod()
     {
-        Instance.Init();
+        instance.Init();
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void StaticAfterSceneLoadRuntimeMethod() { }
 
-    #endregion
+    /// Singleton Interface | END
+    //////////////////////////////////////////////////////////////////
 
-    protected GameLog.ILogger logger;
-    protected GameInstanceChannel UpdateChannel;
+    protected GameLog.ILogger _logger;
+    protected GameInstanceChannel _updateChannel;
 
     protected virtual void Init()
     {
         GameDebug.Init();
-        logger = GameDebug.GetOrCreateLogger("GAMEINSTANCE");
+        _logger = GameDebug.GetOrCreateLogger("GAMEINSTANCE");
 
-        logger.Info("Initializing");
+        _logger.Info("Initializing");
 
         // Setup GameInstanceUpdateChannel
         GameObject UpdateChannelPrefab = Resources.Load<GameObject>("GameInstanceUpdateChannelPrefab");
         GameObject UpdateChannelGameObject = GameObject.Instantiate(UpdateChannelPrefab);
         UpdateChannelGameObject.name = "GameInstanceUpdateChannel";
-        UpdateChannel = UpdateChannelGameObject.GetComponent<GameInstanceChannel>();
-        UpdateChannel.Pipeline = this;
-        GameObject.DontDestroyOnLoad(UpdateChannel);
-        logger.Info("Created GameInstanceUpdateChannel");
+        _updateChannel = UpdateChannelGameObject.GetComponent<GameInstanceChannel>();
+        _updateChannel.Pipeline = this;
+        GameObject.DontDestroyOnLoad(_updateChannel);
+        _logger.Info("Created GameInstanceUpdateChannel");
 
-        logger.Info("Initializing PlayerManager");
+        _logger.Info("Initializing PlayerManager");
         PlayerManager.Init();
-        logger.Info("PlayerManager: CreatingLocalPlayer");
+        _logger.Info("PlayerManager: CreatingLocalPlayer");
         PlayerManager.CreateLocalPlayer();
 
-        logger.Info("Initializing LevelManager");
+        _logger.Info("Initializing LevelManager");
         LevelManager.Init();
-        logger.Info("LevelManager: LoadBootstrapLevel");
+        _logger.Info("LevelManager: LoadBootstrapLevel");
         LevelManager.LoadTrainingLevel();
     }
 
     protected virtual void Shutdown()
     {
-        logger.Info("Shutting down LevelManager");
+        _logger.Info("Shutting down LevelManager");
         LevelManager.Shutdown();
 
-        logger.Info("Shutting down PlayerManager");
+        _logger.Info("Shutting down PlayerManager");
         PlayerManager.Shutdown();
 
-        logger.Info("Shutting down GameDebug");
+        _logger.Info("Shutting down GameDebug");
         GameDebug.Shutdown();
     }
 
