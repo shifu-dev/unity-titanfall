@@ -324,6 +324,10 @@ public class CharacterDataSource : ScriptableObject
 
     [Space, Header("CHARACTER ANIMATION")]
 
+    [Label("Avatar"), SerializeField]
+    protected Avatar _avatar;
+    public Avatar avatar => _avatar;
+
     [Header("Ground Stand Animations")]
 
     [Label("Idle"), SerializeField]

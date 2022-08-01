@@ -120,6 +120,11 @@ public class Character : Equipable
         }
     }
 
+    protected virtual void OnDestroy()
+    {
+        Destroy();
+    }
+
     public virtual void Destroy()
     {
         GenerateOnCharacterDestroyEvents();
