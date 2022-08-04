@@ -3,6 +3,28 @@ using UnityEngine;
 
 public class CharacterMovement : CharacterBehaviour
 {
+    protected struct GroundResult
+    {
+        public static readonly GroundResult invalid = new GroundResult();
+
+        public GameObject gameObject => collider ? collider.gameObject : null;
+        public Collider collider;
+        public int layer => gameObject ? gameObject.layer : 0;
+
+        public Vector3 direction;
+        public float distance;
+        public float angle;
+        public float edgeDistance;
+
+        public Vector3 basePosition;
+        public Quaternion baseRotation;
+
+        public bool isValid
+        {
+            get => collider != null;
+        }
+    }
+
     protected const uint GROUND_MAX_MOVE_ITERATIONS = 10;
     protected const uint AIR_MAX_MOVE_ITERATIONS = 10;
 
@@ -20,8 +42,8 @@ public class CharacterMovement : CharacterBehaviour
     {
         CreateMovementState();
 
-        _previousGroundResult = CharacterMovementGroundResult.invalid;
-        _groundResult = CharacterMovementGroundResult.invalid;
+        _previousGroundResult = GroundResult.invalid;
+        _groundResult = GroundResult.invalid;
         _velocity = Vector3.zero;
     }
 
@@ -100,6 +122,8 @@ public class CharacterMovement : CharacterBehaviour
         UpdatePhysicsData();
         UpdateMovementState();
         UpdatePhysicsState();
+
+        _charCapsule.PerformMove();
     }
 
     public override void OnCharacterPostUpdate()
@@ -934,7 +958,7 @@ public class CharacterMovement : CharacterBehaviour
         return false;
     }
 
-    protected virtual bool GroundCast(float depth, out CharacterMovementGroundResult result)
+    protected virtual bool GroundCast(float depth, out GroundResult result)
     {
         BaseSphereCast(character.down * depth, out RaycastHit hit, out Vector3 hitNormal);
         if (hitNormal == Vector3.zero)
@@ -942,7 +966,7 @@ public class CharacterMovement : CharacterBehaviour
             hitNormal = hit.normal;
         }
 
-        result = new CharacterMovementGroundResult();
+        result = new GroundResult();
 
         if (GroundCanStandOn(hit, hitNormal, out float slopeAngle) == false)
         {
@@ -1171,8 +1195,8 @@ public class CharacterMovement : CharacterBehaviour
     //////////////////////////////////////////////////////////////////
     /// Ground Data | BEGIN
 
-    protected CharacterMovementGroundResult _previousGroundResult;
-    protected CharacterMovementGroundResult _groundResult;
+    protected GroundResult _previousGroundResult;
+    protected GroundResult _groundResult;
 
     protected LayerMask _groundLayer;
 
@@ -1241,26 +1265,4 @@ public class CharacterMovement : CharacterBehaviour
 
     /// Air Data | END
     //////////////////////////////////////////////////////////////////
-}
-
-public struct CharacterMovementGroundResult
-{
-    public static readonly CharacterMovementGroundResult invalid = new CharacterMovementGroundResult();
-
-    public GameObject gameObject => collider ? collider.gameObject : null;
-    public Collider collider;
-    public int layer => gameObject ? gameObject.layer : 0;
-
-    public Vector3 direction;
-    public float distance;
-    public float angle;
-    public float edgeDistance;
-
-    public Vector3 basePosition;
-    public Quaternion baseRotation;
-
-    public bool isValid
-    {
-        get => collider != null;
-    }
 }

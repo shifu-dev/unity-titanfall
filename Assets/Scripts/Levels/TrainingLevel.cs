@@ -28,9 +28,12 @@ public class TrainingLevel : Level
             var localPlayer = PlayerManager.localPlayer;
             if (localPlayer != null)
             {
-                // create character
-                CharacterDataSource charDataSource = Resources.Load<CharacterDataSource>("Manny Source");
-                Character character = charDataSource.InstantiateTPP(spawnPoint.position, spawnPoint.rotation);
+                CharacterDataSource charSource = CharacterRegistry.GetSource("Manny");
+                charSource.instanceHandler.Reserve(4, 5);
+
+                Character character = charSource.instanceHandler.Create(
+                    spawnPoint.position, spawnPoint.rotation);
+
                 logger.Info("Created Character");
 
                 // player possess character

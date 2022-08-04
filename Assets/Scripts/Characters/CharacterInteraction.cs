@@ -171,9 +171,13 @@ public class CharacterInteraction : CharacterBehaviour
         {
             if (_raycastSource != null)
             {
-                Transform source = character.charView.camera.transform;
-                _raycastSource.position = source.position;
-                _raycastSource.rotation = source.rotation;
+                Camera camera = character.charView.camera;
+                if (camera != null)
+                {
+                    Transform source = camera.transform;
+                    _raycastSource.position = source.position;
+                    _raycastSource.rotation = source.rotation;
+                }
 
                 bool hit = Physics.Raycast(_raycastSource.position, _raycastSource.forward, out RaycastHit hitInfo,
                     _raycastLength, _layerMask, _triggerQuery);

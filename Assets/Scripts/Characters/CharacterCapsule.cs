@@ -65,9 +65,9 @@ public class CharacterCapsule : CharacterBehaviour
     /// UpdateLoop
     //////////////////////////////////////////////////////////////////
 
-    public override void OnCharacterCreate(Character character, CharacterInitializer initializer)
+    public override void OnCharacterSpawn()
     {
-        base.OnCharacterCreate(character, initializer);
+        base.OnCharacterSpawn();
 
         localPosition = collider.transform.localPosition;
         localRotation = collider.transform.localRotation;
@@ -78,13 +78,6 @@ public class CharacterCapsule : CharacterBehaviour
         lastLocalScale = localScale;
 
         velocity = Vector3.zero;
-    }
-
-    public override void OnCharacterUpdate()
-    {
-        base.OnCharacterUpdate();
-
-        PerformMove();
     }
 
     public void PerformMove()

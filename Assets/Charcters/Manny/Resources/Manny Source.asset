@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Manny Source
   m_EditorClassIdentifier: 
   _characterName: Manny
+  _tppBody: {fileID: 0}
+  _fppBody: {fileID: 0}
   _tppPrefab: {fileID: 6526974782931169490, guid: 6b66c241476452548a8769ce8b2a69e3, type: 3}
   _fppPrefab: {fileID: 0}
   _characterMass: 80
@@ -68,6 +70,8 @@ MonoBehaviour:
   m_airJumpPower: 10
   m_airMaxJumpCount: 0
   _avatar: {fileID: 9000000, guid: 15003a1bcee5a8a4fb2e8e608f16f035, type: 3}
+  _avatarMaskUpperBody: {fileID: 0}
+  _avatarMaskLowerBody: {fileID: 0}
   _animGroundStandIdle: {fileID: -203655887218126122, guid: ef66f6652088584488399ceb133bc011, type: 3}
   _animGroundStandWalkForward: {fileID: -203655887218126122, guid: 8339ed85d11079444b13b2b41e3d0529, type: 3}
   _animGroundStandWalkForwardLeft: {fileID: -203655887218126122, guid: db8c0c268cf97b44aa71e8bf4281d25a, type: 3}
@@ -103,3 +107,6 @@ MonoBehaviour:
   _animGroundCrouchRunBackward: {fileID: -203655887218126122, guid: 7115c819fa2a0a84683d20ed604f29f7, type: 3}
   _animGroundCrouchRunBackwardLeft: {fileID: 0}
   _animGroundCrouchRunBackwardRight: {fileID: 0}
+  _instanceHandler:
+    _parent: {fileID: 0}
+    _maxCount: 5

@@ -48,6 +48,9 @@ public class GameInstance : IGameInstanceChannelPipeline
         GameObject.DontDestroyOnLoad(_updateChannel);
         _logger.Info("Created GameInstanceUpdateChannel");
 
+        _logger.Info("Initializing CharacterRegistry");
+        CharacterRegistry.Init();
+
         _logger.Info("Initializing PlayerManager");
         PlayerManager.Init();
         _logger.Info("PlayerManager: CreatingLocalPlayer");
@@ -61,6 +64,9 @@ public class GameInstance : IGameInstanceChannelPipeline
 
     protected virtual void Shutdown()
     {
+        _logger.Info("Shutting down CharacterRegistry");
+        CharacterRegistry.Shutdown();
+
         _logger.Info("Shutting down LevelManager");
         LevelManager.Shutdown();
 

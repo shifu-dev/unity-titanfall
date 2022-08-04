@@ -1,15 +1,37 @@
 ﻿using System;
 using UnityEngine;
-using UnityEngine.Animations;
 
 [CreateAssetMenu(fileName = "Character Asset")]
-public class CharacterDataSource : ScriptableObject
+public partial class CharacterDataSource : DataSource
 {
+    public CharacterDataSource()
+    {
+        _instanceHandler = new InstanceHandler(this);
+    }
+
+    public virtual void OnLoad()
+    {
+        _instanceHandler.CreatePool();
+    }
+
+    public virtual void OnUnload()
+    {
+        _instanceHandler.DisposePool();
+    }
+
     [Space]
 
     [Label("Character Name"), SerializeField]
     protected string _characterName;
     public string characterName => _characterName;
+
+    [Label("Character TPP Body"), SerializeField]
+    protected GameObject _tppBody;
+    public GameObject tppBody => _tppBody;
+
+    [Label("Character FPP Body"), SerializeField]
+    protected GameObject _fppBody;
+    public GameObject fppBody => _fppBody;
 
     [Label("Character TPP Prefab"), SerializeField]
     protected GameObject _tppPrefab;
@@ -328,6 +350,14 @@ public class CharacterDataSource : ScriptableObject
     protected Avatar _avatar;
     public Avatar avatar => _avatar;
 
+    [Label("Avatar Mask Upper Body"), SerializeField]
+    protected Avatar _avatarMaskUpperBody;
+    public Avatar AvatarMaskUpperBody => _avatarMaskUpperBody;
+
+    [Label("Avatar Mask Lower Body"), SerializeField]
+    protected Avatar _avatarMaskLowerBody;
+    public Avatar AvatarMaskLowerBody => _avatarMaskLowerBody;
+
     [Header("Ground Stand Animations")]
 
     [Label("Idle"), SerializeField]
@@ -492,35 +522,5 @@ public class CharacterDataSource : ScriptableObject
     //////////////////////////////////////////////////////////////////
 
     /// Animations | END
-    //////////////////////////////////////////////////////////////////
-
-    //////////////////////////////////////////////////////////////////
-    /// Instantiation | BEGIN
-
-    public Character InstantiateTPP(Vector3 pos, Quaternion rot)
-    {
-        if (_tppPrefab == null)
-        {
-            return null;
-        }
-
-        // deactivate the prefab to avoid calling Awake()
-        // on instantiated instances
-        _tppPrefab.SetActive(false);
-        GameObject instance = GameObject.Instantiate(_tppPrefab, pos, rot);
-        _tppPrefab.SetActive(true);
-
-        Character character = instance.GetComponent<Character>();
-
-        // add the character initializer
-        CharacterInitializer initializer = instance.AddComponent<CharacterInitializer>();
-        initializer.destroyOnUse = true;
-        initializer.source = this;
-
-        instance.SetActive(true);
-        return character;
-    }
-
-    /// Instantiation | END
     //////////////////////////////////////////////////////////////////
 }
