@@ -1,8 +1,0 @@
-Imported character assets
-
-Added CharacterManny Asset:
-- imported model Mannequin from UE4 as Manny
-- imported animations for Manny
-
-Updated GameInstance:
-- formatted code
