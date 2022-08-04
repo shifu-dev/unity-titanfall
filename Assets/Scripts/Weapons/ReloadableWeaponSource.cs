@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public abstract class ReloadableWeaponDataSource : FireableWeaponDataSource
+public abstract class ReloadableWeaponSource : FireableWeaponSource
 {
     [Header("RELOADABLE WEAPON"), Space]
 

@@ -3,6 +3,6 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class CharacterInitializer : MonoBehaviour
 {
-    public CharacterDataSource source;
+    public CharacterSource source;
     public bool destroyOnUse;
 }

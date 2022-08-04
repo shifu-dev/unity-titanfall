@@ -197,7 +197,7 @@ public class CharacterAnimation : CharacterBehaviour
         _groundTree.SetBlendPosition(0f, true);
     }
 
-    private CharacterDataSource _source;
+    private CharacterSource _source;
     protected CharacterMovement _charMovement;
 
     protected PlayableGraph _graph;

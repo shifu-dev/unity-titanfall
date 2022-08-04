@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01018e1b77612a24e99861ce5092aef5, type: 3}
-  m_Name: Heavy Data Source
+  m_Script: {fileID: 11500000, guid: c71fd3985fbdc744194c30a6106a482f, type: 3}
+  m_Name: Heavy Bullet Source
   m_EditorClassIdentifier: 
   _ammoName: Heavy
   _prefab: {fileID: 5854810441080140651, guid: e05bc17e302e9aa4098e1001717d2cdb, type: 3}

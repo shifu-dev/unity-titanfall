@@ -3,8 +3,8 @@ using UnityEngine;
 
 public abstract class ReloadableWeapon : FireableWeapon
 {
-    [NonSerialized] private ReloadableWeaponDataSource _source;
-    public new ReloadableWeaponDataSource source => _source;
+    [NonSerialized] private ReloadableWeaponSource _source;
+    public new ReloadableWeaponSource source => _source;
 
     protected uint _capacity;
     public uint capacity => _capacity;
@@ -30,7 +30,7 @@ public abstract class ReloadableWeapon : FireableWeapon
     {
         base.Init(initializer);
 
-        _source = initializer.source as ReloadableWeaponDataSource;
+        _source = initializer.source as ReloadableWeaponSource;
         if (_source != null)
         {
             _capacity = _source.capacity;

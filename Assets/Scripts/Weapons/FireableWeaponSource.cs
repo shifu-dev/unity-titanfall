@@ -1,12 +1,12 @@
 using UnityEngine;
 
-public abstract class FireableWeaponDataSource : WeaponDataSource
+public abstract class FireableWeaponSource : WeaponSource
 {
     [Header("FIREABLE WEAPON"), Space]
 
     [Label("Bullet Source"), SerializeField]
-    protected WeaponBulletDataSource _bulletSource;
-    public WeaponBulletDataSource bulletSource => _bulletSource;
+    protected WeaponBulletSource _bulletSource;
+    public WeaponBulletSource bulletSource => _bulletSource;
 
     [Label("Fire Rate"), SerializeField]
     protected uint _fireRate;

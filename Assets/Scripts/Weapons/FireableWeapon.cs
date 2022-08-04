@@ -3,10 +3,10 @@ using UnityEngine;
 
 public abstract class FireableWeapon : Weapon
 {
-    [NonSerialized] private FireableWeaponDataSource _source;
-    public new FireableWeaponDataSource source => _source;
+    [NonSerialized] private FireableWeaponSource _source;
+    public new FireableWeaponSource source => _source;
 
-    protected WeaponBulletDataSource _bulletSource;
+    protected WeaponBulletSource _bulletSource;
 
     protected float _fireRate;
     protected uint _fireForce;
@@ -36,7 +36,7 @@ public abstract class FireableWeapon : Weapon
         base.Init(initializer);
 
         _bulletSource = initializer.bulletDataSource;
-        _source = initializer.source as FireableWeaponDataSource;
+        _source = initializer.source as FireableWeaponSource;
 
         if (_source != null)
         {

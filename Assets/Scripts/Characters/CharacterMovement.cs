@@ -1147,7 +1147,7 @@ public class CharacterMovement : CharacterBehaviour
 
     public Vector3 Velocity => _velocity;
 
-    protected CharacterDataSource _source;
+    protected CharacterSource _source;
     protected CharacterCapsule _charCapsule;
     protected CharacterView _charView;
 

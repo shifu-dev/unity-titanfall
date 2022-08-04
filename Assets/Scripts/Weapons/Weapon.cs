@@ -18,8 +18,8 @@ public enum WeaponCategory
 public abstract class Weapon : Equipable
 {
     [SerializeField, ReadOnly]
-    private WeaponDataSource _source;
-    public WeaponDataSource source => _source;
+    private WeaponSource _source;
+    public WeaponSource source => _source;
 
     public abstract WeaponCategory category { get; }
 
@@ -40,6 +40,6 @@ public abstract class Weapon : Equipable
 
     protected virtual void Init(WeaponInitializer initializer)
     {
-        _source = initializer.source as WeaponDataSource;
+        _source = initializer.source as WeaponSource;
     }
 }

@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
 
-public partial class CharacterDataSource : DataSource
+public partial class CharacterSource : DataSource
 {
     protected InstanceHandler _instanceHandler;
     public InstanceHandler instanceHandler => _instanceHandler;
@@ -17,7 +17,7 @@ public partial class CharacterDataSource : DataSource
             DisposePool();
         }
 
-        public InstanceHandler(CharacterDataSource source)
+        public InstanceHandler(CharacterSource source)
         {
             _source = source;
         }
@@ -201,8 +201,8 @@ public partial class CharacterDataSource : DataSource
         public int Count => _pool == null ? 0 : _pool.CountInactive;
         public int MaxCount => _maxCount;
 
-        protected CharacterDataSource _source;
-        public CharacterDataSource Source => _source;
+        protected CharacterSource _source;
+        public CharacterSource Source => _source;
 
         protected ObjectPool<Character> _pool;
         public IObjectPool<Character> Pool => _pool;

@@ -142,7 +142,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   destroyAfterUse: 1
   source: {fileID: 11400000, guid: 5f5d6a0cf2ed80b4aa8cff0122ddbdfe, type: 2}
-  bulletDataSource: {fileID: 0}
+  bulletDataSource: {fileID: 11400000, guid: 9763fcc7935803b4eb1b32a2a71aa136, type: 2}
 --- !u!1 &524597905 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8595054391902159044, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
@@ -162,7 +162,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   destroyAfterUse: 1
   source: {fileID: 11400000, guid: 5f5d6a0cf2ed80b4aa8cff0122ddbdfe, type: 2}
-  bulletDataSource: {fileID: 0}
+  bulletDataSource: {fileID: 11400000, guid: 9763fcc7935803b4eb1b32a2a71aa136, type: 2}
 --- !u!1 &542508511
 GameObject:
   m_ObjectHideFlags: 0
@@ -247,7 +247,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   destroyAfterUse: 1
   source: {fileID: 11400000, guid: 5f5d6a0cf2ed80b4aa8cff0122ddbdfe, type: 2}
-  bulletDataSource: {fileID: 0}
+  bulletDataSource: {fileID: 11400000, guid: 9763fcc7935803b4eb1b32a2a71aa136, type: 2}
 --- !u!1 &874605735
 GameObject:
   m_ObjectHideFlags: 0
@@ -599,7 +599,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   destroyAfterUse: 1
   source: {fileID: 11400000, guid: 5f5d6a0cf2ed80b4aa8cff0122ddbdfe, type: 2}
-  bulletDataSource: {fileID: 0}
+  bulletDataSource: {fileID: 11400000, guid: 9763fcc7935803b4eb1b32a2a71aa136, type: 2}
 --- !u!1001 &1139022343
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -651,6 +651,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4537889726513756679, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
+      propertyPath: _source
+      value: 
+      objectReference: {fileID: 11400000, guid: 5f5d6a0cf2ed80b4aa8cff0122ddbdfe, type: 2}
     - target: {fileID: 8595054391902159044, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
       propertyPath: m_Name
       value: AXR-160 Prefab (4)
@@ -957,6 +961,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4537889726513756679, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
+      propertyPath: _source
+      value: 
+      objectReference: {fileID: 11400000, guid: 5f5d6a0cf2ed80b4aa8cff0122ddbdfe, type: 2}
     - target: {fileID: 8595054391902159044, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
       propertyPath: m_Name
       value: AXR-160 Prefab (3)
@@ -982,7 +990,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   destroyAfterUse: 1
   source: {fileID: 11400000, guid: 5f5d6a0cf2ed80b4aa8cff0122ddbdfe, type: 2}
-  bulletDataSource: {fileID: 0}
+  bulletDataSource: {fileID: 11400000, guid: 9763fcc7935803b4eb1b32a2a71aa136, type: 2}
 --- !u!1001 &1659642252
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1034,6 +1042,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4537889726513756679, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
+      propertyPath: _source
+      value: 
+      objectReference: {fileID: 11400000, guid: 5f5d6a0cf2ed80b4aa8cff0122ddbdfe, type: 2}
     - target: {fileID: 8595054391902159044, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
       propertyPath: m_Name
       value: AXR-160 Prefab (5)
@@ -1204,6 +1216,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4537889726513756679, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
+      propertyPath: _source
+      value: 
+      objectReference: {fileID: 11400000, guid: 5f5d6a0cf2ed80b4aa8cff0122ddbdfe, type: 2}
     - target: {fileID: 8595054391902159044, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
       propertyPath: m_Name
       value: AXR-160 Prefab (1)
@@ -1261,6 +1277,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4537889726513756679, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
+      propertyPath: _source
+      value: 
+      objectReference: {fileID: 11400000, guid: 5f5d6a0cf2ed80b4aa8cff0122ddbdfe, type: 2}
     - target: {fileID: 8595054391902159044, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
       propertyPath: m_Name
       value: AXR-160 Prefab (2)

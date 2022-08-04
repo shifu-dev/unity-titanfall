@@ -9,15 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b885f7055f1a844fb7fe3ad45c12f88, type: 3}
+  m_Script: {fileID: 11500000, guid: 7c4b701f5e6bc334bb8efb238fbc2800, type: 3}
   m_Name: AXR-160 Source
   m_EditorClassIdentifier: 
   _weaponName: AXR-160
   _prefab: {fileID: 4537889726513756679, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
   _bulletSource: {fileID: 11400000, guid: 9763fcc7935803b4eb1b32a2a71aa136, type: 2}
-  _fireRate: 50
-  _fireForce: 20
-  _fireRecoil: 5
+  _fireRate: 0
+  _fireForce: 0
+  _fireRecoil: 0
   _fireAudio: {fileID: 0}
-  _capacity: 30
-  _initial: 30
+  _capacity: 0
+  _initial: 0

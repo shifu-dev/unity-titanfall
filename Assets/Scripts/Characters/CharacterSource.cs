@@ -1,10 +1,10 @@
 ﻿using System;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Character Asset")]
-public partial class CharacterDataSource : DataSource
+[CreateAssetMenu(menuName = "Characters/Character Source")]
+public partial class CharacterSource : DataSource
 {
-    public CharacterDataSource()
+    public CharacterSource()
     {
         _instanceHandler = new InstanceHandler(this);
     }

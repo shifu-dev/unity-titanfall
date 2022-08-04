@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Weapon Bullets/Data Source", fileName = "Weapon Bullet Data Source")]
-public class WeaponBulletDataSource : DataSource
+[CreateAssetMenu(menuName = "Weapons/Weapon Bullet Source")]
+public class WeaponBulletSource : DataSource
 {
     [Label("Ammo Name"), SerializeField]
     protected string _ammoName;

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public abstract class WeaponDataSource : DataSource
+public abstract class WeaponSource : DataSource
 {
     [Header("WEAPON"), Space]
 

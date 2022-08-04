@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 755f1a64ef3e63f4a8a0b5fda84276cf, type: 3}
+  m_Script: {fileID: 11500000, guid: 745649d3e3a4d9a40a67f80e3163df9d, type: 3}
   m_Name: Manny Source
   m_EditorClassIdentifier: 
   _characterName: Manny
@@ -24,13 +24,13 @@ MonoBehaviour:
     m_Bits: 64
   m_groundMinMoveDistance: 0.001
   m_groundStandIdleSpeed: 0
-  m_groundStandIdleAcceleration: 0.3
-  m_groundStandWalkSpeed: 2
+  m_groundStandIdleAcceleration: 0.35
+  m_groundStandWalkSpeed: 1.8
   m_groundStandWalkAcceleration: 0.3
-  m_groundStandRunSpeed: 5
-  m_groundStandRunAcceleration: 0.5
-  m_groundStandSprintSpeed: 8
-  m_groundStandSprintAcceleration: 0.5
+  m_groundStandRunSpeed: 4
+  m_groundStandRunAcceleration: 0.6
+  m_groundStandSprintSpeed: 7
+  m_groundStandSprintAcceleration: 0.6
   m_groundStandSprintLeftAngleMax: -46
   m_groundStandSprintRightAngleMax: 46
   m_groundStandJumpForce: 10
@@ -107,6 +107,3 @@ MonoBehaviour:
   _animGroundCrouchRunBackward: {fileID: -203655887218126122, guid: 7115c819fa2a0a84683d20ed604f29f7, type: 3}
   _animGroundCrouchRunBackwardLeft: {fileID: 0}
   _animGroundCrouchRunBackwardRight: {fileID: 0}
-  _instanceHandler:
-    _parent: {fileID: 0}
-    _maxCount: 5

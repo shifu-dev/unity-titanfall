@@ -5,7 +5,7 @@ public static class CharacterRegistry
 {
     static CharacterRegistry()
     {
-        _sources = new CharacterDataSource[0];
+        _sources = new CharacterSource[0];
     }
 
     public static void Init()
@@ -20,7 +20,7 @@ public static class CharacterRegistry
 
     public static void LoadSources()
     {
-        _sources = Resources.LoadAll<CharacterDataSource>("");
+        _sources = Resources.LoadAll<CharacterSource>("");
         foreach (var source in _sources)
         {
             source.OnLoad();
@@ -36,7 +36,7 @@ public static class CharacterRegistry
         }
     }
 
-    public static CharacterDataSource GetSource(string charName)
+    public static CharacterSource GetSource(string charName)
     {
         if (String.IsNullOrEmpty(charName))
         {
@@ -56,5 +56,5 @@ public static class CharacterRegistry
 
     public static int Count => _sources.Length;
 
-    private static CharacterDataSource[] _sources;
+    private static CharacterSource[] _sources;
 }
