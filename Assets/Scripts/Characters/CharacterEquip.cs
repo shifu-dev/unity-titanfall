@@ -50,6 +50,7 @@ public class CharacterEquip : CharacterBehaviour
     [SerializeField, ReadOnly] protected bool _rightCanStopWeaponReloading;
 
     // inputs
+    protected float _deltaTime;
     protected int _weaponSlot;
     protected int _grenadeSlot;
     protected bool _equip;
@@ -87,6 +88,7 @@ public class CharacterEquip : CharacterBehaviour
     {
         base.OnCharacterUpdate();
 
+        _deltaTime = Time.deltaTime;
         CheckEquipInputs();
 
         var rightEquipData = _rightCurrent;
@@ -314,7 +316,7 @@ public class CharacterEquip : CharacterBehaviour
                 else
                 {
                     _leftWeight = Mathf.MoveTowards(_leftWeight,
-                        1f, _leftCurrent.equip_speed * delta_time);
+                        1f, _leftCurrent.equip_speed * _deltaTime);
                 }
 
                 if (_leftWeight == 1f)
@@ -343,7 +345,7 @@ public class CharacterEquip : CharacterBehaviour
                 else
                 {
                     _leftWeight = Mathf.MoveTowards(_leftWeight,
-                        0f, _leftCurrent.unequip_speed * delta_time);
+                        0f, _leftCurrent.unequip_speed * _deltaTime);
                 }
 
                 if (_leftWeight == 0f)
@@ -507,7 +509,7 @@ public class CharacterEquip : CharacterBehaviour
                 else
                 {
                     _rightWeight = Mathf.MoveTowards(_rightWeight,
-                        1f, _rightCurrent.equip_speed * delta_time);
+                        1f, _rightCurrent.equip_speed * _deltaTime);
                 }
 
                 if (_rightWeight == 1f)
@@ -536,7 +538,7 @@ public class CharacterEquip : CharacterBehaviour
                 else
                 {
                     _rightWeight = Mathf.MoveTowards(_rightWeight,
-                        0f, _rightCurrent.unequip_speed * delta_time);
+                        0f, _rightCurrent.unequip_speed * _deltaTime);
                 }
 
                 if (_rightWeight == 0f)

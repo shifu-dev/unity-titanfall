@@ -40,10 +40,10 @@ public partial class CharacterMovement : CharacterBehaviour
 
         _velocity = Vector3.ProjectOnPlane(_velocity, _charUp);
 
-        Vector3 move = moveInput * _currentMoveSpeed * delta_time;
-        move = Vector3.MoveTowards(_velocity * delta_time, move, _currentMoveAccel * delta_time);
+        Vector3 move = moveInput * _currentMoveSpeed * _deltaTime;
+        move = Vector3.MoveTowards(_velocity * _deltaTime, move, _currentMoveAccel * _deltaTime);
 
-        move += _charUp * _currentJumpPower * delta_time;
+        move += _charUp * _currentJumpPower * _deltaTime;
 
         GroundMove(move);
     }
@@ -317,14 +317,14 @@ public partial class CharacterMovement : CharacterBehaviour
             targetCenter = _groundCrouchCapsuleCenter;
             targetHeight = _groundCrouchCapsuleHeight;
             targetRadius = _groundCrouchCapsuleRadius;
-            speed = _groundStandToCrouchTransitionSpeed * delta_time;
+            speed = _groundStandToCrouchTransitionSpeed * _deltaTime;
         }
         else
         {
             targetCenter = _groundStandCapsuleCenter;
             targetHeight = _groundStandCapsuleHeight;
             targetRadius = _groundStandCapsuleRadius;
-            speed = _groundCrouchToStandTransitionSpeed * delta_time;
+            speed = _groundCrouchToStandTransitionSpeed * _deltaTime;
         }
 
         // charCapsule.localPosition += charCapsule.up * Mathf.MoveTowards(charCapsule.localHeight, targetHeight, speed);

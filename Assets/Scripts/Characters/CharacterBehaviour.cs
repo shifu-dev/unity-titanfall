@@ -6,9 +6,6 @@ public abstract class CharacterBehaviour : MonoBehaviour
     public Character character => _character;
     protected Character _character;
 
-    protected float delta_time => Time.deltaTime;
-    protected int frame_count => Time.frameCount;
-
     public virtual void OnCharacterCreate(Character character, CharacterInitializer initializer)
     {
         _character = character;

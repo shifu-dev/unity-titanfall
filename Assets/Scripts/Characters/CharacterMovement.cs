@@ -100,7 +100,8 @@ public partial class CharacterMovement : CharacterBehaviour
 
     public override void OnCharacterUpdate()
     {
-        if (delta_time <= 0)
+        _deltaTime = Time.deltaTime;
+        if (_deltaTime <= 0)
         {
             return;
         }
@@ -350,6 +351,7 @@ public partial class CharacterMovement : CharacterBehaviour
     protected bool _jump;
 
     protected Vector3 _velocity;
+    protected float _deltaTime = 0f;
     protected Vector3 _charUp = Vector3.up;
     protected Vector3 _charRight = Vector3.right;
     protected Vector3 _charForward = Vector3.forward;

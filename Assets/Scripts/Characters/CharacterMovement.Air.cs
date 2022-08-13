@@ -14,9 +14,9 @@ public partial class CharacterMovement : CharacterBehaviour
         Vector3 charForward = character.forward;
         Vector3 charRight = character.right;
         float mass = character.mass;
-        float gravitySpeed = _airGravityAcceleration * mass * delta_time * delta_time * GRAVITY_MULTIPLIER;
+        float gravitySpeed = _airGravityAcceleration * mass * _deltaTime * _deltaTime * GRAVITY_MULTIPLIER;
 
-        Vector3 vel = _velocity * delta_time;
+        Vector3 vel = _velocity * _deltaTime;
         Vector3 velH = Vector3.ProjectOnPlane(vel, charUp);
         Vector3 velV = vel - velH;
 
