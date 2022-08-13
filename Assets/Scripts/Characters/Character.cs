@@ -8,7 +8,6 @@ using System.Collections.Generic;
 [RequireComponent(typeof(CharacterInteraction))]
 [RequireComponent(typeof(CharacterEquip))]
 [RequireComponent(typeof(CharacterView))]
-[RequireComponent(typeof(CharacterCapsule))]
 [RequireComponent(typeof(CharacterAnimation))]
 public class Character : Equipable
 {
@@ -26,7 +25,6 @@ public class Character : Equipable
     protected CharacterInteraction _charInteraction;
     protected CharacterEquip _charEquip;
     protected CharacterView _charView;
-    protected CharacterCapsule _charCapsule;
     protected CharacterAnimation _charAnimation;
 
     public CharacterInitializer charInitializer => _charInitializer;
@@ -36,7 +34,6 @@ public class Character : Equipable
     public CharacterInteraction charInteraction => _charInteraction;
     public CharacterEquip charEquip => _charEquip;
     public CharacterView charView => _charView;
-    public CharacterCapsule charCapsule => _charCapsule;
     public CharacterAnimation charAnimation => _charAnimation;
 
     /// Behaviours | END
@@ -71,7 +68,6 @@ public class Character : Equipable
         _charInteraction = null;
         _charEquip = null;
         _charView = null;
-        _charCapsule = null;
         _charAnimation = null;
         _controller = null;
 
@@ -210,7 +206,6 @@ public class Character : Equipable
         _charInteraction = GetBehaviour<CharacterInteraction>();
         _charEquip = GetBehaviour<CharacterEquip>();
         _charView = GetBehaviour<CharacterView>();
-        _charCapsule = GetBehaviour<CharacterCapsule>();
         _charAnimation = GetBehaviour<CharacterAnimation>();
     }
 

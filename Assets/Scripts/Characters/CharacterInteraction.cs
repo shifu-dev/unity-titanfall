@@ -57,7 +57,6 @@ public struct InteractableScanResult
 
 public class CharacterInteraction : CharacterBehaviour
 {
-    protected CharacterCapsule _charCapsule;
     protected CharacterEquip _charEquip;
 
     [SerializeField] protected InteractableScanResult[] _interactables;
@@ -129,7 +128,6 @@ public class CharacterInteraction : CharacterBehaviour
     {
         base.OnCharacterCreate(character, initializer);
 
-        _charCapsule = character.charCapsule;
         _charEquip = character.charEquip;
     }
 
@@ -197,7 +195,7 @@ public class CharacterInteraction : CharacterBehaviour
         {
             /// @todo calculate halfExtents with respect to character size
             Vector3 halfExtents = _overlapSize * .5f;
-            Vector3 center = _charCapsule.basePosition + (_charCapsule.up * halfExtents.y) + _overlapCenterOffset;
+            Vector3 center = _character.transform.position + (_character.up * halfExtents.y) + _overlapCenterOffset;
             Collider[] overlapResults = overlapResults = Physics.OverlapBox(center, halfExtents, Quaternion.identity,
                     _layerMask, _triggerQuery);
 

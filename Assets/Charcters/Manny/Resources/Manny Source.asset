@@ -18,6 +18,10 @@ MonoBehaviour:
   _tppPrefab: {fileID: 6526974782931169490, guid: 6b66c241476452548a8769ce8b2a69e3, type: 3}
   _fppPrefab: {fileID: 0}
   _characterMass: 80
+  _skinWidth: 0.02
+  _layerMask:
+    serializedVersion: 2
+    m_Bits: 241
   m_groundCheckDepth: 0.05
   m_groundLayer:
     serializedVersion: 2

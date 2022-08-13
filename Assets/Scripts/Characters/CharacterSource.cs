@@ -47,37 +47,33 @@ public partial class CharacterSource : DataSource
 
     [Space, Header("CHARACTER MOVEMENT")]
 
-    #region GROUND DATA
+    [Label("Skin Width"), SerializeField]
+    protected float _skinWidth;
+    public float skinWidth => _skinWidth;
+
+    [Label("Layer Mask"), SerializeField]
+    protected LayerMask _layerMask;
+    public LayerMask layerMask => _layerMask;
 
     [Header("# GROUND DATA"), Space]
 
-    //////////////////////////////////////////////////////////////////
-    // Ground Check Depth
     [Tooltip("Distance below character to check for ground")]
     [Label("Check Depth"), SerializeField, Range(0.01f, 0.5f)]
     protected float m_groundCheckDepth;
     public float groundCheckDepth => m_groundCheckDepth;
 
-    //////////////////////////////////////////////////////////////////
-    // Ground Layer Mask
     [Tooltip("Layer Mask to determine if the collider is ground")]
     [Label("Layer"), SerializeField]
     protected LayerMask m_groundLayer;
     public LayerMask groundLayer => m_groundLayer;
 
-    //////////////////////////////////////////////////////////////////
-    // Ground Min Move Distance
     [Tooltip("Minimum distance the character should move")]
     [Label("Min Move Distance"), SerializeField, Min(0f)]
     protected float m_groundMinMoveDistance;
     public float groundMinMoveDistance => m_groundMinMoveDistance;
 
-    #region GROUND STAND DATA
-
     [Header("## GROUND STAND DATA"), Space]
 
-    //////////////////////////////////////////////////////////////////
-    // Ground Stand Idle Speed & Acceleration
     [Tooltip("Speed when there is no movement input")]
     [Label("Idle Speed"), SerializeField, Min(0)]
     protected float m_groundStandIdleSpeed;
@@ -186,9 +182,6 @@ public partial class CharacterSource : DataSource
     protected float m_groundStandToCrouchTransitionSpeed;
     public float groundStandToCrouchTransitionSpeed => m_groundStandToCrouchTransitionSpeed;
 
-    #endregion
-
-    #region GROUND CROUCH DATA
 
     [Header("GROUND CROUCH DATA"), Space]
 
@@ -288,12 +281,6 @@ public partial class CharacterSource : DataSource
     protected float m_groundCrouchToStandTransitionSpeed;
     public float groundCrouchToStandTransitionSpeed => m_groundCrouchToStandTransitionSpeed;
 
-    #endregion
-
-    #endregion
-
-    #region AIR DATA
-
     [Header("# AIR DATA"), Space]
 
     [Space]
@@ -336,13 +323,8 @@ public partial class CharacterSource : DataSource
     protected uint m_airMaxJumpCount;
     public uint airMaxJumpCount => m_airMaxJumpCount;
 
-    #endregion
-
     //////////////////////////////////////////////////////////////////
     /// Animations | BEGIN
-
-    //////////////////////////////////////////////////////////////////
-    /// Stand Animations | BEGIN
 
     [Space, Header("CHARACTER ANIMATION")]
 

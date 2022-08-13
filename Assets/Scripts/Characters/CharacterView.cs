@@ -50,7 +50,6 @@ public class CharacterView : CharacterBehaviour
     /// Variables
     //////////////////////////////////////////////////////////////////
 
-    protected CharacterCapsule _charCapsule;
     protected CharacterMovement _charMovement;
 
     [SerializeField] protected Camera _camera;
@@ -94,7 +93,6 @@ public class CharacterView : CharacterBehaviour
     {
         base.OnCharacterCreate(character, initializer);
 
-        _charCapsule = character.charCapsule;
         _charMovement = character.charMovement;
     }
 
@@ -158,7 +156,7 @@ public class CharacterView : CharacterBehaviour
 
         // calculate position
         cam_pos = _firstPersonData.standPos;
-        cam_pos = _charCapsule.GetPositionInVolume(cam_pos);
+        cam_pos = _charMovement.capsule.ClampPositionInsideVolumeRelative(cam_pos);
 
         // calculate rotation
         cam_rot = Quaternion.Euler(new Vector3(_lookVector.y, _lookVector.x, _lookVector.z));
@@ -176,40 +174,40 @@ public class CharacterView : CharacterBehaviour
     }
     protected virtual void UpdateViewMode_ThirdPerson()
     {
-        var data = _thirdPersonData;
-        if (_camera == null || data.lookAtSource == null)
-        {
-            SwitchView(Mode.None);
-            return;
-        }
+        // var data = _thirdPersonData;
+        // if (_camera == null || data.lookAtSource == null)
+        // {
+        //     SwitchView(Mode.None);
+        //     return;
+        // }
 
-        Vector3 lookAt = data.lookAtSource.transform.position + data.lookAtSourceOffset;
-        Vector3 lookDir = _charCapsule.forward;
-        Vector3 camPos = _camera.transform.position;
-        Quaternion camRot = Quaternion.LookRotation(lookDir, _charCapsule.up);
+        // Vector3 lookAt = data.lookAtSource.transform.position + data.lookAtSourceOffset;
+        // Vector3 lookDir = _charCapsule.forward;
+        // Vector3 camPos = _camera.transform.position;
+        // Quaternion camRot = Quaternion.LookRotation(lookDir, _charCapsule.up);
 
-        bool hit = Physics.Raycast(lookAt, lookDir * -1, out RaycastHit hitInfo, data.maxDistanceFromLookSource);
-        if (hit)
-        {
-            Vector3 targetCamPos = Math.Max(hitInfo.distance, data.minDistanceFromLookSource) * lookDir * -1;
+        // bool hit = Physics.Raycast(lookAt, lookDir * -1, out RaycastHit hitInfo, data.maxDistanceFromLookSource);
+        // if (hit)
+        // {
+        //     Vector3 targetCamPos = Math.Max(hitInfo.distance, data.minDistanceFromLookSource) * lookDir * -1;
 
-            Vector3 lerpSpeed = Vector3.Distance(lookAt, camPos) > Vector3.Distance(lookAt, targetCamPos) ? data.deceleration : data.acceleration;
-            if (lerpSpeed == Vector3.zero)
-            {
-                lerpSpeed = Vector3.one;
-            }
-            else
-            {
-                lerpSpeed = lerpSpeed * delta_time;
-            }
+        //     Vector3 lerpSpeed = Vector3.Distance(lookAt, camPos) > Vector3.Distance(lookAt, targetCamPos) ? data.deceleration : data.acceleration;
+        //     if (lerpSpeed == Vector3.zero)
+        //     {
+        //         lerpSpeed = Vector3.one;
+        //     }
+        //     else
+        //     {
+        //         lerpSpeed = lerpSpeed * delta_time;
+        //     }
 
-            camPos.x = Mathf.Lerp(camPos.x, targetCamPos.x, lerpSpeed.x);
-            camPos.y = Mathf.Lerp(camPos.y, targetCamPos.y, lerpSpeed.y);
-            camPos.z = Mathf.Lerp(camPos.z, targetCamPos.z, lerpSpeed.z);
+        //     camPos.x = Mathf.Lerp(camPos.x, targetCamPos.x, lerpSpeed.x);
+        //     camPos.y = Mathf.Lerp(camPos.y, targetCamPos.y, lerpSpeed.y);
+        //     camPos.z = Mathf.Lerp(camPos.z, targetCamPos.z, lerpSpeed.z);
 
-            _camera.transform.position = camPos;
-            _camera.transform.rotation = camRot;
-        }
+        //     _camera.transform.position = camPos;
+        //     _camera.transform.rotation = camRot;
+        // }
     }
     protected virtual void ExitViewMode_ThirdPerson()
     {

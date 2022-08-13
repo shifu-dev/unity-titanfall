@@ -1,358 +1,535 @@
 using System;
 using UnityEngine;
 
+[Serializable]
 public struct VirtualCapsule
 {
-    //////////////////////////////////////////////////////////////////
-    /// Physics
-    //////////////////////////////////////////////////////////////////
+    public const float DEFAULT_COLLISION_OFFSET = 0f;
+    public const int DEFAULT_LAYER_MASK = Physics.DefaultRaycastLayers;
+    public const QueryTriggerInteraction DEFAULT_TRIGGER_QUERY = QueryTriggerInteraction.Ignore;
 
-    public CapsuleCollider collider { get; set; }
+    private struct TempColliderUser : IDisposable
+    {
+        public TempColliderUser(VirtualCapsule capsule, CapsuleCollider collider)
+        {
+            // cache values
+            _collider = collider;
+            _radius = _collider.radius;
+            _height = _collider.height;
 
-    public LayerMask layerMask { get; set; }
-    public QueryTriggerInteraction triggerQuery { get; set; }
+            // write values to CapsuleCollider
+            Vector3 worldScale = collider.transform.lossyScale;
+            worldScale.x = Mathf.Abs(worldScale.x);
+            worldScale.y = Mathf.Abs(worldScale.y);
+            worldScale.z = Mathf.Abs(worldScale.z);
 
-    public Vector3 velocity { get; }
-    public float speed => velocity.magnitude;
+            _collider.radius = capsule._radius / Mathf.Max(worldScale.x, worldScale.z);
+            _collider.height = capsule._height / worldScale.y;
+        }
 
-    //////////////////////////////////////////////////////////////////
-    /// Positions (WorldSpace & LocalSpace)
-    //////////////////////////////////////////////////////////////////
-    public Vector3 position { get; set; }
-    public Vector3 localCenter { get; set; }
-    public Vector3 center
-    {
-        get => position + localCenter;
-    }
-    public Vector3 topSpherePosition
-    {
-        get => center + (up * halfCylinderHeight);
-    }
-    public Vector3 baseSpherePosition
-    {
-        get => center + (down * halfCylinderHeight);
-    }
-    public Vector3 topPosition
-    {
-        get => center + (up * (halfCylinderHeight + radius));
-    }
-    public Vector3 basePosition
-    {
-        get => center + (down * (halfCylinderHeight + radius));
+        public void Dispose()
+        {
+            // rewrite cached values
+            _collider.radius = _radius;
+            _collider.height = _height;
+        }
+
+        private CapsuleCollider _collider;
+        private float _radius;
+        private float _height;
     }
 
-    //////////////////////////////////////////////////////////////////
-    /// Rotations (WorldSpace & LocalSpace)
-    //////////////////////////////////////////////////////////////////
-    public Quaternion rotation { get; set; }
-    public Vector3 rotationEuler
+    [SerializeField] private Vector3 _position;
+    [SerializeField] private Quaternion _rotation;
+    [SerializeField] private float _height;
+    [SerializeField] private float _radius;
+
+    // cached values for performance
+    private Vector3 _topSphere;
+    private Vector3 _baseSphere;
+    private Vector3 _up;
+
+    private LayerMask _layerMask;
+    private QueryTriggerInteraction _queryTrigger;
+
+    public VirtualCapsule(int layerMask = DEFAULT_LAYER_MASK,
+        QueryTriggerInteraction queryTrigger = DEFAULT_TRIGGER_QUERY)
     {
-        get => rotation.eulerAngles;
-    }
-    public Vector3 forward
-    {
-        get => rotation * Vector3.forward;
-    }
-    public Vector3 backward
-    {
-        get => rotation * Vector3.back;
-    }
-    public Vector3 left
-    {
-        get => rotation * Vector3.left;
-    }
-    public Vector3 right
-    {
-        get => rotation * Vector3.right;
-    }
-    public Vector3 up
-    {
-        get => rotation * Vector3.up;
-    }
-    public Vector3 down
-    {
-        get => rotation * Vector3.down;
+        _position = Vector3.zero;
+        _rotation = Quaternion.identity;
+        _height = 2f;
+        _radius = 0.5f;
+
+        _layerMask = layerMask;
+        _queryTrigger = queryTrigger;
+
+        _topSphere = default;
+        _baseSphere = default;
+        _up = default;
     }
 
-    //////////////////////////////////////////////////////////////////
-    /// Lengths (WorldSpace & LocalSpace)
-    //////////////////////////////////////////////////////////////////
+    public VirtualCapsule(CapsuleCollider collider, int layerMask = DEFAULT_LAYER_MASK,
+        QueryTriggerInteraction queryTrigger = DEFAULT_TRIGGER_QUERY)
+        : this(layerMask, queryTrigger)
+    {
+        ReadValuesFrom(collider);
+    }
 
-    public Vector3 scale { get; set; }
-    public float localRadius { get; set; }
+    public VirtualCapsule(CharacterController controller, int layerMask = DEFAULT_LAYER_MASK,
+        QueryTriggerInteraction queryTrigger = DEFAULT_TRIGGER_QUERY)
+        : this(layerMask, queryTrigger)
+    {
+        ReadValuesFrom(controller);
+    }
+
+    private void InternalUpdateCache()
+    {
+        float length = Mathf.Max(0, (_height / 2f) - _radius);
+        _topSphere = _position + (_up * length);
+        _baseSphere = _position + (_up * -length);
+    }
+
+    public LayerMask layerMask
+    {
+        get => _layerMask;
+        set => _layerMask = value;
+    }
+    public QueryTriggerInteraction queryTrigger
+    {
+        get => _queryTrigger;
+        set => _queryTrigger = value;
+    }
+
+    public Vector3 position
+    {
+        get => _position;
+        set
+        {
+            _position = value;
+            InternalUpdateCache();
+        }
+    }
+    public Vector3 topSpherePos
+    {
+        get => _topSphere;
+    }
+    public Vector3 baseSpherePos
+    {
+        get => _baseSphere;
+    }
+    public Vector3 topPos
+    {
+        get => _topSphere + (_up * _radius);
+    }
+    public Vector3 basePos
+    {
+        get => _baseSphere + (_up * -_radius);
+    }
+
+    public Quaternion rotation
+    {
+        get => _rotation;
+        set
+        {
+            _rotation = value;
+            _up = _rotation * Vector3.up;
+            InternalUpdateCache();
+        }
+    }
+    public Vector3 forward => _rotation * Vector3.forward;
+    public Vector3 backward => _rotation * Vector3.back;
+    public Vector3 left => _rotation * Vector3.left;
+    public Vector3 right => _rotation * Vector3.right;
+    public Vector3 up => _rotation * Vector3.up;
+    public Vector3 down => _rotation * Vector3.down;
+
     public float radius
     {
-        get
+        get => _radius;
+        set
         {
-            Vector3 worldScale = this.scale;
-            return localRadius * Math.Max(worldScale.x, worldScale.z);
+            _radius = value;
+            InternalUpdateCache();
         }
     }
     public float diameter
     {
-        get => radius * 2;
+        get => _radius * 2f;
     }
-    public float localHeight { get; set; }
     public float height
     {
-        get => Math.Max(localHeight * scale.y, diameter);
+        get => _height;
+        set
+        {
+            _height = value;
+            InternalUpdateCache();
+        }
     }
     public float cylinderHeight
     {
-        get => height - diameter;
-    }
-    public float halfCylinderHeight
-    {
-        get => cylinderHeight / 2;
+        get => Mathf.Max(0, _height - (_radius * 2f));
     }
 
-    //////////////////////////////////////////////////////////////////
-    /// Volume (WorldSpace)
-    //////////////////////////////////////////////////////////////////
     public float sphereVolume
     {
-        get
-        {
-            return (float)Math.PI * (float)Math.Pow(radius, 2);
-        }
-    }
-    public float halfSphereVolume
-    {
-        get => sphereVolume / 2;
+        get => Mathf.PI * _radius * _radius;
     }
     public float cylinderVolume
     {
-        get
-        {
-            return 2 * (float)Math.PI * radius * cylinderHeight;
-        }
+        get => 2 * Mathf.PI * _radius * cylinderHeight;
     }
     public float volume
     {
         get => sphereVolume + cylinderVolume;
     }
 
-    //////////////////////////////////////////////////////////////////
-    /// Geometry
-    //////////////////////////////////////////////////////////////////
-
-    /// Checks if Capsule is in Sphere shaped in WorldSpace
     public bool isSphereShaped
     {
-        get => height <= diameter;
+        get => _height <= _radius * 2f;
     }
 
-    public Vector3 GetPositionInVolume(Vector3 pos, bool scale = true, bool clamp = true)
+    // Reads the values form CapsuleCollider and applies to this VirtualCapsule.
+    // After this operation VirtualCapsule will exactly imitate CapsuleCollider
+    // This does not affects layerMask and queryTrigger.
+    public void ReadValuesFrom(in CapsuleCollider collider)
     {
-        if (scale)
+        if (collider == null)
         {
-            pos.MultiplyEach(this.scale);
+            throw new NullReferenceException("cannot read values from NULL collider");
         }
 
-        pos += center;
+        Vector3 worldScale = collider.transform.lossyScale;
 
-        if (clamp)
+        Vector3 positionOffset = collider.transform.rotation *
+            Vector3.Scale(collider.center, worldScale);
+
+        // abs worldScale values, to scale collider correctly in reverse direction
+        worldScale.x = Mathf.Abs(worldScale.x);
+        worldScale.y = Mathf.Abs(worldScale.y);
+        worldScale.z = Mathf.Abs(worldScale.z);
+
+        // converts the collider.direction to rotation offset,
+        // 0 -> X, 1 -> Y, 2 -> z
+        Quaternion rotationOffset = Quaternion.identity;
+        switch (collider.direction)
         {
-            pos = ClampPositionInsideVolume(pos);
+            case 0:
+                rotationOffset = Quaternion.Euler(Vector3.forward * 90f);
+                float tmpZ = worldScale.z;
+                worldScale.z = worldScale.y;
+                worldScale.y = worldScale.x;
+                worldScale.x = tmpZ;
+                break;
+
+            case 1:
+                rotationOffset = Quaternion.Euler(Vector3.zero);
+                break;
+
+            case 2:
+                rotationOffset = Quaternion.Euler(Vector3.right * 90f);
+                float tmpY = worldScale.y;
+                worldScale.y = worldScale.z;
+                worldScale.z = worldScale.x;
+                worldScale.x = tmpY;
+                break;
+
+            default: break;
         }
 
-        return pos;
+        // apply the values
+        _rotation = collider.transform.rotation * rotationOffset;
+        _position = collider.transform.position + positionOffset;
+        _radius = collider.radius * Mathf.Max(worldScale.x, worldScale.z);
+        _height = collider.height * worldScale.y;
+
+        // cache values
+        _up = _rotation * Vector3.up;
+        InternalUpdateCache();
     }
 
-    public Vector3 ClampRelativePositionInsideVolume(Vector3 pos)
+    // Writes the values of VirtualCapsule to CapsuleCollider.
+    // After this operation CapsuleCollider will exactly imitate VirtualCapsule
+    // This method does not changes CapsuleCollider.Center and CapsuleCollider.Direction
+    public void WriteValuesTo(CapsuleCollider collider)
     {
-        return ClampPositionInsideVolume(this.center + pos);
+        if (collider == null)
+        {
+            throw new NullReferenceException("cannot write value to NULL collider");
+        }
+
+        Vector3 worldScale = collider.transform.lossyScale;
+
+        Vector3 positionOffset = collider.transform.rotation *
+            Vector3.Scale(collider.center, worldScale);
+
+        // abs worldScale values, to scale collider correctly in reverse direction
+        worldScale.x = Mathf.Abs(worldScale.x);
+        worldScale.y = Mathf.Abs(worldScale.y);
+        worldScale.z = Mathf.Abs(worldScale.z);
+
+        // converts the collider.direction to rotation offset,
+        // 0 -> X, 1 -> Y, 2 -> z
+        Quaternion rotationOffset = Quaternion.identity;
+        switch (collider.direction)
+        {
+            case 0:
+                rotationOffset = Quaternion.Euler(Vector3.forward * -90f);
+                float tmpZ = worldScale.z;
+                worldScale.z = worldScale.y;
+                worldScale.y = worldScale.x;
+                worldScale.x = tmpZ;
+                break;
+
+            case 1:
+                rotationOffset = Quaternion.Euler(Vector3.zero);
+                break;
+
+            case 2:
+                rotationOffset = Quaternion.Euler(Vector3.right * -90f);
+                float tmpY = worldScale.y;
+                worldScale.y = worldScale.z;
+                worldScale.z = worldScale.x;
+                worldScale.x = tmpY;
+                break;
+
+            default: break;
+        }
+
+        // apply the values
+        collider.transform.rotation = _rotation * rotationOffset;
+        collider.transform.position = _position - positionOffset;
+        collider.radius = _radius / Mathf.Max(worldScale.x, worldScale.z);
+        collider.height = _height / worldScale.y;
     }
 
+    // Reads the values form CharacterController and applies to this VirtualCapsule.
+    // After this operation VirtualCapsule will exactly imitate CharacterController
+    // This does not affects layerMask and queryTrigger.
+    public void ReadValuesFrom(in CharacterController controller)
+    {
+        if (controller == null)
+        {
+            throw new NullReferenceException("cannot read values from NULL controller");
+        }
+
+        Vector3 worldScale = controller.transform.lossyScale;
+
+        Vector3 positionOffset = controller.transform.rotation *
+            Vector3.Scale(controller.center, worldScale);
+
+        // abs worldScale values, to scale collider correctly in reverse direction
+        worldScale.x = Mathf.Abs(worldScale.x);
+        worldScale.y = Mathf.Abs(worldScale.y);
+        worldScale.z = Mathf.Abs(worldScale.z);
+
+        // apply the values
+        _rotation = controller.transform.rotation;
+        _position = controller.transform.position + positionOffset;
+        _radius = controller.radius * Mathf.Max(worldScale.x, worldScale.z);
+        _height = controller.height * worldScale.y;
+
+        // cache values
+        _up = _rotation * Vector3.up;
+        InternalUpdateCache();
+    }
+
+    // Writes the values of VirtualCapsule to CharacterController.
+    // After this operation CharacterController will exactly imitate VirtualCapsule
+    // This method does not changes CharacterController.Center
+    public void WriteValuesTo(CharacterController controller)
+    {
+        if (controller == null)
+        {
+            throw new NullReferenceException("cannot write value to NULL controller");
+        }
+
+        Vector3 worldScale = controller.transform.lossyScale;
+
+        Vector3 positionOffset = controller.transform.rotation *
+            Vector3.Scale(controller.center, worldScale);
+
+        // abs worldScale values, to scale collider correctly in reverse direction
+        worldScale.x = Mathf.Abs(worldScale.x);
+        worldScale.y = Mathf.Abs(worldScale.y);
+        worldScale.z = Mathf.Abs(worldScale.z);
+
+        // apply the values
+        controller.transform.rotation = _rotation;
+        controller.transform.position = _position - positionOffset;
+        controller.radius = _radius / Mathf.Max(worldScale.x, worldScale.z);
+        controller.height = _height / worldScale.y;
+    }
+
+    // Given a point [pos] in worldSpace, returns a point 
+    // which is clamped inside or on the surface of this Capsule
     public Vector3 ClampPositionInsideVolume(Vector3 pos)
     {
-        var center = this.center;
-        CalculateCapsuleGeometry(out var topSphere, out var baseSphere, out var radius);
-
-        var topSphere_to_pos = pos - topSphere;
-        if (Vector3.Angle(up, topSphere_to_pos) <= 90)
+        var topSphereToPos = pos - _topSphere;
+        if (Vector3.Angle(_up, topSphereToPos) <= 90)
         {
-            if (topSphere_to_pos.magnitude > radius)
+            if (topSphereToPos.magnitude > radius)
             {
-                pos += -topSphere_to_pos.normalized * (topSphere_to_pos.magnitude - radius);
+                pos += -topSphereToPos.normalized * (topSphereToPos.magnitude - radius);
             }
 
             return pos;
         }
 
-        var baseSphere_to_pos = pos - baseSphere;
-        if (Vector3.Angle(down, pos - baseSphere) <= 90)
+        var baseSphereToPos = pos - _baseSphere;
+        if (Vector3.Angle(-_up, baseSphereToPos) <= 90)
         {
-            if (baseSphere_to_pos.magnitude > radius)
+            if (baseSphereToPos.magnitude > radius)
             {
-                pos += -baseSphere_to_pos.normalized * (baseSphere_to_pos.magnitude - radius);
+                pos += -baseSphereToPos.normalized * (baseSphereToPos.magnitude - radius);
             }
 
             return pos;
         }
 
-        var center_to_pos_projected = Vector3.ProjectOnPlane(pos - center, up);
-        if (center_to_pos_projected.magnitude > radius)
+        var centerToPosProjected = Vector3.ProjectOnPlane(pos, up);
+        if (centerToPosProjected.magnitude > radius)
         {
-            var length = center_to_pos_projected.magnitude - radius;
-            var correction = -center_to_pos_projected.normalized * length;
+            var length = centerToPosProjected.magnitude - radius;
+            var correction = -centerToPosProjected.normalized * length;
             pos += correction;
         }
 
         return pos;
     }
 
-    public void CalculateCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius)
+    public Vector3 ClampPositionInsideVolumeRelative(Vector3 pos)
     {
-        CalculateCapsuleGeometry(out var scale, out var center, out topSphere, out baseSphere, out var cylinderHeight, out radius);
+        return ClampPositionInsideVolume(_position + pos);
     }
 
-    public void CalculateCapsuleGeometry(out Vector3 scale, out Vector3 center, out Vector3 topSphere, out Vector3 baseSphere, out float cylinderHeight, out float radius)
+    // Returns count of overlaps
+    public int CapsuleOverlap(out Collider[] colliders)
     {
-        scale = this.scale;
-        radius = localRadius * Mathf.Max(scale.x, scale.z);
-
-        float worldHeight = localHeight * scale.y;
-        cylinderHeight = worldHeight - radius - radius;
-
-        center = this.center;
-        topSphere = center + (up * (cylinderHeight / 2));
-        baseSphere = center + (down * (cylinderHeight / 2));
+        colliders = Physics.OverlapCapsule(_topSphere, _baseSphere, _radius, _layerMask, _queryTrigger);
+        return colliders.Length;
     }
 
-    //////////////////////////////////////////////////////////////////
-    /// Capsule Physics
-    //////////////////////////////////////////////////////////////////
-
-    public Collider[] CapsuleOverlap()
-    {
-        CalculateCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
-        return Physics.OverlapCapsule(topSphere, baseSphere, radius, layerMask, triggerQuery);
-    }
-
-    public uint CapsuleOverlapNonAlloc(Collider[] colliders)
+    // Returns count of overlaps
+    public int CapsuleOverlapNonAlloc(Collider[] colliders)
     {
         if (colliders == null || colliders.Length == 0)
             return 0;
 
-        CalculateCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
-        return (uint)Physics.OverlapCapsuleNonAlloc(topSphere, baseSphere, radius, colliders, layerMask, triggerQuery);
+        return Physics.OverlapCapsuleNonAlloc(_topSphere, _baseSphere, _radius, colliders, _layerMask, _queryTrigger);
     }
 
-    public RaycastHit CapsuleCast(Vector3 move)
+    // Returns true if cast hit something
+    public bool CapsuleCast(Vector3 move, out RaycastHit hit)
     {
-        CalculateCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
-        Physics.CapsuleCast(topSphere, baseSphere, radius, move.normalized, out RaycastHit hitInfo, move.magnitude, layerMask, triggerQuery);
-        return hitInfo;
+        return Physics.CapsuleCast(_topSphere, _baseSphere, _radius, move.normalized, out hit, move.magnitude, _layerMask, _queryTrigger);
     }
 
-    public RaycastHit[] CapsuleCastAll(Vector3 move)
+    // Returns count of hits
+    public int CapsuleCastAll(Vector3 move, out RaycastHit[] hits)
     {
-        CalculateCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
-        return Physics.CapsuleCastAll(topSphere, baseSphere, radius, move.normalized, move.magnitude, layerMask, triggerQuery);
+        hits = Physics.CapsuleCastAll(_topSphere, _baseSphere, _radius, move.normalized, move.magnitude, _layerMask, _queryTrigger);
+        return hits.Length;
     }
 
-    public uint CapsuleCastNonAlloc(RaycastHit[] hits, Vector3 move)
+    // Returns count of hits
+    public int CapsuleCastNonAlloc(Vector3 move, RaycastHit[] hits)
     {
-        CalculateCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
-        return (uint)Physics.CapsuleCastNonAlloc(topSphere, baseSphere, radius, move.normalized, hits, move.magnitude, layerMask, triggerQuery);
+        return Physics.CapsuleCastNonAlloc(_topSphere, _baseSphere, _radius, move.normalized, hits, move.magnitude, _layerMask, _queryTrigger);
     }
 
-    //////////////////////////////////////////////////////////////////
-    /// TopSphere Physics
-    //////////////////////////////////////////////////////////////////
 
-    public Collider[] TopSphereOverlap()
+    // Returns count of overlaps
+    public int TopSphereOverlap(out Collider[] colliders)
     {
-        CalculateCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
-        return Physics.OverlapSphere(topSphere, radius, layerMask, triggerQuery);
+        colliders = Physics.OverlapSphere(_topSphere, _radius, _layerMask, _queryTrigger);
+        return colliders.Length;
     }
 
-    public uint TopSphereOverlapNonAlloc(Collider[] colliders)
+    // Returns count of overlaps
+    public int TopSphereOverlapNonAlloc(Collider[] colliders)
     {
         if (colliders == null || colliders.Length == 0)
             return 0;
 
-        CalculateCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
-        return (uint)Physics.OverlapSphereNonAlloc(topSphere, radius, colliders, layerMask, triggerQuery);
+        return Physics.OverlapSphereNonAlloc(_topSphere, _radius, colliders, _layerMask, _queryTrigger);
     }
 
-    public RaycastHit TopSphereCast(Vector3 move)
+    // Returns true if cast hit something
+    public bool TopSphereCast(Vector3 move, out RaycastHit hit)
     {
-        CalculateCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
-        Physics.SphereCast(topSphere, radius, move.normalized, out RaycastHit hit, move.magnitude, layerMask, triggerQuery);
-        return hit;
+        return Physics.SphereCast(_topSphere, _radius, move.normalized, out hit, move.magnitude, _layerMask, _queryTrigger);
     }
 
-    public RaycastHit[] TopSphereCastAll(Vector3 move)
+    // Returns count of hits
+    public int TopSphereCastAll(Vector3 move, out RaycastHit[] hits)
     {
-        CalculateCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
-        return Physics.SphereCastAll(topSphere, radius, move.normalized, move.magnitude, layerMask, triggerQuery);
+        hits = Physics.SphereCastAll(_topSphere, _radius, move.normalized, move.magnitude, _layerMask, _queryTrigger);
+        return hits.Length;
     }
 
-    public uint TopSphereCastNonAlloc(RaycastHit[] hitResults, Vector3 move)
+    // Returns count of hits
+    public int TopSphereCastNonAlloc(RaycastHit[] hitResults, Vector3 move)
     {
         if (hitResults == null || hitResults.Length == 0)
             return 0;
 
-        CalculateCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
-        return (uint)Physics.SphereCastNonAlloc(topSphere, radius, move.normalized, hitResults, move.magnitude, layerMask, triggerQuery);
+        return Physics.SphereCastNonAlloc(_topSphere, _radius, move.normalized, hitResults, move.magnitude, _layerMask, _queryTrigger);
     }
 
-    //////////////////////////////////////////////////////////////////
-    /// BaseSphere Physics
-    //////////////////////////////////////////////////////////////////
 
-    public Collider[] BaseSphereOverlap()
+    // Returns count of overlaps
+    public int BaseSphereOverlap(out Collider[] colliders)
     {
-        CalculateCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
-        return Physics.OverlapSphere(baseSphere, radius, layerMask, triggerQuery);
+        colliders = Physics.OverlapSphere(_baseSphere, _radius, _layerMask, _queryTrigger);
+        return colliders.Length;
     }
 
-    public uint BaseSphereOverlapNonAlloc(Collider[] colliders)
+    // Returns count of overlaps
+    public int BaseSphereOverlapNonAlloc(Collider[] colliders)
     {
         if (colliders == null || colliders.Length == 0)
             return 0;
 
-        CalculateCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
-        return (uint)Physics.OverlapSphereNonAlloc(baseSphere, radius, colliders, layerMask, triggerQuery);
+        return Physics.OverlapSphereNonAlloc(_baseSphere, _radius, colliders, _layerMask, _queryTrigger);
     }
 
-    public RaycastHit BaseSphereCast(Vector3 move)
+    // Returns true if cast hit something
+    public bool BaseSphereCast(Vector3 move, out RaycastHit hit)
     {
-        CalculateCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
-        Physics.SphereCast(baseSphere, radius, move.normalized, out RaycastHit hit, move.magnitude, layerMask, triggerQuery);
-        return hit;
+        return Physics.SphereCast(_baseSphere, _radius, move.normalized, out hit, move.magnitude, _layerMask, _queryTrigger);
     }
 
-    public RaycastHit[] BaseSphereCastAll(Vector3 move)
+    // Returns count of hits
+    public int BaseSphereCastAll(Vector3 move, out RaycastHit[] hits)
     {
-        CalculateCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
-        return Physics.SphereCastAll(baseSphere, radius, move.normalized, move.magnitude, layerMask, triggerQuery);
+        hits = Physics.SphereCastAll(_baseSphere, _radius, move.normalized, move.magnitude, _layerMask, _queryTrigger);
+        return hits.Length;
     }
 
-    public uint BaseSphereCastNonAlloc(RaycastHit[] hitResults, Vector3 move)
+    // Returns count of hits
+    public int BaseSphereCastNonAlloc(RaycastHit[] hitResults, Vector3 move)
     {
         if (hitResults == null || hitResults.Length == 0)
             return 0;
 
-        CalculateCapsuleGeometry(out Vector3 topSphere, out Vector3 baseSphere, out float radius);
-        return (uint)Physics.SphereCastNonAlloc(baseSphere, radius, move.normalized, hitResults, move.magnitude, layerMask, triggerQuery);
+        return Physics.SphereCastNonAlloc(_baseSphere, _radius, move.normalized, hitResults, move.magnitude, _layerMask, _queryTrigger);
     }
 
-    //////////////////////////////////////////////////////////////////
-    /// Movement Physics
-    //////////////////////////////////////////////////////////////////
 
+    // Moves the Capsule, stops on hit
+    // Returns the delta move
     public Vector3 SweepMove(Vector3 move)
     {
         return SweepMove(move, out RaycastHit hit);
     }
 
+    // Moves the Capsule, stops on hit
+    // Returns the delta move
+    // outs the RaycastHit that stopped the move
+    // RaycastHit.collider is null, if no collision occurred an completed the move
     public Vector3 SweepMove(Vector3 move, out RaycastHit hit)
     {
-        hit = CapsuleCast(move);
-        if (hit.collider != null)
+        if (CapsuleCast(move, out hit))
         {
             move = move.normalized * hit.distance;
         }
@@ -361,107 +538,97 @@ public struct VirtualCapsule
         return move;
     }
 
-    //////////////////////////////////////////////////////////////////
-    /// Penetration
-    //////////////////////////////////////////////////////////////////
 
-    public bool ComputePenetration(out Vector3 moveOut, Collider collider, Vector3 colliderPosition, Quaternion colliderRotation)
+    // Calculates the delta move to resolve penetration with the given collider
+    // thisCollider: CapsuleCollider to be used for calculation
+    // NOTE: values of thisCollider are changed, but reverted back after the operation
+    // Returns true if calculation was successfull
+    // If calculation was unsuccessful, moveOut will have value of Vector3.zero
+    // collisionOffset: offset to apply when resolving penetration,
+    //                  this will result in Capsule moving [ResolveValue + CollisionOffset] away from the penetrating collider
+    public bool ComputePenetration(CapsuleCollider thisCollider, out Vector3 moveOut,
+        CapsuleCollider collider, Vector3 colliderPosition, Quaternion colliderRotation,
+        float collisionOffset = DEFAULT_COLLISION_OFFSET)
     {
         moveOut = Vector3.zero;
-        var thisCollider = this.collider;
-
         if (thisCollider == null || collider == null || thisCollider == collider)
         {
             return false;
         }
 
-        // store current values
-        float cacheRadius = thisCollider.radius;
-        float cacheHeight = thisCollider.height;
-        Vector3 cacheCenter = thisCollider.center;
-        int cacheDirection = thisCollider.direction;
-
-        // set new values
-        thisCollider.radius = this.localRadius;
-        thisCollider.height = this.localHeight;
-        thisCollider.center = this.localCenter;
-
-        // Note: Physics.ComputePenetration does not always return values when the colliders overlap.
-        var result = Physics.ComputePenetration(thisCollider, this.position, this.rotation,
-            collider, colliderPosition, colliderRotation, out Vector3 direction, out float distance);
-
-        // restore previous values
-        thisCollider.radius = cacheRadius;
-        thisCollider.height = cacheHeight;
-        thisCollider.center = cacheCenter;
-        thisCollider.direction = cacheDirection;
-
-        if (result)
+        using (var temp = new TempColliderUser(this, thisCollider))
         {
-            moveOut = direction * distance;
-            return true;
-        }
+            // Note: Physics.ComputePenetration does not always return values when the colliders overlap.
+            bool result = Physics.ComputePenetration(thisCollider, _position, _rotation,
+                collider, colliderPosition, colliderRotation, out Vector3 direction, out float distance);
 
-        return false;
+            if (result)
+            {
+                moveOut += direction * (distance + collisionOffset);
+                return true;
+            }
+
+            return false;
+        }
     }
 
-    public bool ResolvePenetrationInfo(out Vector3 moveOut, float collisionOffset = 0f)
+    // Performs overlap scan and calculates to Vector3 to resolve penetration
+    // NOTE: values of thisCollider are changed, but reverted back after the operation
+    // collisionOffset: offset to apply when resolving penetration,
+    //                  this will result in Capsule moving [ResolveValue + CollisionOffset] away from the penetrating collider
+    public bool ResolvePenetrationInfo(CapsuleCollider thisCollider, out Vector3 moveOut,
+        float collisionOffset = DEFAULT_COLLISION_OFFSET)
     {
         moveOut = Vector3.zero;
 
-        Collider[] overlaps = CapsuleOverlap();
-        if (overlaps.Length <= 0)
+        if (CapsuleOverlap(out Collider[] overlaps) == 0)
         {
             return false;
         }
 
-        var thisCollider = this.collider;
-        var thisPosition = this.position;
-        var thisRotation = this.rotation;
-
-        // store current values
-        float cacheRadius = thisCollider.radius;
-        float cacheHeight = thisCollider.height;
-        Vector3 cacheCenter = thisCollider.center;
-
-        // set new values
-        thisCollider.radius = localRadius;
-        thisCollider.height = localHeight;
-        thisCollider.center = localCenter;
-
-        foreach (var otherCollider in overlaps)
+        using (var temp = new TempColliderUser(this, thisCollider))
         {
-            if (otherCollider == null || thisCollider == otherCollider)
+            foreach (var otherCollider in overlaps)
             {
-                continue;
-            }
+                if (otherCollider == null || thisCollider == otherCollider)
+                {
+                    continue;
+                }
 
-            bool computed = Physics.ComputePenetration(thisCollider, thisPosition, thisRotation,
-                otherCollider, otherCollider.transform.position, otherCollider.transform.rotation,
-                out Vector3 direction, out float distance);
+                bool computed = Physics.ComputePenetration(thisCollider, _position, _rotation,
+                    otherCollider, otherCollider.transform.position, otherCollider.transform.rotation,
+                    out Vector3 direction, out float distance);
 
-            if (computed)
-            {
-                moveOut += direction * (distance + collisionOffset);
+                if (computed)
+                {
+                    moveOut += direction * (distance + collisionOffset);
+                }
             }
         }
-
-        // restore previous values
-        thisCollider.radius = cacheRadius;
-        thisCollider.height = cacheHeight;
-        thisCollider.center = cacheCenter;
 
         return true;
     }
 
-    public Vector3 ResolvePenetration(float collisionOffset = 0f)
+    // Calls ResolvePenetrationInfo and applies the output to resolve the penetration
+    // collisionOffset: offset to apply when resolving penetration,
+    //                  this will result in Capsule moving [ResolveValue + CollisionOffset] away from the penetrating collider
+    public Vector3 ResolvePenetration(CapsuleCollider thisCollider, float collisionOffset = DEFAULT_COLLISION_OFFSET)
     {
-        if (ResolvePenetrationInfo(out var moveOut, collisionOffset))
+        if (ResolvePenetrationInfo(thisCollider, out Vector3 moveOut, collisionOffset))
         {
-            position += moveOut;
+            _position += moveOut;
             return moveOut;
         }
 
         return Vector3.zero;
     }
+
+#if UNITY_EDITOR
+
+    public void DrawGizmo(Color color = default)
+    {
+        GizmosExtensions.DrawWireCapsule(_rotation, _topSphere, _baseSphere, _radius, color);
+    }
+
+#endif
 }
