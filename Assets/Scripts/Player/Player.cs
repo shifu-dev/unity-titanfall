@@ -1,6 +1,6 @@
 using System;
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 [RequireComponent(typeof(PlayerInputs))]
 [RequireComponent(typeof(PlayerState))]

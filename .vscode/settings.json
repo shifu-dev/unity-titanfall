@@ -59,6 +59,8 @@
         "lradius",
         "Mathf",
         "maxx",
+        "ugui",
+        "visualscripting",
         "wposition"
     ],
     "cSpell.ignoreWords": [
