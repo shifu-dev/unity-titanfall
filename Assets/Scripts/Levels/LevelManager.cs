@@ -12,14 +12,8 @@ public static class LevelManager
 
     public static void Init()
     {
-        logger = GameDebug.GetOrCreateLogger("LEVELMANAGER");
-        logger.Info("Initalizing");
-
-        registry = Resources.Load<LevelRegistry>("LevelRegistry");
-        if (registry == null)
-        {
-            logger.Error("LevelRegistry could not be loaded");
-        }
+        logger = GameDebug.GetOrCreateLogger("LEVEL MANAGER");
+        logger.Info("Initializing");
     }
 
     public static void Shutdown()
@@ -42,6 +36,15 @@ public static class LevelManager
         m_ActiveLevel = level;
     }
 
-    public static void LoadBootstrapLevel() => LoadLevel(registry.BootstrapLevel);
-    public static void LoadTrainingLevel() => LoadLevel(registry.TrainingLevel);
+    public static void LoadBootstrapLevel()
+    {
+        Level level = LevelRegistry.Instance.GetAsset("Bootstrap Level");
+        if (level == null)
+        {
+            logger.Info("Bootstrap level could not be found");
+            return;
+        }
+        
+        LoadLevel(level);
+    }
 }

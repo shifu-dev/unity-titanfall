@@ -9,13 +9,17 @@ public partial class CharacterSource : DataSource
         _instanceHandler = new InstanceHandler(this);
     }
 
-    public virtual void OnLoad()
+    public override void OnLoad()
     {
+        base.OnLoad();
+
         _instanceHandler.CreatePool();
     }
 
-    public virtual void OnUnload()
+    public override void OnUnload()
     {
+        base.OnUnload();
+
         _instanceHandler.DisposePool();
     }
 

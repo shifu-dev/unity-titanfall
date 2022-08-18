@@ -28,7 +28,7 @@ public class TrainingLevel : Level
             var localPlayer = PlayerManager.localPlayer;
             if (localPlayer != null)
             {
-                CharacterSource charSource = CharacterRegistry.GetSource("Manny");
+                CharacterSource charSource = CharacterRegistry.Instance.GetAsset("Manny");
                 charSource.instanceHandler.Reserve(4, 5);
 
                 Character character = charSource.instanceHandler.Create(

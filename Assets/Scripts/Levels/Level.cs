@@ -13,7 +13,7 @@ public enum LevelStatus
 }
 
 [CreateAssetMenu(fileName = "Level")]
-public class Level : ScriptableObject
+public class Level : DataSource
 {
     public string levelName;
     public LevelScene mainScene;

@@ -1,8 +1,10 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "LevelRegistry")]
-public class LevelRegistry : ScriptableObject
+public class LevelRegistry : AssetRegistry<Level>
 {
-    public Level BootstrapLevel;
-    public Level TrainingLevel;
+    public static readonly LevelRegistry Instance = new LevelRegistry();
+
+    public const string LOG_CATEGORY = "LEVEL ASSET REGISTRY";
+
+    public LevelRegistry() : base(LOG_CATEGORY) { }
 }

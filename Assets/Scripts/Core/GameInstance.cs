@@ -49,29 +49,33 @@ public class GameInstance : IGameInstanceChannelPipeline
         _logger.Info("Created GameInstanceUpdateChannel");
 
         _logger.Info("Initializing CharacterRegistry");
-        CharacterRegistry.Init();
+        CharacterRegistry.Instance.Init();
+
+        _logger.Info("Initializing LevelRegistry");
+        LevelRegistry.Instance.Init();
 
         _logger.Info("Initializing PlayerManager");
         PlayerManager.Init();
-        _logger.Info("PlayerManager: CreatingLocalPlayer");
         PlayerManager.CreateLocalPlayer();
 
         _logger.Info("Initializing LevelManager");
         LevelManager.Init();
-        _logger.Info("LevelManager: LoadBootstrapLevel");
-        LevelManager.LoadTrainingLevel();
+        LevelManager.LoadBootstrapLevel();
     }
 
     protected virtual void Shutdown()
     {
-        _logger.Info("Shutting down CharacterRegistry");
-        CharacterRegistry.Shutdown();
-
         _logger.Info("Shutting down LevelManager");
         LevelManager.Shutdown();
 
         _logger.Info("Shutting down PlayerManager");
         PlayerManager.Shutdown();
+
+        _logger.Info("Shutting down CharacterRegistry");
+        CharacterRegistry.Instance.Shutdown();
+
+        _logger.Info("Shutting down LevelRegistry");
+        LevelRegistry.Instance.Shutdown();
 
         _logger.Info("Shutting down GameDebug");
         GameDebug.Shutdown();
