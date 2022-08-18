@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 public abstract class AssetRegistry<T> : ObjectRegistry<T>
-    where T : DataSource
+    where T : DataAsset
 {
     public AssetRegistry(string regName)
         : base(regName) { }

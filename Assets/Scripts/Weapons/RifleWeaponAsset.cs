@@ -1,12 +1,15 @@
+using System;
 using UnityEngine;
 
-public abstract class FireableWeaponSource : WeaponSource
+[CreateAssetMenu(menuName = MENU_PATH + MENU_NAME, fileName = FILE_NAME)]
+public class RifleWeaponAsset : WeaponAsset
 {
-    [Header("FIREABLE WEAPON"), Space]
+    public const string MENU_NAME = "Rifle Weapon Source";
+    public const string FILE_NAME = "Rifle Weapon Source";
 
     [Label("Bullet Source"), SerializeField]
-    protected WeaponBulletSource _bulletSource;
-    public WeaponBulletSource bulletSource => _bulletSource;
+    protected WeaponBulletAsset _bulletSource;
+    public WeaponBulletAsset bulletSource => _bulletSource;
 
     [Label("Fire Rate"), SerializeField]
     protected uint _fireRate;
@@ -24,4 +27,12 @@ public abstract class FireableWeaponSource : WeaponSource
     [Label("Fire Audio"), SerializeField]
     protected AudioClip _fireAudio;
     public AudioClip fireAudio => _fireAudio;
+
+    [Label("Capacity"), SerializeField]    
+    protected uint _capacity;
+    public uint capacity => _capacity;
+
+    [Label("Initial"), SerializeField]
+    protected uint _initial;
+    public uint initial => _initial;
 }

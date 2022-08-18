@@ -1,0 +1,113 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0b44db164b89b4468a735b026189c13, type: 3}
+  m_Name: SwatGuy CharacterAsset
+  m_EditorClassIdentifier: 
+  _characterName: Manny
+  _tppBody: {fileID: 0}
+  _fppBody: {fileID: 0}
+  _tppPrefab: {fileID: 6526974782931169490, guid: 6b66c241476452548a8769ce8b2a69e3, type: 3}
+  _fppPrefab: {fileID: 0}
+  _characterMass: 80
+  _skinWidth: 0.02
+  _layerMask:
+    serializedVersion: 2
+    m_Bits: 241
+  m_groundCheckDepth: 0.05
+  m_groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  m_groundMinMoveDistance: 0
+  m_groundStandIdleSpeed: 0
+  m_groundStandIdleAcceleration: 0.4
+  m_groundStandWalkSpeed: 2
+  m_groundStandWalkAcceleration: 0.3
+  m_groundStandRunSpeed: 4
+  m_groundStandRunAcceleration: 0.4
+  m_groundStandSprintSpeed: 6
+  m_groundStandSprintAcceleration: 0.3
+  m_groundStandSprintLeftAngleMax: -46
+  m_groundStandSprintRightAngleMax: 46
+  m_groundStandJumpForce: 10
+  m_groundStandStepUpPercent: 40
+  m_groundStandStepDownPercent: 40
+  m_groundStandSlopeUpAngle: 45
+  m_groundStandSlopeDownAngle: -45
+  m_groundStandMaintainVelocityOnSurface: 0
+  m_groundStandMaintainVelocityAlongSurface: 0
+  m_groundStandCapsuleCenter: {x: 0, y: 1, z: 0}
+  m_groundStandCapsuleHeight: 2
+  m_groundStandCapsuleRadius: 0.5
+  m_groundStandToCrouchTransitionSpeed: 5
+  m_groundCrouchIdleSpeed: 0
+  m_groundCrouchIdleAcceleration: 0.3
+  m_groundCrouchWalkSpeed: 1
+  m_groundCrouchWalkAcceleration: 0.3
+  m_groundCrouchRunSpeed: 3
+  m_groundCrouchRunAcceleration: 0.3
+  m_groundCrouchAutoRiseToStandSprint: 1
+  m_groundCrouchJumpForce: 15
+  m_groundCrouchStepUpPercent: 55
+  m_groundCrouchStepDownPercent: 55
+  m_groundCrouchSlopeUpAngle: 60
+  m_groundCrouchSlopeDownAngle: -60
+  m_groundCrouchMaintainVelocityOnSurface: 0
+  m_groundCrouchMaintainVelocityAlongSurface: 0
+  m_groundCrouchCapsuleCenter: {x: 0, y: 1, z: 0}
+  m_groundCrouchCapsuleHeight: 1
+  m_groundCrouchCapsuleRadius: 0.5
+  m_groundCrouchToStandTransitionSpeed: 8
+  m_airGravityAcceleration: 9.8
+  m_airGravityMaxSpeed: Infinity
+  m_airMinMoveDistance: 0
+  m_airMoveSpeed: 0
+  m_airMoveAcceleration: 0
+  m_airJumpPower: 0
+  m_airMaxJumpCount: 0
+  _avatar: {fileID: 9000000, guid: 15003a1bcee5a8a4fb2e8e608f16f035, type: 3}
+  _avatarMaskUpperBody: {fileID: 0}
+  _avatarMaskLowerBody: {fileID: 0}
+  _animGroundStandIdle: {fileID: 0}
+  _animGroundStandWalkForward: {fileID: 0}
+  _animGroundStandWalkForwardLeft: {fileID: 0}
+  _animGroundStandWalkForwardRight: {fileID: 0}
+  _animGroundStandWalkLeft: {fileID: 0}
+  _animGroundStandWalkRight: {fileID: 0}
+  _animGroundStandWalkBackward: {fileID: 0}
+  _animGroundStandWalkBackwardLeft: {fileID: 0}
+  _animGroundStandWalkBackwardRight: {fileID: 0}
+  _animGroundStandRunForward: {fileID: 0}
+  _animGroundStandRunForwardLeft: {fileID: 0}
+  _animGroundStandRunForwardRight: {fileID: 0}
+  _animGroundStandRunLeft: {fileID: 0}
+  _animGroundStandRunRight: {fileID: 0}
+  _animGroundStandRunBackward: {fileID: 0}
+  _animGroundStandRunBackwardLeft: {fileID: 0}
+  _animGroundStandRunBackwardRight: {fileID: 0}
+  _animGroundStandSprintForward: {fileID: 0}
+  _animGroundCrouchIdle: {fileID: 0}
+  _animGroundCrouchWalkForward: {fileID: 0}
+  _animGroundCrouchWalkForwardLeft: {fileID: 0}
+  _animGroundCrouchWalkForwardRight: {fileID: 0}
+  _animGroundCrouchWalkLeft: {fileID: 0}
+  _animGroundCrouchWalkRight: {fileID: 0}
+  _animGroundCrouchWalkBackward: {fileID: 0}
+  _animGroundCrouchWalkBackwardLeft: {fileID: 0}
+  _animGroundCrouchWalkBackwardRight: {fileID: 0}
+  _animGroundCrouchRunForward: {fileID: 0}
+  _animGroundCrouchRunForwardLeft: {fileID: 0}
+  _animGroundCrouchRunForwardRight: {fileID: 0}
+  _animGroundCrouchRunLeft: {fileID: 0}
+  _animGroundCrouchRunRight: {fileID: 0}
+  _animGroundCrouchRunBackward: {fileID: 0}
+  _animGroundCrouchRunBackwardLeft: {fileID: 0}
+  _animGroundCrouchRunBackwardRight: {fileID: 0}

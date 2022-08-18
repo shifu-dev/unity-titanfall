@@ -331,7 +331,7 @@ public partial class CharacterMovement : CharacterBehaviour
 
     public Vector3 Velocity => _velocity;
 
-    protected CharacterSource _source;
+    protected CharacterAsset _source;
     protected CharacterView _charView;
 
     private CharacterMovementStateImpl _movementState;

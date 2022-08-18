@@ -1,10 +1,14 @@
 ﻿using System;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Characters/Character Source")]
-public partial class CharacterSource : DataSource
+[CreateAssetMenu(menuName = MENU_PATH + MENU_NAME, fileName = FILE_NAME)]
+public partial class CharacterAsset : DataAsset
 {
-    public CharacterSource()
+    public const string MENU_PATH = "Character/";
+    public const string MENU_NAME = "Character Asset";
+    public const string FILE_NAME = "Character Asset";
+
+    public CharacterAsset()
     {
         _instanceHandler = new InstanceHandler(this);
     }

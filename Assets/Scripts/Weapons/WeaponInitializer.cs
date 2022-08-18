@@ -4,8 +4,8 @@ using UnityEngine;
 public class WeaponInitializer : MonoBehaviour
 {
     public bool destroyAfterUse;
-    public WeaponSource source;
-    public WeaponBulletSource bulletDataSource;
+    public WeaponAsset source;
+    public WeaponBulletAsset bulletDataSource;
 
     public WeaponInitializer()
     {

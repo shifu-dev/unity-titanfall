@@ -3,10 +3,7 @@ using UnityEngine;
 
 public abstract class FireableWeapon : Weapon
 {
-    [NonSerialized] private FireableWeaponSource _source;
-    public new FireableWeaponSource source => _source;
-
-    protected WeaponBulletSource _bulletSource;
+    protected WeaponBulletAsset _bulletSource;
 
     protected float _fireRate;
     protected uint _fireForce;
@@ -34,18 +31,6 @@ public abstract class FireableWeapon : Weapon
     protected override void Init(WeaponInitializer initializer)
     {
         base.Init(initializer);
-
-        _bulletSource = initializer.bulletDataSource;
-        _source = initializer.source as FireableWeaponSource;
-
-        if (_source != null)
-        {
-            _bulletSource = _source.bulletSource;
-            _fireRate = _source.fireRate;
-            _fireForce = _source.fireForce;
-            _fireRecoil = _source.fireRecoil;
-            _fireAudio = _source.fireAudio;
-        }
     }
 
     public virtual void OnTriggerDown()
@@ -78,8 +63,7 @@ public abstract class FireableWeapon : Weapon
         if (_isTriggerDown == false)
             return false;
 
-        if (_source == null || _bulletSource == null ||
-            _fireMuzzleTransform == null)
+        if (_bulletSource == null || _fireMuzzleTransform == null)
             return false;
 
         if (_fireLastTimeFrame + (1f / _fireRate) > Time.time)

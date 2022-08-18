@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c71fd3985fbdc744194c30a6106a482f, type: 3}
+  m_Script: {fileID: 11500000, guid: 0f28f0c328b8ca74d80b109445e1bba7, type: 3}
   m_Name: Heavy Bullet Source
   m_EditorClassIdentifier: 
   _ammoName: Heavy

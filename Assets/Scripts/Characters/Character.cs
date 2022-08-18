@@ -11,8 +11,8 @@ using System.Collections.Generic;
 [RequireComponent(typeof(CharacterAnimation))]
 public class Character : Equipable
 {
-    private CharacterSource _source;
-    public CharacterSource source => _source;
+    private CharacterAsset _source;
+    public CharacterAsset source => _source;
 
     //////////////////////////////////////////////////////////////////
     /// Behaviours | BEGIN

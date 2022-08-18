@@ -3,8 +3,9 @@ using UnityEngine;
 
 public class RifleWeapon : ReloadableWeapon
 {
-    [NonSerialized] private RifleWeaponSource _source;
-    public new RifleWeaponSource source => _source;
+    [NonSerialized]
+    protected new RifleWeaponAsset _asset;
+    public new RifleWeaponAsset sourceAsset => _asset;
 
     public override WeaponCategory category => WeaponCategory.ASSAULT;
 
@@ -12,6 +13,19 @@ public class RifleWeapon : ReloadableWeapon
     {
         base.Init(initializer);
 
-        _source = initializer.source as RifleWeaponSource;
+        _bulletSource = initializer.bulletDataSource;
+
+        _asset = initializer.source as RifleWeaponAsset;
+        if (_asset != null)
+        {
+            _bulletSource = _asset.bulletSource;
+            _fireRate = _asset.fireRate;
+            _fireForce = _asset.fireForce;
+            _fireRecoil = _asset.fireRecoil;
+            _fireAudio = _asset.fireAudio;
+
+            _capacity = _asset.capacity;
+            _current = _asset.initial;
+        }
     }
 }

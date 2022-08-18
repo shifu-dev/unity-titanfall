@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7c4b701f5e6bc334bb8efb238fbc2800, type: 3}
-  m_Name: AXR-160 Source
+  m_Script: {fileID: 11500000, guid: 92af721efbb50094a81fef6b8153a410, type: 3}
+  m_Name: AXR-160 WeaponAsset
   m_EditorClassIdentifier: 
   _weaponName: AXR-160
   _prefab: {fileID: 4537889726513756679, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}

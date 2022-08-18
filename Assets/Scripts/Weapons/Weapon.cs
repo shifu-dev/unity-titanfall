@@ -17,9 +17,8 @@ public enum WeaponCategory
 [DisallowMultipleComponent]
 public abstract class Weapon : Equipable
 {
-    [SerializeField, ReadOnly]
-    private WeaponSource _source;
-    public WeaponSource source => _source;
+    protected WeaponAsset _asset;
+    public WeaponAsset sourceAsset => _asset;
 
     public abstract WeaponCategory category { get; }
 
@@ -40,6 +39,6 @@ public abstract class Weapon : Equipable
 
     protected virtual void Init(WeaponInitializer initializer)
     {
-        _source = initializer.source as WeaponSource;
+        _asset = initializer.source as WeaponAsset;
     }
 }

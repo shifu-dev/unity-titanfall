@@ -3,9 +3,6 @@ using UnityEngine;
 
 public abstract class ReloadableWeapon : FireableWeapon
 {
-    [NonSerialized] private ReloadableWeaponSource _source;
-    public new ReloadableWeaponSource source => _source;
-
     protected uint _capacity;
     public uint capacity => _capacity;
 
@@ -30,14 +27,8 @@ public abstract class ReloadableWeapon : FireableWeapon
     {
         base.Init(initializer);
 
-        _source = initializer.source as ReloadableWeaponSource;
-        if (_source != null)
-        {
-            _capacity = _source.capacity;
-            _current = _source.initial;
-            _isTriggered = true;
-            _hasMag = true;
-        }
+        _isTriggered = true;
+        _hasMag = true;
     }
 
     protected override bool CanFire()

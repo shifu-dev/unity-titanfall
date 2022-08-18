@@ -1,8 +1,8 @@
 using UnityEngine;
 
-public abstract class WeaponSource : DataSource
+public abstract class WeaponAsset : DataAsset
 {
-    [Header("WEAPON"), Space]
+    public const string MENU_PATH = "Weapon/";
 
     [Label("Weapon Name"), SerializeField]
     protected string _weaponName;
