@@ -12,5 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e5471cce9ec67c47bb6f75e4cd013b4, type: 3}
   m_Name: Bootstrap
   m_EditorClassIdentifier: 
-  m_sceneAsset: {fileID: 102900000, guid: 51cdef0469f501b45befe7711e194a85, type: 3}
-  sceneIndex: 0
+  _sceneAsset: {fileID: 102900000, guid: 51cdef0469f501b45befe7711e194a85, type: 3}

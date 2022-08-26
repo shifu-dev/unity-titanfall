@@ -1,40 +1,37 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using GameLog;
 
-using ILogger = GameLog.ILogger;
+using ILogger = Serilog.ILogger;
 
 public abstract class ObjectRegistry<T>
     where T : UnityEngine.Object
 {
-    public readonly string LogCategory;
-
     public delegate void OnAssetRegisteredDelegate(T asset);
     public delegate void OnAssetUnregisteredDelegate(T asset);
 
-    public ObjectRegistry(string logCategory)
-    {
-        LogCategory = logCategory;
-    }
-
     public void Init()
     {
-        _logger = GameDebug.GetOrCreateLogger(LogCategory);
-        _logger.Info("Initializing...");
+        CreateLogger();
+        _logger.Information("Initializing...");
 
         InternalInit();
 
-        _logger.Info("Initialized Successfully");
+        _logger.Information("Initialized Successfully");
     }
 
     public void Shutdown()
     {
-        _logger.Info("Shutting down...");
+        _logger.Information("Shutting down...");
 
         InternalShutdown();
 
-        _logger.Info("Shutdown completed");
+        _logger.Information("Shutdown completed");
+    }
+
+    protected virtual void CreateLogger()
+    {
+        _logger = GameLog.CreateLogger($"{typeof(T).Name}Registry");
     }
 
     protected virtual void InternalInit()
@@ -49,7 +46,7 @@ public abstract class ObjectRegistry<T>
 
     public void LoadAssets()
     {
-        _logger.Info("Loading assets...");
+        _logger.Information("Loading assets...");
 
         _assets = Resources.LoadAll<T>("");
         foreach (var asset in _assets)
@@ -57,12 +54,12 @@ public abstract class ObjectRegistry<T>
             InternalOnAssetLoad(asset);
         }
 
-        _logger.Info("Loaded {0} assets", _assets.Length);
+        _logger.Information("Loaded {0} assets", _assets.Length);
     }
 
     public void UnloadAssets()
     {
-        _logger.Info("Unloading {0} assets...", _assets.Length);
+        _logger.Information("Unloading {0} assets...", _assets.Length);
 
         foreach (var asset in _assets)
         {
@@ -70,17 +67,17 @@ public abstract class ObjectRegistry<T>
             Resources.UnloadAsset(asset);
         }
 
-        _logger.Info("Unloaded assets successfully");
+        _logger.Information("Unloaded assets successfully");
     }
 
     protected virtual void InternalOnAssetLoad(T asset)
     {
-        _logger.Info("Loaded [{0}] asset", asset.name);
+        _logger.Information("Loaded [{0}] asset", asset.name);
     }
 
     protected virtual void InternalOnAssetUnload(T asset)
     {
-        _logger.Info("Unloading [{0}] asset", asset.name);
+        _logger.Information("Unloading [{0}] asset", asset.name);
     }
 
     public T GetAsset(string charName)
@@ -117,6 +114,6 @@ public abstract class ObjectRegistry<T>
     public IReadOnlyList<T> Assets => _assets;
     public int Count => _assets.Length;
 
-    private ILogger _logger;
-    private T[] _assets;
+    protected ILogger _logger;
+    protected T[] _assets;
 }

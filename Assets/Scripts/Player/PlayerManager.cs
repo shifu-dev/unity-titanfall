@@ -1,29 +1,35 @@
-using GameLog;
 using UnityEngine;
+using ILogger = Serilog.ILogger;
 
 public static class PlayerManager
 {
-    private static GameObject playerPrefab;
-    public static Player localPlayer { get; set; }
-    public static GameLog.ILogger logger { get; private set; }
+    private static Player _localPlayer;
+    public static Player localPlayer
+    {
+        get => _localPlayer;
+    }
+
+    private static ILogger _logger;
 
     public static void Init()
     {
-        logger = GameDebug.GetOrCreateLogger("PLAYERMANAGER");
+        _logger = GameLog.CreateLogger("PlayerManager");
 
-        logger.Info("Initializing");
-        playerPrefab = Resources.Load<GameObject>("PlayerPrefab");
+        _logger.Information("Initializing...");
+        _logger.Information("Initialized");
     }
 
     public static void Shutdown()
     {
-        logger.Info("Shutting down");
+        _logger.Information("Shutting down...");
+        _logger.Information("Shutdown completed");
     }
 
     public static Player CreateLocalPlayer()
     {
-        logger.Info("Creating LocalPlayer");
+        _logger.Information("Creating LocalPlayer...");
 
+        GameObject playerPrefab = Resources.Load<GameObject>("PlayerPrefab");
         if (playerPrefab == null)
         {
             return null;
@@ -34,9 +40,8 @@ public static class PlayerManager
         Player player = PlayerGameObject.GetComponent<Player>();
         GameObject.DontDestroyOnLoad(PlayerGameObject);
 
-        localPlayer = player;
-        logger.Info("Created LocalPlayer");
+        _logger.Information("Created LocalPlayer");
 
-        return localPlayer;
+        return player;
     }
 }

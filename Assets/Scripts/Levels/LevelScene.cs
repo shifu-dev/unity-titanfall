@@ -7,7 +7,8 @@ public class LevelScene : ScriptableObject
 {
 #if UNITY_EDITOR
 
-    [SerializeField] private SceneAsset m_sceneAsset;
+    [SerializeField]
+    private SceneAsset _sceneAsset;
 
     public void UpdateSceneData()
     {
@@ -15,53 +16,57 @@ public class LevelScene : ScriptableObject
 
 #endif
 
-    public int sceneIndex;
-    public SceneObject sceneObject { get; protected set; }
-    public Scene scene { get; protected set; }
-
     public void LoadScene(LoadSceneMode loadSceneMode)
     {
-        scene = SceneManager.GetSceneAt(sceneIndex);
-        SceneManager.LoadScene(sceneIndex, loadSceneMode);
+        _scene = SceneManager.GetSceneAt(_sceneIndex);
+        SceneManager.LoadScene(_sceneIndex, loadSceneMode);
     }
 
     public AsyncOperation LoadSceneAsync(LoadSceneMode loadSceneMode)
     {
-        scene = SceneManager.GetSceneByBuildIndex(sceneIndex);
-        LevelManager.logger.Info("LEVELSCENE: Loading... | Index: " + sceneIndex + " | Scene: " + (scene == null ? false : true));
-        return SceneManager.LoadSceneAsync(sceneIndex, loadSceneMode);
+        _scene = SceneManager.GetSceneByBuildIndex(_sceneIndex);
+        return SceneManager.LoadSceneAsync(_sceneIndex, loadSceneMode);
     }
 
     public SceneObject FindSceneObject(bool force = false)
     {
-        if (force || sceneObject == null)
+        if (force || _sceneObject == null)
         {
-            LevelManager.logger.Info("LEVELSCENE: FindingSceneObject | force: " + force + " | SceneObject: " + sceneObject);
-
             GameObject[] sceneGameObjects = GameObject.FindGameObjectsWithTag(SceneObject.globalTag);
-            LevelManager.logger.Info("LEVELSCENE: Found " + sceneGameObjects.Length + " SceneObjects");
 
             foreach (var go in sceneGameObjects)
             {
-                if (go.scene.buildIndex == sceneIndex)
+                if (go.scene.buildIndex == _sceneIndex)
                 {
                     SceneObject so = go.GetComponent<SceneObject>();
                     if (so)
                     {
-                        sceneObject = so;
+                        _sceneObject = so;
                         break;
                     }
                 }
             }
         }
 
-        if (sceneObject)
+        if (_sceneObject)
         {
-            LevelManager.logger.Info("LEVELSCENE: Found SceneObject");
-            return sceneObject;
+            return _sceneObject;
         }
 
-        LevelManager.logger.Info("LEVELSCENE: Could Not Found SceneObject");
-        return sceneObject;
+        return _sceneObject;
+    }
+
+    protected int _sceneIndex;
+
+    protected SceneObject _sceneObject;
+    public SceneObject sceneObject
+    {
+        get => _sceneObject;
+    }
+
+    protected Scene _scene;
+    public Scene scene
+    {
+        get => _scene;
     }
 }

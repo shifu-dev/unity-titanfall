@@ -12,5 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e5471cce9ec67c47bb6f75e4cd013b4, type: 3}
   m_Name: Playground
   m_EditorClassIdentifier: 
-  m_sceneAsset: {fileID: 102900000, guid: 707acc8dffb72b144bb1ffbe1c965f3d, type: 3}
-  sceneIndex: 1
+  _sceneAsset: {fileID: 102900000, guid: 707acc8dffb72b144bb1ffbe1c965f3d, type: 3}

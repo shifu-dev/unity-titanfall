@@ -1,4 +1,3 @@
-using GameLog;
 using UnityEngine;
 
 public class GameInstance : IGameInstanceChannelPipeline
@@ -29,15 +28,15 @@ public class GameInstance : IGameInstanceChannelPipeline
     /// Singleton Interface | END
     //////////////////////////////////////////////////////////////////
 
-    protected GameLog.ILogger _logger;
+    protected Serilog.ILogger _logger;
     protected GameInstanceChannel _updateChannel;
 
     protected virtual void Init()
     {
-        GameDebug.Init();
-        _logger = GameDebug.GetOrCreateLogger("GAMEINSTANCE");
+        GameLog.Init();
+        _logger = GameLog.CreateLogger("GameInstance");
 
-        _logger.Info("Initializing");
+        _logger.Information("Initializing...");
 
         // Setup GameInstanceUpdateChannel
         GameObject UpdateChannelPrefab = Resources.Load<GameObject>("GameInstanceUpdateChannelPrefab");
@@ -46,39 +45,39 @@ public class GameInstance : IGameInstanceChannelPipeline
         _updateChannel = UpdateChannelGameObject.GetComponent<GameInstanceChannel>();
         _updateChannel.Pipeline = this;
         GameObject.DontDestroyOnLoad(_updateChannel);
-        _logger.Info("Created GameInstanceUpdateChannel");
+        _logger.Information("Created GameInstanceUpdateChannel");
 
-        _logger.Info("Initializing CharacterRegistry");
+        _logger.Information("Initializing CharacterRegistry");
         CharacterRegistry.Instance.Init();
 
-        _logger.Info("Initializing LevelRegistry");
+        _logger.Information("Initializing LevelRegistry");
         LevelRegistry.Instance.Init();
 
-        _logger.Info("Initializing PlayerManager");
+        _logger.Information("Initializing PlayerManager");
         PlayerManager.Init();
         PlayerManager.CreateLocalPlayer();
 
-        _logger.Info("Initializing LevelManager");
+        _logger.Information("Initializing LevelManager");
         LevelManager.Init();
         LevelManager.LoadBootstrapLevel();
     }
 
     protected virtual void Shutdown()
     {
-        _logger.Info("Shutting down LevelManager");
+        _logger.Information("Shutting down LevelManager");
         LevelManager.Shutdown();
 
-        _logger.Info("Shutting down PlayerManager");
+        _logger.Information("Shutting down PlayerManager");
         PlayerManager.Shutdown();
 
-        _logger.Info("Shutting down CharacterRegistry");
+        _logger.Information("Shutting down CharacterRegistry");
         CharacterRegistry.Instance.Shutdown();
 
-        _logger.Info("Shutting down LevelRegistry");
+        _logger.Information("Shutting down LevelRegistry");
         LevelRegistry.Instance.Shutdown();
 
-        _logger.Info("Shutting down GameDebug");
-        GameDebug.Shutdown();
+        _logger.Information("Shutting down GameDebug");
+        GameLog.Shutdown();
     }
 
     public void AwakeByChannel(GameInstanceChannel Channel)

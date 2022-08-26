@@ -1,14 +1,12 @@
 using UnityEngine;
-using GameLog;
-
-using ILogger = GameLog.ILogger;
+using ILogger = Serilog.ILogger;
 
 [CreateAssetMenu(fileName = "TrainingLevel")]
 public class TrainingLevel : Level
 {
     protected override void AfterLoadLevel()
     {
-        ILogger logger = LevelManager.logger.GetOrCreateSubLogger("TrainingLevel");
+        ILogger logger = GameLog.CreateLogger("TrainingLevel");
 
         var sceneObject = mainScene.sceneObject;
         var spawnPositions = sceneObject.playerSpawnPoints;
@@ -34,11 +32,11 @@ public class TrainingLevel : Level
                 Character character = charSource.instanceHandler.Create(
                     spawnPoint.position, spawnPoint.rotation);
 
-                logger.Info("Created Character");
+                logger.Information("Created Character");
 
                 // player possess character
                 localPlayer.Possess(character);
-                logger.Info("Player Possessed Character");
+                logger.Information("Player Possessed Character");
             }
         }
     }

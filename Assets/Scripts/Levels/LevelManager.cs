@@ -1,39 +1,45 @@
-using System;
-using GameLog;
-using UnityEngine;
+using ILogger = Serilog.ILogger;
 
 public static class LevelManager
 {
-    public static Level ActiveLevel => m_ActiveLevel;
-    private static Level m_ActiveLevel;
+    public const string LOG_CATEGORY = "LevelManager";
 
-    public static LevelRegistry registry { get; private set; }
-    public static GameLog.ILogger logger { get; private set; }
+    private static Level _activeLevel;
+    public static Level activeLevel
+    {
+        get => _activeLevel;
+    }
+
+    private static ILogger _logger;
+    public static ILogger logger
+    {
+        get => _logger;
+    }
 
     public static void Init()
     {
-        logger = GameDebug.GetOrCreateLogger("LEVEL MANAGER");
-        logger.Info("Initializing");
+        _logger = GameLog.CreateLogger(LOG_CATEGORY);
+        _logger.Information("Initializing");
     }
 
     public static void Shutdown()
     {
-        logger.Info("Shutting down");
+        _logger.Information("Shutting down");
     }
 
     public static async void LoadLevel(Level level)
     {
-        logger.Info("Loading " + level.levelName + " Level");
-        if (level == m_ActiveLevel)
+        _logger.Information("Loading " + level.levelName + " Level");
+        if (level == _activeLevel)
         {
-            logger.Info(level.levelName + " Level is already loaded");
+            _logger.Information(level.levelName + " Level is already loaded");
             return;
         }
 
         await level.LoadLevelAsync();
-        logger.Info("Loaded " + level.levelName + " Level successfully");
+        _logger.Information("Loaded " + level.levelName + " Level successfully");
 
-        m_ActiveLevel = level;
+        _activeLevel = level;
     }
 
     public static void LoadBootstrapLevel()
@@ -41,10 +47,10 @@ public static class LevelManager
         Level level = LevelRegistry.Instance.GetAsset("Bootstrap Level");
         if (level == null)
         {
-            logger.Info("Bootstrap level could not be found");
+            _logger.Information("Bootstrap level could not be found");
             return;
         }
-        
+
         LoadLevel(level);
     }
 }
