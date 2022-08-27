@@ -16,7 +16,7 @@ public class GameInstanceChannel : MonoBehaviour
 
     void Awake()
     {
-        if (Pipeline != null)
+        if (Pipeline is not null)
         {
             Pipeline.AwakeByChannel(this);
         }
@@ -24,7 +24,7 @@ public class GameInstanceChannel : MonoBehaviour
 
     void Update()
     {
-        if (Pipeline != null)
+        if (Pipeline is not null)
         {
             Pipeline.UpdateByChannel(this);
         }
@@ -32,7 +32,7 @@ public class GameInstanceChannel : MonoBehaviour
 
     void OnApplicationFocus(bool isFocused)
     {
-        if (Pipeline != null)
+        if (Pipeline is not null)
         {
             Pipeline.ApplicationFocusByChannel(this, isFocused);
         }
@@ -40,7 +40,7 @@ public class GameInstanceChannel : MonoBehaviour
 
     void OnApplicationPause(bool isPaused)
     {
-        if (Pipeline != null)
+        if (Pipeline is not null)
         {
             Pipeline.ApplicationPauseByChannel(this, isPaused);
         }
@@ -48,7 +48,7 @@ public class GameInstanceChannel : MonoBehaviour
 
     void OnApplicationQuit()
     {
-        if (Pipeline != null)
+        if (Pipeline is not null)
         {
             Pipeline.ApplicationQuitByChannel(this);
         }

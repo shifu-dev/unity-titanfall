@@ -193,7 +193,7 @@ public struct VirtualCapsule
     // This does not affects layerMask and queryTrigger.
     public void ReadValuesFrom(in CapsuleCollider collider)
     {
-        if (collider == null)
+        if (collider is null)
         {
             throw new NullReferenceException("cannot read values from NULL collider");
         }
@@ -252,7 +252,7 @@ public struct VirtualCapsule
     // This method does not changes CapsuleCollider.Center and CapsuleCollider.Direction
     public void WriteValuesTo(CapsuleCollider collider)
     {
-        if (collider == null)
+        if (collider is null)
         {
             throw new NullReferenceException("cannot write value to NULL collider");
         }
@@ -307,7 +307,7 @@ public struct VirtualCapsule
     // This does not affects layerMask and queryTrigger.
     public void ReadValuesFrom(in CharacterController controller)
     {
-        if (controller == null)
+        if (controller is null)
         {
             throw new NullReferenceException("cannot read values from NULL controller");
         }
@@ -338,7 +338,7 @@ public struct VirtualCapsule
     // This method does not changes CharacterController.Center
     public void WriteValuesTo(CharacterController controller)
     {
-        if (controller == null)
+        if (controller is null)
         {
             throw new NullReferenceException("cannot write value to NULL controller");
         }
@@ -412,7 +412,7 @@ public struct VirtualCapsule
     // Returns count of overlaps
     public int CapsuleOverlapNonAlloc(Collider[] colliders)
     {
-        if (colliders == null || colliders.Length == 0)
+        if (colliders is null || colliders.Length == 0)
             return 0;
 
         return Physics.OverlapCapsuleNonAlloc(_topSphere, _baseSphere, _radius, colliders, _layerMask, _queryTrigger);
@@ -448,7 +448,7 @@ public struct VirtualCapsule
     // Returns count of overlaps
     public int TopSphereOverlapNonAlloc(Collider[] colliders)
     {
-        if (colliders == null || colliders.Length == 0)
+        if (colliders is null || colliders.Length == 0)
             return 0;
 
         return Physics.OverlapSphereNonAlloc(_topSphere, _radius, colliders, _layerMask, _queryTrigger);
@@ -470,7 +470,7 @@ public struct VirtualCapsule
     // Returns count of hits
     public int TopSphereCastNonAlloc(RaycastHit[] hitResults, Vector3 move)
     {
-        if (hitResults == null || hitResults.Length == 0)
+        if (hitResults is null || hitResults.Length == 0)
             return 0;
 
         return Physics.SphereCastNonAlloc(_topSphere, _radius, move.normalized, hitResults, move.magnitude, _layerMask, _queryTrigger);
@@ -487,7 +487,7 @@ public struct VirtualCapsule
     // Returns count of overlaps
     public int BaseSphereOverlapNonAlloc(Collider[] colliders)
     {
-        if (colliders == null || colliders.Length == 0)
+        if (colliders is null || colliders.Length == 0)
             return 0;
 
         return Physics.OverlapSphereNonAlloc(_baseSphere, _radius, colliders, _layerMask, _queryTrigger);
@@ -509,7 +509,7 @@ public struct VirtualCapsule
     // Returns count of hits
     public int BaseSphereCastNonAlloc(RaycastHit[] hitResults, Vector3 move)
     {
-        if (hitResults == null || hitResults.Length == 0)
+        if (hitResults is null || hitResults.Length == 0)
             return 0;
 
         return Physics.SphereCastNonAlloc(_baseSphere, _radius, move.normalized, hitResults, move.magnitude, _layerMask, _queryTrigger);
@@ -551,7 +551,7 @@ public struct VirtualCapsule
         float collisionOffset = DEFAULT_COLLISION_OFFSET)
     {
         moveOut = Vector3.zero;
-        if (thisCollider == null || collider == null || thisCollider == collider)
+        if (thisCollider is null || collider is null || thisCollider == collider)
         {
             return false;
         }
@@ -590,7 +590,7 @@ public struct VirtualCapsule
         {
             foreach (var otherCollider in overlaps)
             {
-                if (otherCollider == null || thisCollider == otherCollider)
+                if (otherCollider is null || thisCollider == otherCollider)
                 {
                     continue;
                 }

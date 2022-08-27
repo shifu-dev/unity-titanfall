@@ -44,7 +44,7 @@ public class FragGrenade : Grenade
             }
         }
 
-        if (_effect == null)
+        if (_effect is null)
         {
             Destroy(gameObject);
             return;

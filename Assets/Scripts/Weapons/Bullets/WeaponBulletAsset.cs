@@ -17,7 +17,7 @@ public class WeaponBulletAsset : DataAsset
 
     public WeaponBullet Instantiate(Vector3 pos, Quaternion rot)
     {
-        if (_prefab == null)
+        if (_prefab is null)
         {
             return null;
         }

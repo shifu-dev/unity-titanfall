@@ -107,7 +107,7 @@ public partial class CharacterMovement : CharacterBehaviour
         {
             remainingMove -= CapsuleMove(remainingMove, out RaycastHit hit, out Vector3 hitNormal);
 
-            if (hit.collider == null)
+            if (hit.collider is null)
             {
                 // no collision, so end the move
                 remainingMove = Vector3.zero;
@@ -123,7 +123,7 @@ public partial class CharacterMovement : CharacterBehaviour
 
     protected virtual void AirMoveAlongSurface(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit, Vector3 hitNormal)
     {
-        if (hit.collider == null || remainingMove == global::UnityEngine.Vector3.zero)
+        if (hit.collider is null || remainingMove == global::UnityEngine.Vector3.zero)
             return;
 
         RecalculateNormalIfZero(hit, ref hitNormal);

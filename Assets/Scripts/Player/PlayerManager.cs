@@ -30,7 +30,7 @@ public static class PlayerManager
         _logger.Information("Creating LocalPlayer...");
 
         GameObject playerPrefab = Resources.Load<GameObject>("PlayerPrefab");
-        if (playerPrefab == null)
+        if (playerPrefab is null)
         {
             return null;
         }

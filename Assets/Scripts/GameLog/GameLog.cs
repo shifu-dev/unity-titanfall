@@ -53,7 +53,7 @@ public static class GameLog
             .Enrich.WithFrameCount()
             .WriteTo.Logger(Log.Logger);
 
-        if (config != null)
+        if (config is not null)
         {
             config(builder);
         }

@@ -60,10 +60,14 @@ public class GameInstance : IGameInstanceChannelPipeline
         _logger.Information("Initializing LevelManager");
         LevelManager.Init();
         LevelManager.LoadBootstrapLevel();
+
+        _logger.Information("Initialization completed");
     }
 
     protected virtual void Shutdown()
     {
+        _logger.Information("Shutting down...");
+
         _logger.Information("Shutting down LevelManager");
         LevelManager.Shutdown();
 
@@ -76,8 +80,7 @@ public class GameInstance : IGameInstanceChannelPipeline
         _logger.Information("Shutting down LevelRegistry");
         LevelRegistry.Instance.Shutdown();
 
-        _logger.Information("Shutting down GameDebug");
-        GameLog.Shutdown();
+        _logger.Information("Shutdown completed");
     }
 
     public void AwakeByChannel(GameInstanceChannel Channel)

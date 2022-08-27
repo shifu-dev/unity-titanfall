@@ -104,7 +104,7 @@ public class Level : DataAsset
         m_levelStatus = status;
 
         OnStatusUpdated(m_levelStatus);
-        if (onStatusUpdated != null)
+        if (onStatusUpdated is not null)
         {
             onStatusUpdated(m_levelStatus);
         }

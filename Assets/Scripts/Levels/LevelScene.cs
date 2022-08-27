@@ -30,7 +30,7 @@ public class LevelScene : ScriptableObject
 
     public SceneObject FindSceneObject(bool force = false)
     {
-        if (force || _sceneObject == null)
+        if (force || _sceneObject is null)
         {
             GameObject[] sceneGameObjects = GameObject.FindGameObjectsWithTag(SceneObject.globalTag);
 

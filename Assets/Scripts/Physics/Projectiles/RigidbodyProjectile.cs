@@ -8,7 +8,7 @@ public class RigidbodyProjectile : Projectile
     {
         get
         {
-            if (m_rigidBody == null)
+            if (m_rigidBody is null)
             {
                 m_rigidBody = GetComponent<Rigidbody>();
             }

@@ -29,7 +29,7 @@ public abstract class WeaponAsset : DataAsset
 
     public virtual Weapon Instantiate(Vector3 pos, Quaternion rot, Transform parent)
     {
-        if (_prefab != null)
+        if (_prefab is not null)
         {
             // deactivate the prefab to avoid calling Awake()
             // on instantiated instances

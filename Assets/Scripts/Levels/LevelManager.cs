@@ -45,7 +45,7 @@ public static class LevelManager
     public static void LoadBootstrapLevel()
     {
         Level level = LevelRegistry.Instance.GetAsset("Bootstrap Level");
-        if (level == null)
+        if (level is null)
         {
             _logger.Information("Bootstrap level could not be found");
             return;

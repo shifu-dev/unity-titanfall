@@ -122,7 +122,7 @@ public class CharacterView : CharacterBehaviour
     }
     protected virtual void UpdateViewMode_Eyes()
     {
-        if (_camera == null || _eyesData.eyes == null)
+        if (_camera is null || _eyesData.eyes is null)
             return;
 
         _camera.transform.position = _eyesData.eyes.transform.position;
@@ -137,7 +137,7 @@ public class CharacterView : CharacterBehaviour
     }
     protected virtual void UpdateViewMode_FirstPerson()
     {
-        if (_camera == null)
+        if (_camera is null)
         {
             return;
         }
@@ -175,7 +175,7 @@ public class CharacterView : CharacterBehaviour
     protected virtual void UpdateViewMode_ThirdPerson()
     {
         // var data = _thirdPersonData;
-        // if (_camera == null || data.lookAtSource == null)
+        // if (_camera is null || data.lookAtSource is null)
         // {
         //     SwitchView(Mode.None);
         //     return;

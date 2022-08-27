@@ -50,7 +50,7 @@ public class Player : Controller
         foreach (var behaviour in _behaviours)
         {
             T customBehaviour = behaviour as T;
-            if (customBehaviour != null)
+            if (customBehaviour is not null)
             {
                 return customBehaviour;
             }
@@ -62,7 +62,7 @@ public class Player : Controller
     public virtual bool HasBehaviour<T>()
         where T : PlayerBehaviour
     {
-        return GetBehaviour<T>() != null;
+        return GetBehaviour<T>() is not null;
     }
 
     protected virtual void CollectBehaviours(params PlayerBehaviour[] exceptions)
@@ -75,7 +75,7 @@ public class Player : Controller
         {
             behaviours.RemoveAll((PlayerBehaviour behaviour) =>
             {
-                if (behaviour == null)
+                if (behaviour is null)
                     return true;
 
                 foreach (var exceptionBehaviour in exceptions)

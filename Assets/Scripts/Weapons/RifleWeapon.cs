@@ -16,7 +16,7 @@ public class RifleWeapon : ReloadableWeapon
         _bulletSource = initializer.bulletDataSource;
 
         _asset = initializer.source as RifleWeaponAsset;
-        if (_asset != null)
+        if (_asset is not null)
         {
             _bulletSource = _asset.bulletSource;
             _fireRate = _asset.fireRate;

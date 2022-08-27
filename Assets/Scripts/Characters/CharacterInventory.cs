@@ -28,7 +28,7 @@ public class CharacterInventory : CharacterBehaviour
     public bool ValidateWeapon(int index, Weapon weapon)
     {
         // always allow storing null, works as remove weapon
-        if (weapon == null) return true;
+        if (weapon is null) return true;
 
         if (index < 0 || index > _weaponSlots.Length) return false;
 
@@ -58,11 +58,11 @@ public class CharacterInventory : CharacterBehaviour
 
     public int GetEmptySlotForWeapon(Weapon weapon)
     {
-        if (weapon != null)
+        if (weapon is not null)
         {
             for (int i = 0; i < _weaponSlots.Length; i++)
             {
-                if (_weaponSlots[i].weapon == null &&
+                if (_weaponSlots[i].weapon is null &&
                     _weaponSlots[i].category.HasFlag(weapon.category))
                 {
                     return i;
@@ -75,7 +75,7 @@ public class CharacterInventory : CharacterBehaviour
 
     public int GetFirstSlotForWeapon(Weapon weapon)
     {
-        if (weapon != null)
+        if (weapon is not null)
         {
             for (int i = 0; i < _weaponSlots.Length; i++)
             {

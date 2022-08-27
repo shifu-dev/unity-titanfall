@@ -38,7 +38,7 @@ public struct InteractableScanResult
         }
     }
 
-    public bool isValid => interactable != null;
+    public bool isValid => interactable is not null;
 
     public bool HasThisFrame(int frame)
     {
@@ -167,10 +167,10 @@ public class CharacterInteraction : CharacterBehaviour
         InteractableScanResult raycastScanResult = InteractableScanResult.invalid;
         if (_performRaycasts)
         {
-            if (_raycastSource != null)
+            if (_raycastSource is not null)
             {
                 Camera camera = character.charView.camera;
-                if (camera != null)
+                if (camera is not null)
                 {
                     Transform source = camera.transform;
                     _raycastSource.position = source.position;
@@ -202,7 +202,7 @@ public class CharacterInteraction : CharacterBehaviour
             foreach (var collider in overlapResults)
             {
                 Interactable interactable = Interactable.GetInteractable(collider);
-                if (interactable != null)
+                if (interactable is not null)
                 {
                     var scanResult = GenerateOverlapScanResult(interactable);
 
@@ -230,7 +230,7 @@ public class CharacterInteraction : CharacterBehaviour
         var thisFrame = Time.frameCount;
         for (int i = 0; i < interactablesCapacity; i++)
         {
-            if (_interactables[i].interactable == null)
+            if (_interactables[i].interactable is null)
                 continue;
 
             if (_interactables[i].HasThisFrame(thisFrame) == false)
@@ -243,7 +243,7 @@ public class CharacterInteraction : CharacterBehaviour
 
     protected InteractableScanResult GenerateRaycastScanResult(Interactable interactable, RaycastHit hit)
     {
-        if (interactable == null)
+        if (interactable is null)
             return InteractableScanResult.invalid;
 
         InteractableScanResult scanResult = new InteractableScanResult();
@@ -255,7 +255,7 @@ public class CharacterInteraction : CharacterBehaviour
 
     protected InteractableScanResult GenerateOverlapScanResult(Interactable interactable)
     {
-        if (interactable == null)
+        if (interactable is null)
             return InteractableScanResult.invalid;
 
         InteractableScanResult scanResult = new InteractableScanResult();
@@ -267,7 +267,7 @@ public class CharacterInteraction : CharacterBehaviour
 
     protected InteractableScanResult GenerateManualScanResult(Interactable interactable)
     {
-        if (interactable == null)
+        if (interactable is null)
             return InteractableScanResult.invalid;
 
         InteractableScanResult scanResult = new InteractableScanResult();
@@ -369,7 +369,7 @@ public class CharacterInteraction : CharacterBehaviour
     protected bool FilterScanResult(InteractableScanResult scanResult)
     {
         var interactable = scanResult.interactable;
-        if (interactable == null)
+        if (interactable is null)
             return false;
 
         if (interactable.canInteract == false)
@@ -383,7 +383,7 @@ public class CharacterInteraction : CharacterBehaviour
 
     protected int CompareScanResult(InteractableScanResult lhs, InteractableScanResult rhs)
     {
-        if (lhs.interactable == null && rhs.interactable == null)
+        if (lhs.interactable is null && rhs.interactable is null)
             return 0;
 
         if (lhs.interactable && rhs.interactable)
@@ -422,18 +422,18 @@ public class CharacterInteraction : CharacterBehaviour
     protected virtual void OnInteractableAdded(InteractableScanResult scanResult)
     {
         var interactable = scanResult.interactable;
-        if (interactable == null)
+        if (interactable is null)
             return;
 
         Grenade grenade = interactable.GetComponent<Grenade>();
-        if (grenade != null)
+        if (grenade is not null)
         {
             // charEquip.OnGrenadeFound(scanResult, grenade);
             return;
         }
 
         Weapon weapon = interactable.GetComponent<Weapon>();
-        if (weapon != null)
+        if (weapon is not null)
         {
             // charEquip.OnWeaponFound(scanResult, weapon);
             return;
@@ -453,7 +453,7 @@ public class CharacterInteraction : CharacterBehaviour
 
     public void ForEachScanResult(Action<InteractableScanResult> action)
     {
-        if (action != null)
+        if (action is not null)
         {
             for (int i = 0; i < interactablesCount; i++)
             {
@@ -464,7 +464,7 @@ public class CharacterInteraction : CharacterBehaviour
 
     public void ForEachInteractable(Action<Interactable> action)
     {
-        if (action != null)
+        if (action is not null)
         {
             for (int i = 0; i < interactablesCount; i++)
             {
@@ -475,7 +475,7 @@ public class CharacterInteraction : CharacterBehaviour
 
     public InteractableScanResult FindScanResult(Predicate<InteractableScanResult> pred)
     {
-        if (pred != null)
+        if (pred is not null)
         {
             for (int i = 0; i < interactablesCount; i++)
             {
@@ -491,7 +491,7 @@ public class CharacterInteraction : CharacterBehaviour
 
     public Interactable FindInteractable(Predicate<InteractableScanResult> pred)
     {
-        if (pred != null)
+        if (pred is not null)
         {
             for (int i = 0; i < interactablesCount; i++)
             {
@@ -507,7 +507,7 @@ public class CharacterInteraction : CharacterBehaviour
 
     public Interactable FindInteractable(Predicate<Interactable> pred)
     {
-        if (pred != null)
+        if (pred is not null)
         {
             for (int i = 0; i < interactablesCount; i++)
             {
@@ -523,7 +523,7 @@ public class CharacterInteraction : CharacterBehaviour
 
     public InteractableScanResult GetScanResult(Interactable interactable)
     {
-        if (interactable != null)
+        if (interactable is not null)
         {
             for (int i = 0; i < interactablesCount; i++)
             {
@@ -537,7 +537,7 @@ public class CharacterInteraction : CharacterBehaviour
 
     public bool HasInteractable(Interactable interactable)
     {
-        if (interactable != null)
+        if (interactable is not null)
         {
             for (int i = 0; i < interactablesCount; i++)
             {

@@ -22,7 +22,7 @@ public partial class CharacterMovement : CharacterBehaviour
         _collider = GetComponent<CapsuleCollider>();
 
         // cache Data from CharacterDataSource
-        if (_source != null)
+        if (_source is not null)
         {
             _capsule = new VirtualCapsule();
             _capsule.position = Vector3.zero;

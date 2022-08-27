@@ -38,7 +38,7 @@ namespace UnityEngine
 
         public static bool RecalculateNormalUsingRaycast(this RaycastHit hit, out Vector3 normal, int layerMask, QueryTriggerInteraction triggerQuery)
         {
-            if (hit.collider != null)
+            if (hit.collider is not null)
             {
                 var rayOrigin = hit.point + hit.normal * .01f; ;
                 Physics.Raycast(rayOrigin, -hit.normal, out var rayHit, 0.011f, layerMask, triggerQuery);

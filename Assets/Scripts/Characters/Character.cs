@@ -85,7 +85,7 @@ public class Character : Equipable
         OnInit();
         GenerateOnCharacterCreateEvents();
 
-        if (_charInitializer != null && _charInitializer.destroyOnUse)
+        if (_charInitializer is not null && _charInitializer.destroyOnUse)
         {
             DestroyInitializer();
         }
@@ -105,12 +105,12 @@ public class Character : Equipable
 
     protected virtual void OnInit()
     {
-        if (_charInitializer != null)
+        if (_charInitializer is not null)
         {
             _source = _charInitializer.source;
         }
 
-        if (_source != null)
+        if (_source is not null)
         {
             _mass = _source.characterMass;
         }
@@ -159,7 +159,7 @@ public class Character : Equipable
         foreach (var behaviour in _behaviours)
         {
             T customBehaviour = behaviour as T;
-            if (customBehaviour != null)
+            if (customBehaviour is not null)
             {
                 return customBehaviour;
             }
@@ -171,7 +171,7 @@ public class Character : Equipable
     public virtual bool HasBehaviour<T>()
         where T : CharacterBehaviour
     {
-        return GetBehaviour<T>() != null;
+        return GetBehaviour<T>() is not null;
     }
 
     protected virtual void CollectBehaviours(params CharacterBehaviour[] exceptions)
@@ -184,7 +184,7 @@ public class Character : Equipable
         {
             behaviours.RemoveAll((CharacterBehaviour behaviour) =>
             {
-                if (behaviour == null)
+                if (behaviour is null)
                     return true;
 
                 foreach (var exceptionBehaviour in exceptions)

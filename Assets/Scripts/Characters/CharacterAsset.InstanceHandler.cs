@@ -31,18 +31,18 @@ public partial class CharacterAsset : DataAsset
         {
             Character instance = null;
 
-            if (_pool != null)
+            if (_pool is not null)
             {
                 instance = _pool.Get();
             }
 
-            if (instance == null)
+            if (instance is null)
             {
                 // try instantiating if pooling fails for some reason
                 instance = Instantiate();
             }
 
-            if (instance != null)
+            if (instance is not null)
             {
                 instance.transform.position = pos;
                 instance.transform.rotation = rot;
@@ -55,11 +55,11 @@ public partial class CharacterAsset : DataAsset
 
         public virtual void Dispose(Character character)
         {
-            if (character != null)
+            if (character is not null)
             {
                 character.OnDespawn();
 
-                if (Count == MaxCount || _pool == null)
+                if (Count == MaxCount || _pool is null)
                 {
                     OnDestroyCallback(character);
                 }
@@ -103,14 +103,14 @@ public partial class CharacterAsset : DataAsset
 
         public virtual void CreatePool()
         {
-            if (_pool == null)
+            if (_pool is null)
             {
                 _pool = new ObjectPool<Character>(Instantiate,
                     OnGetCallback, OnReleaseCallback, OnDestroyCallback,
                     Application.isEditor, _maxCount, MAX_RESERVE_COUNT);
             }
 
-            if (_parent == null)
+            if (_parent is null)
             {
                 _parent = new GameObject($"{_source.characterName} Character Pool").transform;
                 GameObject.DontDestroyOnLoad(_parent.gameObject);
@@ -119,12 +119,12 @@ public partial class CharacterAsset : DataAsset
 
         public virtual void DisposePool()
         {
-            if (_pool != null)
+            if (_pool is not null)
             {
                 _pool.Dispose();
             }
 
-            if (_parent != null)
+            if (_parent is not null)
             {
                 GameObject.Destroy(_parent.gameObject);
             }
@@ -133,7 +133,7 @@ public partial class CharacterAsset : DataAsset
         protected virtual Character Instantiate()
         {
             var prefab = _source._tppPrefab;
-            if (prefab == null)
+            if (prefab is null)
             {
                 return null;
             }
@@ -159,7 +159,7 @@ public partial class CharacterAsset : DataAsset
 
         protected virtual void OnGetCallback(Character character)
         {
-            if (character != null)
+            if (character is not null)
             {
                 character.gameObject.SetActive(true);
                 character.transform.SetParent(null);
@@ -169,7 +169,7 @@ public partial class CharacterAsset : DataAsset
 
         protected virtual void OnReleaseCallback(Character character)
         {
-            if (character != null)
+            if (character is not null)
             {
                 character.gameObject.SetActive(false);
                 character.transform.SetParent(_parent);
@@ -179,11 +179,11 @@ public partial class CharacterAsset : DataAsset
 
         protected virtual void OnDestroyCallback(Character character)
         {
-            if (character == null)
+            if (character is null)
             {
             }
 
-            if (character != null)
+            if (character is not null)
             {
                 character.Destroy();
 
@@ -198,7 +198,7 @@ public partial class CharacterAsset : DataAsset
             }
         }
 
-        public int Count => _pool == null ? 0 : _pool.CountInactive;
+        public int Count => _pool is null ? 0 : _pool.CountInactive;
         public int MaxCount => _maxCount;
 
         protected CharacterAsset _source;

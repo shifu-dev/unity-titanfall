@@ -21,7 +21,7 @@ public partial class CharacterMovement : CharacterBehaviour
 
         public bool isValid
         {
-            get => collider != null;
+            get => collider is not null;
         }
     }
 
@@ -256,7 +256,7 @@ public partial class CharacterMovement : CharacterBehaviour
 
                 // if there is no collision (no obstacle or remainingMove == 0)
                 // break the loop
-                if (moveHit.collider == null)
+                if (moveHit.collider is null)
                 {
                     break;
                 }
@@ -370,7 +370,7 @@ public partial class CharacterMovement : CharacterBehaviour
     {
         float remainingMoveSize = remainingMove.magnitude;
 
-        if (hit.collider == null || remainingMoveSize == 0f)
+        if (hit.collider is null || remainingMoveSize == 0f)
             return false;
 
         RecalculateNormalIfZero(hit, ref hitNormal);
@@ -412,7 +412,7 @@ public partial class CharacterMovement : CharacterBehaviour
 
     protected virtual bool GroundCheckIsGround(Collider collider)
     {
-        if (collider == null)
+        if (collider is null)
         {
             return false;
         }

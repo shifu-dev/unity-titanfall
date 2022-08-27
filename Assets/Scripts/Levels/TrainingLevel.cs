@@ -14,17 +14,17 @@ public class TrainingLevel : Level
         Transform spawnPoint = null;
         foreach (var spawnPos in spawnPositions)
         {
-            if (spawnPos != null)
+            if (spawnPos is not null)
             {
                 spawnPoint = spawnPos;
                 break;
             }
         }
 
-        if (spawnPoint != null)
+        if (spawnPoint is not null)
         {
             var localPlayer = PlayerManager.localPlayer;
-            if (localPlayer != null)
+            if (localPlayer is not null)
             {
                 CharacterAsset charSource = CharacterRegistry.Instance.GetAsset("SwatGuy CharacterAsset");
                 charSource.instanceHandler.Reserve(4, 5);

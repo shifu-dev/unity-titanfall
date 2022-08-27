@@ -8,16 +8,16 @@ public class Interactable : MonoBehaviour
 
     public static Interactable GetInteractable(Collider collider)
     {
-        if (collider == null)
+        if (collider is null)
         {
             return null;
         }
 
         Interactable interactable = collider.GetComponent<Interactable>();
-        if (interactable == null)
+        if (interactable is null)
         {
             InteractableReference interactableReference = collider.GetComponent<InteractableReference>();
-            if (interactableReference == null)
+            if (interactableReference is null)
             {
                 return null;
             }

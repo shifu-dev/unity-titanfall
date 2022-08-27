@@ -32,15 +32,15 @@ public class StateMachine<T>
 
     public void Update()
     {
-        if (m_currentState == null) return;
-        if (m_currentState.Update == null) return;
+        if (m_currentState is null) return;
+        if (m_currentState.Update is null) return;
 
         m_currentState.Update();
     }
 
     public void Shutdown()
     {
-        if (m_currentState != null && m_currentState.Leave != null)
+        if (m_currentState is not null && m_currentState.Leave is not null)
             m_currentState.Leave();
 
         m_currentState = null;
@@ -50,12 +50,12 @@ public class StateMachine<T>
     {
         var newState = m_states[state];
 
-        if (m_currentState != null && m_currentState.Leave != null)
+        if (m_currentState is not null && m_currentState.Leave is not null)
             m_currentState.Leave();
 
         // no need to check if new state is valid, 
         // dictionary throws exception if key not found
-        if (newState.Enter != null)
+        if (newState.Enter is not null)
             newState.Enter();
 
         m_currentState = newState;

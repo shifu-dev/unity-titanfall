@@ -47,7 +47,7 @@ public class Vector3RangeEditor : PropertyDrawer
         height = 0f;
 
         Vector3RangeAttribute attribute = this.attribute as Vector3RangeAttribute;
-        if (attribute == null)
+        if (attribute is null)
         {
             // if custom attribute not found we don't do custom logic
             base.OnGUI(position, property, label);

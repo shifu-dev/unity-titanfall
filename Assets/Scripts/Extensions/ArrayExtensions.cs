@@ -85,7 +85,7 @@ namespace System
 
         public static T[] FilterUnique<T>(T[] arr1, T[] arr2)
         {
-            if (arr1 == null || arr2 == null)
+            if (arr1 is null || arr2 is null)
                 return null;
 
             T[] tmpArr1 = arr1;

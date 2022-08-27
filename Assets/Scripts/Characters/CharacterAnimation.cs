@@ -13,12 +13,12 @@ public class CharacterAnimation : CharacterBehaviour
         _charMovement = _character.GetBehaviour<CharacterMovement>();
         _animator = GetComponent<Animator>();
 
-        if (initializer != null)
+        if (initializer is not null)
         {
             _source = initializer.source;
         }
 
-        if (_source != null)
+        if (_source is not null)
         {
             CreateGraph();
         }

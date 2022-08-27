@@ -63,7 +63,7 @@ public abstract class FireableWeapon : Weapon
         if (_isTriggerDown == false)
             return false;
 
-        if (_bulletSource == null || _fireMuzzleTransform == null)
+        if (_bulletSource is null || _fireMuzzleTransform is null)
             return false;
 
         if (_fireLastTimeFrame + (1f / _fireRate) > Time.time)
@@ -79,13 +79,13 @@ public abstract class FireableWeapon : Weapon
         WeaponBullet bullet = _bulletSource.Instantiate(
             _fireMuzzleTransform.position, _fireMuzzleTransform.rotation);
 
-        if (bullet != null)
+        if (bullet is not null)
         {
             bullet.Launch(_fireForce);
 
             _recoil += _fireRecoil;
 
-            if (_fireAudio != null)
+            if (_fireAudio is not null)
             {
                 // play fire audio
             }

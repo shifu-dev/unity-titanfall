@@ -120,7 +120,7 @@ public class CharacterEquip : CharacterBehaviour
             }
 
             Weapon weapon = _charInventory.GetWeapon(slot);
-            if (weapon == null)
+            if (weapon is null)
                 return false;
 
             EquipData equipData = new EquipData();
@@ -151,10 +151,10 @@ public class CharacterEquip : CharacterBehaviour
                 (InteractableScanResult scan_result) => scan_result.raycasted);
 
             Interactable interactable = scan_result.interactable;
-            if (interactable != null)
+            if (interactable is not null)
             {
                 Equipable equipable = interactable.GetComponent<Equipable>();
-                if (equipable != null)
+                if (equipable is not null)
                 {
                     if (equipable is Weapon)
                     {
@@ -260,7 +260,7 @@ public class CharacterEquip : CharacterBehaviour
         _leftNext = data;
         _leftStatus = EquipStatus.UnequipStart;
 
-        if (_leftCurrent.equipable != null &&
+        if (_leftCurrent.equipable is not null &&
             _leftCurrent.equipable == _leftNext.equipable)
         {
             _leftCurrent = EquipData.empty;
@@ -285,7 +285,7 @@ public class CharacterEquip : CharacterBehaviour
 
     protected virtual void LeftHandUpdate()
     {
-        if (_leftStatus == EquipStatus.Unknown && _leftNext.equipable != null)
+        if (_leftStatus == EquipStatus.Unknown && _leftNext.equipable is not null)
         {
             _leftCurrent = _leftNext;
             _leftStatus = EquipStatus.EquipStart;
@@ -399,7 +399,7 @@ public class CharacterEquip : CharacterBehaviour
     protected virtual void OnLeftHandUpdate()
     {
         Equipable equipable = _leftCurrent.equipable;
-        if (equipable == null) return;
+        if (equipable is null) return;
 
         switch (_leftStatus)
         {
@@ -453,7 +453,7 @@ public class CharacterEquip : CharacterBehaviour
         _rightNext = data;
         _rightStatus = EquipStatus.UnequipStart;
 
-        if (_rightCurrent.equipable != null &&
+        if (_rightCurrent.equipable is not null &&
             _rightCurrent.equipable == _rightNext.equipable)
         {
             _rightCurrent = EquipData.empty;
@@ -478,7 +478,7 @@ public class CharacterEquip : CharacterBehaviour
 
     protected virtual void RightHandUpdate()
     {
-        if (_rightStatus == EquipStatus.Unknown && _rightNext.equipable != null)
+        if (_rightStatus == EquipStatus.Unknown && _rightNext.equipable is not null)
         {
             _rightCurrent = _rightNext;
             _rightStatus = EquipStatus.EquipStart;
@@ -592,7 +592,7 @@ public class CharacterEquip : CharacterBehaviour
     protected virtual void OnRightHandUpdate()
     {
         Equipable equipable = _rightCurrent.equipable;
-        if (equipable == null) return;
+        if (equipable is null) return;
 
         switch (_rightStatus)
         {
@@ -625,7 +625,7 @@ public class CharacterEquip : CharacterBehaviour
 
     protected virtual void RightHand(out Weapon weapon, out int slot)
     {
-        if (_rightCurrent.equipable != null &&
+        if (_rightCurrent.equipable is not null &&
             _rightCurrent.equipable is Weapon)
         {
             slot = _rightCurrent.slot;
@@ -639,7 +639,7 @@ public class CharacterEquip : CharacterBehaviour
 
     protected virtual Weapon RightHandWeapon()
     {
-        if (_rightCurrent.equipable != null)
+        if (_rightCurrent.equipable is not null)
         {
             return _rightCurrent.equipable as Weapon;
         }
@@ -649,7 +649,7 @@ public class CharacterEquip : CharacterBehaviour
 
     protected virtual int RightHandWeaponSlot()
     {
-        if (_rightCurrent.equipable != null &&
+        if (_rightCurrent.equipable is not null &&
             _rightCurrent.equipable is Weapon)
         {
             return _rightCurrent.slot;
@@ -666,7 +666,7 @@ public class CharacterEquip : CharacterBehaviour
 
         RightHand(out Weapon curr_weapon, out int curr_slot);
 
-        if (curr_weapon != null && curr_slot == slot)
+        if (curr_weapon is not null && curr_slot == slot)
         {
             // drop the current weapon
             RightHandUnequipInstant();
@@ -684,7 +684,7 @@ public class CharacterEquip : CharacterBehaviour
         weapon.OnPickup();
 
         // equip the new weapon if we swapped with the current one
-        if (curr_weapon != null && curr_slot == slot)
+        if (curr_weapon is not null && curr_slot == slot)
         {
             RightHandEquipWeapon(slot);
         }
@@ -705,7 +705,7 @@ public class CharacterEquip : CharacterBehaviour
     {
         Weapon weapon = GetWeaponInInventory(slot);
 
-        if (weapon != null)
+        if (weapon is not null)
         {
             EquipData equipData = new EquipData();
             equipData.equipable = weapon;
@@ -737,7 +737,7 @@ public class CharacterEquip : CharacterBehaviour
     protected virtual void RightHandDropWeapon()
     {
         RightHand(out Weapon weapon, out int slot);
-        if (weapon != null)
+        if (weapon is not null)
         {
             RightHandUnequipInstant();
             DropWeaponFromInventory(slot);
@@ -747,7 +747,7 @@ public class CharacterEquip : CharacterBehaviour
     protected virtual void RightHandHandleWeapon()
     {
         Weapon weapon = RightHandWeapon();
-        if (weapon == null) return;
+        if (weapon is null) return;
 
         if (_rightStatus != EquipStatus.EquipFinish)
         {
@@ -756,9 +756,9 @@ public class CharacterEquip : CharacterBehaviour
 
         FireableWeapon fireableWeapon = weapon as FireableWeapon;
         ReloadableWeapon reloadableWeapon = weapon as ReloadableWeapon;
-        if (fireableWeapon != null)
+        if (fireableWeapon is not null)
         {
-            if (reloadableWeapon != null)
+            if (reloadableWeapon is not null)
             {
                 if (_rightWeaponReloading == false)
                 {
@@ -841,7 +841,7 @@ public class CharacterEquip : CharacterBehaviour
 
         if (dropped)
         {
-            if (weapon != null)
+            if (weapon is not null)
             {
                 weapon.OnDrop();
             }

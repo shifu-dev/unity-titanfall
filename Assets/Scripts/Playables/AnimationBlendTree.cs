@@ -47,7 +47,7 @@ namespace UnityEngine.Playables
         {
             public float GetLength()
             {
-                if (clip == null)
+                if (clip is null)
                 {
                     return 0f;
                 }
@@ -121,7 +121,7 @@ namespace UnityEngine.Playables
 
         public bool AddElement(IBlendTreeElement element, P position, float speed = 1f)
         {
-            if (element == null)
+            if (element is null)
             {
                 return false;
             }
@@ -151,7 +151,7 @@ namespace UnityEngine.Playables
                 return false;
             }
 
-            if (element == null)
+            if (element is null)
             {
                 return false;
             }

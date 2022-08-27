@@ -34,7 +34,7 @@ public class PlayerCamera : PlayerBehaviour
     public override void OnPlayerPossess(Character character)
     {
         // unpossess if value is null
-        if (character == null)
+        if (character is null)
         {
             _character.charView.camera = null;
 

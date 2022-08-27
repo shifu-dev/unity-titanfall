@@ -29,12 +29,12 @@ public class PlayerInputs : PlayerBehaviour
 
     public override void OnPlayerUpdate()
     {
-        if (_character != null)
+        if (_character is not null)
         {
             ProcessInputs();
 
             CharacterMovement charMovement = _character.charMovement;
-            if (charMovement != null)
+            if (charMovement is not null)
             {
                 charMovement.SetMoveVector(_move);
 
@@ -46,13 +46,13 @@ public class PlayerInputs : PlayerBehaviour
             }
 
             CharacterView charView = _character.charView;
-            if (charView != null)
+            if (charView is not null)
             {
                 charView.SetLookVector(_look);
             }
 
             CharacterEquip charEquip = _character.charEquip;
-            if (charEquip != null)
+            if (charEquip is not null)
             {
                 if (_weapon1) charEquip.SwitchToWeapon1();
                 else if (_weapon2) charEquip.SwitchToWeapon2();
