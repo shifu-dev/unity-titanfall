@@ -5,21 +5,22 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerInputs))]
 [RequireComponent(typeof(PlayerState))]
 [RequireComponent(typeof(PlayerCamera))]
+[RequireComponent(typeof(PlayerInteraction))]
+[RequireComponent(typeof(PlayerInteraction))]
 [RequireComponent(typeof(PlayerHUD))]
 public class Player : Controller
 {
-    protected Guid _id;
-    public Guid id => _id;
-
     protected PlayerBehaviour[] _behaviours;
     protected PlayerInputs _playerInputs;
     protected PlayerState _PlayerState;
     protected PlayerCamera _playerCamera;
+    protected PlayerInteraction _playerInteraction;
     protected PlayerHUD _playerHUD;
 
     public PlayerInputs playerInputs => _playerInputs;
     public PlayerState PlayerState => _PlayerState;
     public PlayerCamera playerCamera => _playerCamera;
+    public PlayerInteraction playerInteraction => _playerInteraction;
     public PlayerHUD playerHUD => _playerHUD;
 
     protected override void Awake()

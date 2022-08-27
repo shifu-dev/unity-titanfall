@@ -27,9 +27,7 @@ public class CharacterEquip : CharacterBehaviour
         UnequipFinish
     }
 
-    // protected CharacterInputs _charInputs;
     protected CharacterInventory _charInventory;
-    protected CharacterInteraction _charInteraction;
 
     [Header("Left Hand"), Space]
     [SerializeField, ReadOnly] protected EquipData _leftCurrent;
@@ -53,11 +51,11 @@ public class CharacterEquip : CharacterBehaviour
     protected float _deltaTime;
     protected int _weaponSlot;
     protected int _grenadeSlot;
-    protected bool _equip;
     protected bool _leftFire;
     protected bool _rightFire;
     protected bool _sight;
     protected bool _rightReload;
+    protected Equipable _toEquip;
 
     public CharacterEquip()
     {
@@ -81,7 +79,6 @@ public class CharacterEquip : CharacterBehaviour
         base.OnCharacterCreate(character, initializer);
 
         _charInventory = character.charInventory;
-        _charInteraction = character.charInteraction;
     }
 
     public override void OnCharacterUpdate()
@@ -89,7 +86,6 @@ public class CharacterEquip : CharacterBehaviour
         base.OnCharacterUpdate();
 
         _deltaTime = Time.deltaTime;
-        CheckEquipInputs();
 
         var rightEquipData = _rightCurrent;
         Weapon rightWeapon = _rightCurrent.equipable as Weapon;
@@ -143,28 +139,6 @@ public class CharacterEquip : CharacterBehaviour
         ResetInputs();
     }
 
-    protected virtual void CheckEquipInputs()
-    {
-        if (_equip)
-        {
-            InteractableScanResult scan_result = _charInteraction.FindScanResult(
-                (InteractableScanResult scan_result) => scan_result.raycasted);
-
-            Interactable interactable = scan_result.interactable;
-            if (interactable is not null)
-            {
-                Equipable equipable = interactable.GetComponent<Equipable>();
-                if (equipable is not null)
-                {
-                    if (equipable is Weapon)
-                    {
-                        RightHandPickWeapon(equipable as Weapon);
-                    }
-                }
-            }
-        }
-    }
-
     //////////////////////////////////////////////////////////////////
     /// Inputs | BEGIN
 
@@ -172,11 +146,11 @@ public class CharacterEquip : CharacterBehaviour
     {
         _weaponSlot = -1;
         _grenadeSlot = -1;
-        _equip = false;
         _leftFire = false;
         _rightFire = false;
         _sight = false;
         _rightReload = false;
+        _toEquip = null;
     }
 
     public virtual void SwitchToHands()
@@ -233,9 +207,9 @@ public class CharacterEquip : CharacterBehaviour
         _sight = true;
     }
 
-    public virtual void EquipCommand()
+    public virtual void Pick(Equipable equipable)
     {
-        _equip = true;
+        _toEquip = equipable;
     }
 
     /// Inputs | END

@@ -6,7 +6,10 @@ public class PlayerCamera : PlayerBehaviour
     protected Character _character;
 
     protected Camera _tppCamera;
+    public Camera tppCamera => _tppCamera;
+
     protected Camera _fppCamera;
+    public Camera fppCamera => _fppCamera;
 
     public override void OnPlayerCreate(Player player)
     {

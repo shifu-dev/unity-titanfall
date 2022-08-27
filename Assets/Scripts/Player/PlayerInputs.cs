@@ -3,6 +3,7 @@ using UnityEngine;
 public class PlayerInputs : PlayerBehaviour
 {
     protected Character _character;
+    protected PlayerInteraction _playerInteraction;
 
     protected Vector2 _move = Vector2.zero;
     protected Vector2 _look = Vector2.zero;
@@ -66,7 +67,18 @@ public class PlayerInputs : PlayerBehaviour
 
                 if (_reload) charEquip.ReloadRightWeapon();
 
-                if (_interact) charEquip.EquipCommand();
+                if (_interact)
+                {
+                    Interactable interactable = _playerInteraction.GetInteractable();
+                    if (interactable is not null)
+                    {
+                        Equipable equipable = interactable as Equipable;
+                        if (equipable is not null)
+                        {
+                            charEquip.Pick(equipable);
+                        }
+                    }
+                }
             }
         }
     }

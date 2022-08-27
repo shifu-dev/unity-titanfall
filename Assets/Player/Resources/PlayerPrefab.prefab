@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: -3990577457366357526}
   - component: {fileID: -357432040839500588}
   - component: {fileID: -8891478164611069949}
+  - component: {fileID: 2132150155972656804}
   - component: {fileID: -1177013842883760678}
   m_Layer: 0
   m_Name: PlayerPrefab
@@ -48,7 +49,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a4743cbae5b32042968e0465c02a768, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _Character: {fileID: 0}
 --- !u!114 &-3990577457366357526
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -61,33 +61,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c122ed70fe182794dbf1470aa8b67b06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <useDebugInputs>k__BackingField: 0
-  <debugMove>k__BackingField: {x: -1, y: 1, z: 0}
-  <move>k__BackingField: {x: 0, y: 0, z: 0}
-  <moveAngle>k__BackingField: 0
-  <walk>k__BackingField: 0
-  <sprint>k__BackingField: 0
-  <jump>k__BackingField: 0
-  <crouch>k__BackingField: 0
-  <prone>k__BackingField: 0
-  <peekLeft>k__BackingField: 0
-  <peekRight>k__BackingField: 0
-  <look>k__BackingField: {x: 0, y: 0, z: 0}
-  <action>k__BackingField: 0
-  <grenade1>k__BackingField: 0
-  <grenade2>k__BackingField: 0
-  <weapon1>k__BackingField: 0
-  <weapon2>k__BackingField: 0
-  <weapon3>k__BackingField: 0
-  <use1>k__BackingField: 0
-  <use2>k__BackingField: 0
-  <use3>k__BackingField: 0
-  <reload>k__BackingField: 0
-  <invertLook>k__BackingField:
-    x: 0
-    y: 1
-    z: 0
-  <lookSensitivity>k__BackingField: {x: 2, y: 2, z: 0}
 --- !u!114 &-357432040839500588
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -112,6 +85,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23d6eff6e7a866243b0a9a2f71506213, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2132150155972656804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6988625471363454475}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35cf48f55d5c2b341b9634e8ac7c0970, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _layerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  _triggerQuery: 2
 --- !u!114 &-1177013842883760678
 MonoBehaviour:
   m_ObjectHideFlags: 0

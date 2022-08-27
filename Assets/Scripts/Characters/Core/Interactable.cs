@@ -2,10 +2,6 @@ using UnityEngine;
 
 public class Interactable : MonoBehaviour
 {
-    //////////////////////////////////////////////////////////////////
-    /// Static Members
-    //////////////////////////////////////////////////////////////////
-
     public static Interactable GetInteractable(Collider collider)
     {
         if (collider is null)
@@ -28,14 +24,10 @@ public class Interactable : MonoBehaviour
         return interactable;
     }
 
-    //////////////////////////////////////////////////////////////////
-    /// Variables
-    //////////////////////////////////////////////////////////////////
-
     [Header("INTERACTABLE"), Space]
 
-    [SerializeField, ReadOnly] protected CharacterInteraction m_Interactor;
-    public CharacterInteraction interactor => m_Interactor;
+    [SerializeField, ReadOnly] protected Character m_Interactor;
+    public Character interactor => m_Interactor;
 
     [SerializeField] public bool canInteract;
 
@@ -45,7 +37,7 @@ public class Interactable : MonoBehaviour
     [SerializeField, Vector3Range(0, 180)] protected Vector3 _faceAngle;
     public Vector3 faceAngle => _faceAngle;
 
-    public bool CanInteract(CharacterInteraction interactor)
+    public bool CanInteract(Character interactor)
     {
         if (canInteract == false)
             return false;
@@ -53,7 +45,7 @@ public class Interactable : MonoBehaviour
         return true;
     }
 
-    public void OnInteract(CharacterInteraction interactor)
+    public void OnInteract(Character interactor)
     {
         if (canInteract == false)
             return;

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 [RequireComponent(typeof(CharacterBody))]
 [RequireComponent(typeof(CharacterInventory))]
 [RequireComponent(typeof(CharacterMovement))]
-[RequireComponent(typeof(CharacterInteraction))]
 [RequireComponent(typeof(CharacterEquip))]
 [RequireComponent(typeof(CharacterView))]
 [RequireComponent(typeof(CharacterAnimation))]
@@ -22,7 +21,6 @@ public class Character : Equipable
     protected CharacterBody _charBody;
     protected CharacterInventory _charInventory;
     protected CharacterMovement _charMovement;
-    protected CharacterInteraction _charInteraction;
     protected CharacterEquip _charEquip;
     protected CharacterView _charView;
     protected CharacterAnimation _charAnimation;
@@ -31,7 +29,6 @@ public class Character : Equipable
     public CharacterBody charBody => _charBody;
     public CharacterInventory charInventory => _charInventory;
     public CharacterMovement charMovement => _charMovement;
-    public CharacterInteraction charInteraction => _charInteraction;
     public CharacterEquip charEquip => _charEquip;
     public CharacterView charView => _charView;
     public CharacterAnimation charAnimation => _charAnimation;
@@ -65,7 +62,6 @@ public class Character : Equipable
         _charBody = null;
         _charInventory = null;
         _charMovement = null;
-        _charInteraction = null;
         _charEquip = null;
         _charView = null;
         _charAnimation = null;
@@ -203,7 +199,6 @@ public class Character : Equipable
         _charBody = GetBehaviour<CharacterBody>();
         _charInventory = GetBehaviour<CharacterInventory>();
         _charMovement = GetBehaviour<CharacterMovement>();
-        _charInteraction = GetBehaviour<CharacterInteraction>();
         _charEquip = GetBehaviour<CharacterEquip>();
         _charView = GetBehaviour<CharacterView>();
         _charAnimation = GetBehaviour<CharacterAnimation>();
