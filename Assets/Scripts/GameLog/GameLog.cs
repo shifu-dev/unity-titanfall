@@ -26,7 +26,6 @@ public static class GameLog
         Debug.Log($"<b>GameLog LogPath:</b> {_logPath}");
 
         Log.Logger = new LoggerConfiguration()
-            .Enrich.WithProperty("Frame", new FrameProperty(), false)
             .WriteTo.File(
                 path: GetAddressFor("GameLog"),
                 restrictedToMinimumLevel: LogEventLevel.Information,
@@ -40,7 +39,7 @@ public static class GameLog
 #endif
 
             .MinimumLevel.Information()
-            .CreateLogger();
+            .CreateAsyncLogger();
     }
 
     public static void Shutdown()
@@ -50,7 +49,8 @@ public static class GameLog
     public static ILogger CreateLogger(string name, Action<LoggerConfiguration> config = null)
     {
         var builder = new LoggerConfiguration()
-            .Enrich.WithProperty("Logger", name, false)
+            .Enrich.WithLoggerName(name)
+            .Enrich.WithFrameCount()
             .WriteTo.Logger(Log.Logger);
 
         if (config != null)
