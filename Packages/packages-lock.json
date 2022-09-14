@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.shifu.game-framework": {
+      "version": "https://github.com/shifu-op/Unity-GameFramework.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "76a6035ca9f8780fd4e207fb98479c1e9d0c7f5c"
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,

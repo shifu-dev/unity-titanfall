@@ -12,8 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d98537ed073466488ba712f487f84a6, type: 3}
   m_Name: Training Level
   m_EditorClassIdentifier: 
-  levelName: TrainingLevel
-  mainScene: {fileID: 11400000, guid: f24e3721c467c2f48a4fa7f0b0bd4984, type: 2}
-  additiveScenes: []
-  m_levelStatus: 4
-  m_progress: 0
+  _scenes:
+  - {fileID: 11400000, guid: f24e3721c467c2f48a4fa7f0b0bd4984, type: 2}

@@ -9,11 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c68f3920101f18499e45eb0c5c38b21, type: 3}
+  m_Script: {fileID: 11500000, guid: f06e9789dd6b6b54ab2d3c0bba7e99ee, type: 3}
   m_Name: Bootstrap Level
   m_EditorClassIdentifier: 
-  levelName: Bootstrap
-  mainScene: {fileID: 11400000, guid: b7c84278a6af0724c84c357a02189ce1, type: 2}
-  additiveScenes: []
-  m_levelStatus: 0
-  m_progress: 0
+  _scenes:
+  - {fileID: 11400000, guid: b7c84278a6af0724c84c357a02189ce1, type: 2}

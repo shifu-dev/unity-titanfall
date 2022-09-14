@@ -1,10 +1,6 @@
 using UnityEngine;
-using System.Collections.Generic;
 
-[DisallowMultipleComponent]
-public class SceneObject : MonoBehaviour
+public class SceneObject : GameFramework.SceneObject
 {
-    public const string globalTag = "SceneObject";
-
     public Transform[] playerSpawnPoints;
 }

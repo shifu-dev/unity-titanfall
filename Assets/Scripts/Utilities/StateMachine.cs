@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using ILogger = Serilog.ILogger;
+using ILogger = GameFramework.LogManagement.ILogger;
 
 public class StateMachine<T>
 {

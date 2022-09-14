@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using GameFramework.Extensions;
 
 [RequireComponent(typeof(CapsuleCollider))]
 public partial class CharacterMovement : CharacterBehaviour

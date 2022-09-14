@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using GameFramework.Extensions;
 
 public partial class CharacterMovement : CharacterBehaviour
 {

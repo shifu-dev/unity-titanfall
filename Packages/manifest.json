@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.shifu.game-framework": "https://github.com/shifu-op/Unity-GameFramework.git",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
     "com.unity.collab-proxy": "1.15.15",

@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using GameFramework.LogManagement;
 
-using ILogger = Serilog.ILogger;
+using ILogger = GameFramework.LogManagement.ILogger;
 
 public abstract class ObjectRegistry<T>
     where T : UnityEngine.Object
@@ -31,7 +32,7 @@ public abstract class ObjectRegistry<T>
 
     protected virtual void CreateLogger()
     {
-        _logger = GameLog.CreateLogger($"{typeof(T).Name}Registry");
+        _logger = LogManager.CreateLogger($"{typeof(T).Name}Registry");
     }
 
     protected virtual void InternalInit()
