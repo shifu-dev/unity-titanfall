@@ -52,20 +52,20 @@ public class PlayerInputs : PlayerBehaviour
                 charView.SetLookVector(_look);
             }
 
-            CharacterEquip charEquip = _character.charEquip;
-            if (charEquip is not null)
+            CharacterObjectHandler charObjHandler = _character.charObjectHandler;
+            if (charObjHandler is not null)
             {
-                if (_weapon1) charEquip.SwitchToWeapon1();
-                else if (_weapon2) charEquip.SwitchToWeapon2();
-                else if (_weapon3) charEquip.SwitchToWeapon3();
+                if (_weapon1) charObjHandler.SwitchToWeapon1();
+                else if (_weapon2) charObjHandler.SwitchToWeapon2();
+                else if (_weapon3) charObjHandler.SwitchToWeapon3();
 
-                if (_grenade1) charEquip.SwitchToGrenade1();
-                else if (_grenade2) charEquip.SwitchToGrenade2();
+                if (_grenade1) charObjHandler.SwitchToGrenade1();
+                else if (_grenade2) charObjHandler.SwitchToGrenade2();
 
-                if (_leftFire) charEquip.FireLeftWeapon();
-                if (_rightFire) charEquip.FireRightWeapon();
+                if (_leftFire) charObjHandler.FireLeftWeapon();
+                if (_rightFire) charObjHandler.FireRightWeapon();
 
-                if (_reload) charEquip.ReloadRightWeapon();
+                if (_reload) charObjHandler.ReloadRightWeapon();
 
                 if (_interact)
                 {
@@ -75,7 +75,7 @@ public class PlayerInputs : PlayerBehaviour
                         Equipable equipable = interactable as Equipable;
                         if (equipable is not null)
                         {
-                            charEquip.Pick(equipable);
+                            charObjHandler.Pick(equipable);
                         }
                     }
                 }

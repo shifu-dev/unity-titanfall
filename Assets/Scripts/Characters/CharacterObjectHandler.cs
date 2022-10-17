@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class CharacterEquip : CharacterBehaviour
+public class CharacterObjectHandler : CharacterBehaviour
 {
     [Serializable]
     protected struct EquipData
@@ -57,7 +57,7 @@ public class CharacterEquip : CharacterBehaviour
     protected bool _rightReload;
     protected Equipable _toEquip;
 
-    public CharacterEquip()
+    public CharacterObjectHandler()
     {
         _leftCurrent = EquipData.empty;
         _leftNext = EquipData.empty;
