@@ -33,6 +33,11 @@ public partial class CharacterMovement
             }
         }
 
+        public virtual bool ShouldUpdate()
+        {
+            return false;
+        }
+
         public virtual void Update()
         {
             if (mCharMovement is null)

@@ -47,42 +47,24 @@ public partial class CharacterMovement : CharacterBehaviour
 
         base.OnCharacterUpdate();
 
-        UpdatePhysicsData();
-        // UpdateMovementState();
-        UpdatePhysicsState();
-
-        FlushCapsuleMove();
+        UpdateModules();
     }
 
-    //////////////////////////////////////////////////////////////////
-
-    protected virtual void UpdatePhysicsData()
+    protected virtual void UpdateModules()
     {
+        foreach (var module in mModules)
+        {
+            if (module.ShouldUpdate())
+            {
+                module.Update();
+                break;
+            }
+        }
     }
-
-    protected virtual void UpdatePhysicsState()
-    {
-        mActiveModule.Update();
-    }
-
-    protected virtual void SetVelocityByMove(Vector3 moved)
-    {
-        moved = moved / Time.deltaTime;
-
-        mVelocity = moved;
-    }
-
-    protected void FlushCapsuleMove()
-    {
-        mCapsule.WriteValuesTo(mCollider);
-    }
-
-    //////////////////////////////////////////////////////////////////
 
     public Vector3 Velocity => mVelocity;
     public VirtualCapsule capsule => mCapsule;
 
-    protected CharacterMovementModule mActiveModule;
     protected CharacterMovementModule[] mModules;
 
     protected CapsuleCollider mCollider;

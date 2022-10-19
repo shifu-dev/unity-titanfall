@@ -177,24 +177,30 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         mCharView = null;
     }
 
-    protected virtual void UpdatePhysicsData()
+    public override bool ShouldUpdate()
     {
+        mBaseDeltaPosition = Vector3.zero;
+        mBaseDeltaRotation = Vector3.zero;
+
         if (mGroundResult.isValid)
         {
-            var deltaPosition = mGroundResult.collider.transform.position - mGroundResult.basePosition;
-            // var deltaRotation = mGroundResult.collider.transform.rotation.eulerAngles - mGroundResult.baseRotation.eulerAngles;
-
-            mCapsule.position += deltaPosition;
-            // charCapsule.localRotation = Quaternion.Euler(charCapsule.localRotation.eulerAngles + deltaRotation);
+            mBaseDeltaPosition = mGroundResult.collider.transform.position - mGroundResult.basePosition;
+            mBaseDeltaRotation = mGroundResult.collider.transform.rotation.eulerAngles - mGroundResult.baseRotation.eulerAngles;
         }
 
-        CapsuleResolvePenetration();
-        UpdateGroundResult();
+        if (mBaseDeltaPosition != Vector3.zero || mBaseDeltaRotation != Vector3.zero)
+        {
+            return true;
+        }
+
+        return mGroundResult.isValid;
     }
 
     public override void Update()
     {
         base.Update();
+
+        RecoverFromBaseMove();
 
         UpdateValues();
 
@@ -504,6 +510,17 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         SetVelocityByMove(moved);
     }
 
+    protected virtual void RecoverFromBaseMove()
+    {
+        if (mBaseDeltaPosition != Vector3.zero)
+        {
+            mCapsule.position += mBaseDeltaPosition;
+            mBaseDeltaPosition = Vector3.zero;
+        }
+
+        // TODO: update position for base rotation also
+    }
+
     protected virtual void UpdateCapsuleSize()
     {
         float weight = mInputMovementStateWeight;
@@ -699,6 +716,9 @@ public class CharacterMovementGroundModule : CharacterMovementModule
     protected GroundResult mGroundPreviousResult;
     protected GroundResult mGroundResult;
     protected LayerMask mGroundLayer;
+
+    protected Vector3 mBaseDeltaPosition;
+    protected Vector3 mBaseDeltaRotation;
 
     protected float mStandWalkSpeed;
     protected float mStandWalkAcceleration;
