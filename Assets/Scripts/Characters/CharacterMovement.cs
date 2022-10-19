@@ -27,6 +27,25 @@ public partial class CharacterMovement : CharacterBehaviour
             mCapsule.layerMask = source.layerMask;
             mCapsule.queryTrigger = QueryTriggerInteraction.Ignore;
             mSkinWidth = source.skinWidth;
+
+            var moduleList = new List<CharacterMovementModule>();
+            if (source.groundModuleSource is not null)
+            {
+                var groundModule = source.groundModuleSource.GetModule();
+                if (groundModule is not null)
+                {
+                    moduleList.Add(groundModule);
+                }
+            }
+
+            if (source.airModuleSource is not null)
+            {
+                var airModule = source.airModuleSource.GetModule();
+                if (airModule is not null)
+                {
+                    moduleList.Add(airModule);
+                }
+            }
         }
     }
 

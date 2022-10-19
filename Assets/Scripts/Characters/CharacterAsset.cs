@@ -55,6 +55,14 @@ public partial class CharacterAsset : DataAsset
 
     [Space, Header("CHARACTER MOVEMENT")]
 
+    [SerializeField, Label("Ground Module Source")]
+    protected CharacterMovementGroundModuleSource mGroundModuleSource;
+    public CharacterMovementGroundModuleSource groundModuleSource => mGroundModuleSource;
+
+    [SerializeField, Label("Air Module Source")]
+    protected CharacterMovementAirModuleSource mAirModuleSource;
+    public CharacterMovementAirModuleSource airModuleSource => mAirModuleSource;
+
     [Label("Skin Width"), SerializeField]
     protected float _skinWidth;
     public float skinWidth => _skinWidth;
