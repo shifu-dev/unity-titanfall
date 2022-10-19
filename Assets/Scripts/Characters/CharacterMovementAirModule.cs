@@ -1,22 +1,36 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
-public partial class CharacterMovement : CharacterBehaviour
+public class CharacterMovementAirModule : CharacterMovementModule
 {
     protected const uint AIR_MAX_MOVE_ITERATIONS = 10;
     protected const float GRAVITY_MULTIPLIER = .05f;
+
+    public CharacterMovementAirModule(CharacterMovementAirModuleSource source)
+    {
+        // cache Data from CharacterDataSource
+        if (source is not null)
+        {
+            mGravityAcceleration = source.gravityAcceleration;
+            mGravityMaxSpeed = source.gravityMaxSpeed;
+            mMinMoveDistance = source.minMoveDistance;
+            mMoveSpeed = source.moveSpeed;
+            mMoveAcceleration = source.moveAcceleration;
+            mJumpPower = source.jumpPower;
+            mMaxJumpCount = source.maxJumpCount;
+        }
+    }
 
     protected virtual void PhysAir()
     {
         AirCalculateValues();
 
-        Vector3 charUp = _charUp;
-        Vector3 charForward = character.forward;
-        Vector3 charRight = character.right;
-        float mass = character.mass;
-        float gravitySpeed = _airGravityAcceleration * mass * _deltaTime * _deltaTime * GRAVITY_MULTIPLIER;
+        Vector3 charUp = mCharUp;
+        Vector3 charForward = mCharacter.forward;
+        Vector3 charRight = mCharacter.right;
+        float mass = mCharacter.mass;
+        float gravitySpeed = mGravityAcceleration * mass * mDeltaTime * mDeltaTime * GRAVITY_MULTIPLIER;
 
-        Vector3 vel = _velocity * _deltaTime;
+        Vector3 vel = mVelocity * mDeltaTime;
         Vector3 velH = Vector3.ProjectOnPlane(vel, charUp);
         Vector3 velV = vel - velH;
 
@@ -28,11 +42,11 @@ public partial class CharacterMovement : CharacterBehaviour
         // // processed move input
         // Vector3 moveInputRaw = _move;
         // Vector3 moveInput = new Vector3(moveInputRaw.x, 0f, moveInputRaw.y);
-        // moveInput = Quaternion.Euler(0f, _charView.turnAngle, 0f) * moveInput;
+        // moveInput = Quaternion.Euler(0f, mCharView.turnAngle, 0f) * moveInput;
         // moveInput = character.rotation * moveInput;
 
-        // // helping movement in _air
-        // Vector3 move_help_h = _currentMoveSpeed * moveInput * _deltaTime;
+        // // helping movement in mAir
+        // Vector3 move_help_h = mCurrentMoveSpeed * moveInput * mDeltaTime;
         // Vector3 move_help_h_x = Vector3.ProjectOnPlane(move_help_h, charForward);
         // Vector3 move_help_h_z = move_help_h - move_help_h_x;
 
@@ -69,16 +83,16 @@ public partial class CharacterMovement : CharacterBehaviour
         // moveH = moveHX + moveHZ;
 
         // process character jump
-        if (_jump && _currentJumpCount < _airMaxJumpCount)
+        if (mInputJump && mCurrentJumpCount < mMaxJumpCount)
         {
-            _currentJumpCount++;
+            mCurrentJumpCount++;
 
-            if (_currentMaintainVelocityOnJump == false)
+            if (mCurrentMaintainVelocityOnJump == false)
             {
                 moveV = Vector3.zero;
             }
 
-            moveV = charUp * _currentJumpPower;
+            moveV = charUp * mCurrentJumpPower;
         }
 
         Vector3 move = moveH + moveV;
@@ -88,19 +102,19 @@ public partial class CharacterMovement : CharacterBehaviour
 
     protected virtual void AirCalculateValues()
     {
-        _currentMoveAccel = _airMoveAcceleration;
-        _currentMoveSpeed = _airMoveSpeed;
-        _currentJumpPower = _airJumpPower;
-        _currentMaxJumpCount = _airMaxJumpCount;
-        _currentMinMoveDist = _airMinMoveDistance;
+        mCurrentMoveAccel = mMoveAcceleration;
+        mCurrentMoveSpeed = mMoveSpeed;
+        mCurrentJumpPower = mJumpPower;
+        mCurrentMaxJumpCount = mMaxJumpCount;
+        mCurrentMinMoveDist = mMinMoveDistance;
 
         // TODO: add this field in data asset
-        _currentMaintainVelocityOnJump = false;
+        mCurrentMaintainVelocityOnJump = false;
     }
 
     protected virtual void AirMove(Vector3 move)
     {
-        Vector3 lastPosition = _capsule.position;
+        Vector3 lastPosition = mCapsule.position;
         Vector3 remainingMove = move;
 
         for (int i = 0; i < AIR_MAX_MOVE_ITERATIONS; i++)
@@ -117,7 +131,7 @@ public partial class CharacterMovement : CharacterBehaviour
             AirMoveAlongSurface(move, ref remainingMove, hit, hitNormal);
         }
 
-        Vector3 moved = _capsule.position - lastPosition;
+        Vector3 moved = mCapsule.position - lastPosition;
         SetVelocityByMove(moved);
     }
 
@@ -128,17 +142,17 @@ public partial class CharacterMovement : CharacterBehaviour
 
         RecalculateNormalIfZero(hit, ref hitNormal);
 
-        if (GroundCanStandOn(hit, hitNormal, out float slopeAngle))
-        {
-            remainingMove = Vector3.zero;
-            _canGround = true;
-            return;
-        }
+        // if (GroundCanStandOn(hit, hitNormal, out float slopeAngle))
+        // {
+        //     remainingMove = Vector3.zero;
+        //     mCanGround = true;
+        //     return;
+        // }
 
         // hit.normal gives normal respective to capsule's body,
         // useful for sliding off on corners
         Vector3 slideMove = Vector3.ProjectOnPlane(remainingMove, hit.normal);
-        if (_currentMaintainVelocityAlongSurface)
+        if (mCurrentMaintainVelocityAlongSurface)
         {
             slideMove = slideMove.normalized * remainingMove.magnitude;
         }
@@ -146,12 +160,28 @@ public partial class CharacterMovement : CharacterBehaviour
         remainingMove = slideMove;
     }
 
-    protected float _airGravityAcceleration;
-    protected float _airGravityMaxSpeed;
-    protected float _airMinMoveDistance;
-    protected float _airMoveSpeed;
-    protected float _airMoveAcceleration;
-    protected float _airJumpPower;
+    protected float mGravityAcceleration;
+    protected float mGravityMaxSpeed;
+    protected float mMinMoveDistance;
+    protected float mMoveSpeed;
+    protected float mMoveAcceleration;
+    protected float mJumpPower;
 
-    protected uint _airMaxJumpCount;
+    protected uint mMaxJumpCount;
+
+    protected bool mInputJump;
+
+    protected float mCurrentMinMoveDist = 0;
+    protected float mCurrentMoveSpeed = 0;
+    protected float mCurrentMoveAccel = 0;
+    protected float mCurrentJumpPower = 0;
+    protected float mCurrentStepUpHeight = 0;
+    protected float mCurrentStepDownDepth = 0;
+    protected float mCurrentSlopeUpAngle = 0;
+    protected float mCurrentSlopeDownAngle = 0;
+    protected uint mCurrentJumpCount = 0;
+    protected uint mCurrentMaxJumpCount = 0;
+    protected bool mCurrentMaintainVelocityOnJump = false;
+    protected bool mCurrentMaintainVelocityOnSurface = true;
+    protected bool mCurrentMaintainVelocityAlongSurface = true;
 }

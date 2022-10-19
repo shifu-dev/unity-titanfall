@@ -37,13 +37,13 @@ public class PlayerInputs : PlayerBehaviour
             CharacterMovement charMovement = _character.charMovement;
             if (charMovement is not null)
             {
-                charMovement.SetMoveVector(_move);
+                // charMovement.SetMoveVector(_move);
 
-                if (_sprint) charMovement.StartSprint();
-                if (_walk) charMovement.StartWalk();
-                if (_jump) charMovement.StartJump();
-                if (_crouch) charMovement.StartCrouch();
-                if (_prone) charMovement.StartProne();
+                // if (_sprint) charMovement.StartSprint();
+                // if (_walk) charMovement.StartWalk();
+                // if (_jump) charMovement.StartJump();
+                // if (_crouch) charMovement.StartCrouch();
+                // if (_prone) charMovement.StartProne();
             }
 
             CharacterView charView = _character.charView;
