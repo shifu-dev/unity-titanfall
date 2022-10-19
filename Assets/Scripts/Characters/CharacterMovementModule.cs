@@ -266,6 +266,7 @@ public partial class CharacterMovement
 
         protected void FlushCapsuleMove()
         {
+            mCharMovement.mCapsule = mCapsule;
             mCapsule.WriteValuesTo(mCollider);
         }
 
