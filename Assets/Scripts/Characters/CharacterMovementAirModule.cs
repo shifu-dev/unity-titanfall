@@ -20,9 +20,21 @@ public class CharacterMovementAirModule : CharacterMovementModule
         }
     }
 
-    protected virtual void PhysAir()
+    public override void OnLoaded(CharacterMovement charMovement)
     {
-        AirCalculateValues();
+        base.OnLoaded(charMovement);
+
+        UpdateGroundModule();
+    }
+
+    public override bool ShouldUpdate()
+    {
+        return true;
+    }
+
+    public override void Update()
+    {
+        UpdateValues();
 
         Vector3 charUp = mCharUp;
         Vector3 charForward = mCharacter.forward;
@@ -97,10 +109,25 @@ public class CharacterMovementAirModule : CharacterMovementModule
 
         Vector3 move = moveH + moveV;
 
-        AirMove(move);
+        PerformMove(move);
     }
 
-    protected virtual void AirCalculateValues()
+    protected virtual void UpdateGroundModule()
+    {
+        mGroundModule = null;
+        if (mCharMovement is not null)
+        {
+            foreach (var module in mCharMovement.modules)
+            {
+                if (module is CharacterMovementGroundModule)
+                {
+                    mGroundModule = module as CharacterMovementGroundModule;
+                }
+            }
+        }
+    }
+
+    protected virtual void UpdateValues()
     {
         mCurrentMoveAccel = mMoveAcceleration;
         mCurrentMoveSpeed = mMoveSpeed;
@@ -112,7 +139,7 @@ public class CharacterMovementAirModule : CharacterMovementModule
         mCurrentMaintainVelocityOnJump = false;
     }
 
-    protected virtual void AirMove(Vector3 move)
+    protected virtual void PerformMove(Vector3 move)
     {
         Vector3 lastPosition = mCapsule.position;
         Vector3 remainingMove = move;
@@ -128,26 +155,28 @@ public class CharacterMovementAirModule : CharacterMovementModule
                 break;
             }
 
-            AirMoveAlongSurface(move, ref remainingMove, hit, hitNormal);
+            MoveAlongSurface(move, ref remainingMove, hit, hitNormal);
         }
 
         Vector3 moved = mCapsule.position - lastPosition;
         SetVelocityByMove(moved);
     }
 
-    protected virtual void AirMoveAlongSurface(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit, Vector3 hitNormal)
+    protected virtual void MoveAlongSurface(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit, Vector3 hitNormal)
     {
-        if (hit.collider is null || remainingMove == global::UnityEngine.Vector3.zero)
+        if (hit.collider is null || remainingMove == Vector3.zero)
             return;
 
         RecalculateNormalIfZero(hit, ref hitNormal);
 
-        // if (GroundCanStandOn(hit, hitNormal, out float slopeAngle))
-        // {
-        //     remainingMove = Vector3.zero;
-        //     mCanGround = true;
-        //     return;
-        // }
+        bool canStandOnGround = mGroundModule is not null &&
+            mGroundModule.CanStandOnGround(hit, hitNormal, out float slopeAngle);
+
+        if (canStandOnGround)
+        {
+            remainingMove = Vector3.zero;
+            return;
+        }
 
         // hit.normal gives normal respective to capsule's body,
         // useful for sliding off on corners
@@ -159,6 +188,8 @@ public class CharacterMovementAirModule : CharacterMovementModule
 
         remainingMove = slideMove;
     }
+
+    protected CharacterMovementGroundModule mGroundModule;
 
     protected float mGravityAcceleration;
     protected float mGravityMaxSpeed;

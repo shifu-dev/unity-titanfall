@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(CapsuleCollider))]
 public partial class CharacterMovement : CharacterBehaviour
@@ -64,6 +65,7 @@ public partial class CharacterMovement : CharacterBehaviour
 
     public Vector3 Velocity => mVelocity;
     public VirtualCapsule capsule => mCapsule;
+    public IReadOnlyCollection<CharacterMovementModule> modules => mModules;
 
     protected CharacterMovementModule[] mModules;
 

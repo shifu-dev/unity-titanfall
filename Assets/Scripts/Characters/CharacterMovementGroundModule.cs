@@ -255,6 +255,11 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         mInputJump = false;
     }
 
+    public virtual bool CanStandOnGround(RaycastHit hit, Vector3 slopeNormal, out float slopeAngle)
+    {
+        return CanStandOn(hit, slopeNormal, out slopeAngle);
+    }
+
     //////////////////////////////////////////////////////////////////
 
     protected virtual void UpdateValues()
