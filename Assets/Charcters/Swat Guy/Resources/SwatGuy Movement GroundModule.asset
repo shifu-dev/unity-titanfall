@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88d6c3c7cb5d9258d89c081e86a46847, type: 3}
+  m_Name: SwatGuy Movement GroundModule
+  m_EditorClassIdentifier: 
+  checkDepth: 0
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  minMoveDistance: 0
+  standIdleSpeed: 0
+  standIdleAcceleration: 0.4
+  standWalkSpeed: 2
+  standWalkAcceleration: 0.3
+  standRunSpeed: 4
+  standRunAcceleration: 0.4
+  standSprintSpeed: 6
+  standSprintAcceleration: 0.3
+  standSprintLeftAngleMax: -46
+  standSprintRightAngleMax: 46
+  standJumpForce: 10
+  standStepUpPercent: 40
+  standStepDownPercent: 40
+  standSlopeUpAngle: 45
+  standSlopeDownAngle: -45
+  standCapsuleCenter: {x: 0, y: 1, z: 0}
+  standCapsuleHeight: 2
+  standCapsuleRadius: 0.5
+  standToCrouchTransitionSpeed: 5
+  standMaintainVelocityOnSurface: 0
+  standMaintainVelocityAlongSurface: 0
+  crouchIdleSpeed: 0
+  crouchIdleAcceleration: 0.3
+  crouchWalkSpeed: 1
+  crouchWalkAcceleration: 0.3
+  crouchRunSpeed: 3
+  crouchRunAcceleration: 0.3
+  crouchAutoRiseToStandSprint: 1
+  crouchJumpForce: 15
+  crouchStepUpPercent: 55
+  crouchStepDownPercent: 55
+  crouchSlopeUpAngle: 60
+  crouchSlopeDownAngle: -60
+  crouchCapsuleCenter: {x: 0, y: 1, z: 0}
+  crouchCapsuleHeight: 1
+  crouchCapsuleRadius: 0.5
+  crouchToStandTransitionSpeed: 8
+  crouchMaintainVelocityOnSurface: 0
+  crouchMaintainVelocityAlongSurface: 0
