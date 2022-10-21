@@ -48,6 +48,43 @@ public class CharacterMovementGroundModuleSource : CharacterMovementModuleSource
     [SerializeField] public bool crouchMaintainVelocityOnSurface;
     [SerializeField] public bool crouchMaintainVelocityAlongSurface;
 
+    [SerializeField] public AnimationClip animStandIdle;
+    [SerializeField] public AnimationClip animStandWalkForward;
+    [SerializeField] public AnimationClip animStandWalkForwardLeft;
+    [SerializeField] public AnimationClip animStandWalkForwardRight;
+    [SerializeField] public AnimationClip animStandWalkLeft;
+    [SerializeField] public AnimationClip animStandWalkRight;
+    [SerializeField] public AnimationClip animStandWalkBackward;
+    [SerializeField] public AnimationClip animStandWalkBackwardLeft;
+    [SerializeField] public AnimationClip animStandWalkBackwardRight;
+    [SerializeField] public AnimationClip animStandRunForward;
+    [SerializeField] public AnimationClip animStandRunForwardLeft;
+    [SerializeField] public AnimationClip animStandRunForwardRight;
+    [SerializeField] public AnimationClip animStandRunLeft;
+    [SerializeField] public AnimationClip animStandRunRight;
+    [SerializeField] public AnimationClip animStandRunBackward;
+    [SerializeField] public AnimationClip animStandRunBackwardLeft;
+    [SerializeField] public AnimationClip animStandRunBackwardRight;
+    [SerializeField] public AnimationClip animStandSprintForward;
+
+    [SerializeField] public AnimationClip animCrouchIdle;
+    [SerializeField] public AnimationClip animCrouchWalkForward;
+    [SerializeField] public AnimationClip animCrouchWalkForwardLeft;
+    [SerializeField] public AnimationClip animCrouchWalkForwardRight;
+    [SerializeField] public AnimationClip animCrouchWalkLeft;
+    [SerializeField] public AnimationClip animCrouchWalkRight;
+    [SerializeField] public AnimationClip animCrouchWalkBackward;
+    [SerializeField] public AnimationClip animCrouchWalkBackwardLeft;
+    [SerializeField] public AnimationClip animCrouchWalkBackwardRight;
+    [SerializeField] public AnimationClip animCrouchRunForward;
+    [SerializeField] public AnimationClip animCrouchRunForwardLeft;
+    [SerializeField] public AnimationClip animCrouchRunForwardRight;
+    [SerializeField] public AnimationClip animCrouchRunLeft;
+    [SerializeField] public AnimationClip animCrouchRunRight;
+    [SerializeField] public AnimationClip animCrouchRunBackward;
+    [SerializeField] public AnimationClip animCrouchRunBackwardLeft;
+    [SerializeField] public AnimationClip animCrouchRunBackwardRight;
+
     public override CharacterMovementModule GetModule()
     {
         return new CharacterMovementGroundModule(this);

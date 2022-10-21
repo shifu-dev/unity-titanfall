@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Playables;
 using GameFramework.Extensions;
 
 public class CharacterMovementGroundModule : CharacterMovementModule
@@ -631,6 +632,162 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         CastForGround(mGroundCheckDepth, out mGroundResult);
     }
 
+    //////////////////////////////////////////////////////////////////
+
+    protected virtual void CreateLocomotionGraph()
+    {
+        if (mGraph.IsValid())
+        {
+            throw new NullReferenceException($"PlayableGraph for character {mCharacter.name} is invalid");
+        }
+
+        if (mSource is null)
+        {
+            throw new NullReferenceException(@$"{nameof(CharacterMovementGroundModuleSource)} 
+                for {nameof(CharacterMovementGroundModule)} of character {mCharacter.name} is null");
+        }
+
+        mBaseTree = new AnimationBlendTree1D(mGraph);
+        mStandTree = new AnimationBlendTree1D(mGraph);
+        mStandWalkTree = new AnimationBlendTree2DSimpleDirectional(mGraph);
+        mStandRunTree = new AnimationBlendTree2DSimpleDirectional(mGraph);
+        mCrouchTree = new AnimationBlendTree1D(mGraph);
+        mCrouchWalkTree = new AnimationBlendTree2DSimpleDirectional(mGraph);
+        mCrouchRunTree = new AnimationBlendTree2DSimpleDirectional(mGraph);
+
+        Vector2 center = new Vector2(0.00f, 0.00f);
+        Vector2 front = new Vector2(0.00f, 1.00f);
+        Vector2 frontLeft = new Vector2(-0.70f, 0.70f);
+        Vector2 frontRight = new Vector2(-0.70f, 0.70f);
+        Vector2 left = new Vector2(-0.10f, 0.00f);
+        Vector2 right = new Vector2(0.10f, 0.00f);
+        Vector2 back = new Vector2(0.00f, -1.00f);
+        Vector2 backLeft = new Vector2(-0.70f, -0.70f);
+        Vector2 backRight = new Vector2(0.70f, -0.70f);
+
+        //////////////////////////////////////////////////////////////////
+
+        mStandWalkTree.Reserve(9);
+        mStandWalkTree.AddElement(mSource.animStandIdle, center);
+        mStandWalkTree.AddElement(mSource.animStandWalkForward, front);
+        mStandWalkTree.AddElement(mSource.animStandWalkForwardLeft, frontLeft);
+        mStandWalkTree.AddElement(mSource.animStandWalkForwardRight, frontRight);
+        mStandWalkTree.AddElement(mSource.animStandWalkLeft, left);
+        mStandWalkTree.AddElement(mSource.animStandWalkRight, right);
+        mStandWalkTree.AddElement(mSource.animStandWalkBackward, back);
+        mStandWalkTree.AddElement(mSource.animStandWalkBackwardLeft, backLeft);
+        mStandWalkTree.AddElement(mSource.animStandWalkBackwardRight, backRight);
+        mStandWalkTree.FootIk = true;
+        mStandWalkTree.BuildGraph(true);
+        mStandWalkTree.UpdateGraph(true);
+
+        mStandRunTree.Reserve(9);
+        mStandRunTree.AddElement(mSource.animStandIdle, center * 2f);
+        mStandRunTree.AddElement(mSource.animStandRunForward, front * 2f);
+        mStandRunTree.AddElement(mSource.animStandRunForwardLeft, frontLeft * 2f);
+        mStandRunTree.AddElement(mSource.animStandRunForwardRight, frontRight * 2f);
+        mStandRunTree.AddElement(mSource.animStandRunLeft, left * 2f);
+        mStandRunTree.AddElement(mSource.animStandRunRight, right * 2f);
+        mStandRunTree.AddElement(mSource.animStandRunBackward, back * 2f);
+        mStandRunTree.AddElement(mSource.animStandRunBackwardLeft, backLeft * 2f);
+        mStandRunTree.AddElement(mSource.animStandRunBackwardRight, backRight * 2f);
+        mStandRunTree.FootIk = true;
+        mStandRunTree.BuildGraph(true);
+        mStandRunTree.UpdateGraph(true);
+
+        mStandTree.Reserve(4);
+        mStandTree.AddElement(mSource.animStandIdle, 0f);
+        mStandTree.AddElement(mStandWalkTree, 1f);
+        mStandTree.AddElement(mStandRunTree, 2f);
+        mStandTree.AddElement(mSource.animStandSprintForward, 3f);
+        mStandTree.FootIk = true;
+        mStandTree.BuildGraph(true);
+        mStandTree.UpdateGraph(true);
+
+        //////////////////////////////////////////////////////////////////
+
+        mCrouchWalkTree.Reserve(9);
+        mCrouchWalkTree.AddElement(mSource.animCrouchIdle, center);
+        mCrouchWalkTree.AddElement(mSource.animCrouchWalkForward, front);
+        mCrouchWalkTree.AddElement(mSource.animCrouchWalkForwardLeft, frontLeft);
+        mCrouchWalkTree.AddElement(mSource.animCrouchWalkForwardRight, frontRight);
+        mCrouchWalkTree.AddElement(mSource.animCrouchWalkLeft, left);
+        mCrouchWalkTree.AddElement(mSource.animCrouchWalkRight, right);
+        mCrouchWalkTree.AddElement(mSource.animCrouchWalkBackward, back);
+        mCrouchWalkTree.AddElement(mSource.animCrouchWalkBackwardLeft, backLeft);
+        mCrouchWalkTree.AddElement(mSource.animCrouchWalkBackwardRight, backRight);
+        mCrouchWalkTree.FootIk = true;
+        mCrouchWalkTree.BuildGraph(true);
+        mCrouchWalkTree.UpdateGraph(true);
+
+        mCrouchRunTree.Reserve(9);
+        mCrouchRunTree.AddElement(mSource.animCrouchIdle, center * 2f);
+        mCrouchRunTree.AddElement(mSource.animCrouchRunForward, front * 2f);
+        mCrouchRunTree.AddElement(mSource.animCrouchRunForwardLeft, frontLeft * 2f);
+        mCrouchRunTree.AddElement(mSource.animCrouchRunForwardRight, frontRight * 2f);
+        mCrouchRunTree.AddElement(mSource.animCrouchRunLeft, left * 2f);
+        mCrouchRunTree.AddElement(mSource.animCrouchRunRight, right * 2f);
+        mCrouchRunTree.AddElement(mSource.animCrouchRunBackward, back * 2f);
+        mCrouchRunTree.AddElement(mSource.animCrouchRunBackwardLeft, backLeft * 2f);
+        mCrouchRunTree.AddElement(mSource.animCrouchRunBackwardRight, backRight * 2f);
+        mCrouchRunTree.FootIk = true;
+        mCrouchRunTree.BuildGraph(true);
+        mCrouchRunTree.UpdateGraph(true);
+
+        mCrouchTree.Reserve(3);
+        mCrouchTree.AddElement(mSource.animCrouchIdle, 0f);
+        mCrouchTree.AddElement(mCrouchWalkTree, 1f);
+        mCrouchTree.AddElement(mCrouchRunTree, 2f);
+        mCrouchTree.FootIk = true;
+        mCrouchTree.BuildGraph(true);
+        mCrouchTree.UpdateGraph(true);
+
+        //////////////////////////////////////////////////////////////////
+
+        mBaseTree.Reserve(2);
+        mBaseTree.AddElement(mStandTree, 0f);
+        mBaseTree.AddElement(mCrouchTree, 1f);
+        mBaseTree.FootIk = true;
+        mBaseTree.BuildGraph(true);
+        mBaseTree.UpdateGraph(true);
+    }
+
+    protected virtual void UpdateLocomotionGraph()
+    {
+        float walkSpeed = mStandWalkSpeed;
+        float runSpeed = mStandRunSpeed;
+        float sprintSpeed = mStandSprintSpeed;
+
+        Vector2 velocity = new Vector2(mVelocity.x, mVelocity.z);
+        float speed = velocity.magnitude;
+        speed = MathF.Round(speed, 2);
+
+        if (speed <= walkSpeed)
+        {
+            speed = speed / walkSpeed;
+        }
+        else if (speed <= runSpeed)
+        {
+            speed = 1f + (speed - walkSpeed) / (runSpeed - walkSpeed);
+        }
+        else
+        {
+            speed = 2f + (speed - runSpeed) / (sprintSpeed - runSpeed);
+        }
+
+        velocity = velocity.normalized * Mathf.Clamp(speed, 0f, 2f);
+
+        mStandWalkTree.SetBlendPosition(velocity);
+        mStandRunTree.SetBlendPosition(velocity);
+        mCrouchWalkTree.SetBlendPosition(velocity);
+        mCrouchRunTree.SetBlendPosition(velocity);
+
+        mStandTree.SetBlendPosition(speed, true);
+        mCrouchTree.SetBlendPosition(speed, true);
+        mBaseTree.SetBlendPosition(0f, true);
+    }
+
+    protected CharacterMovementGroundModuleSource mSource;
     protected CharacterView mCharView;
     protected GroundResult mGroundPreviousResult;
     protected GroundResult mGroundResult;
@@ -705,4 +862,13 @@ public class CharacterMovementGroundModule : CharacterMovementModule
     protected bool mInputSprint = false;
     protected bool mInputWalk = false;
     protected bool mInputJump = false;
+
+    protected PlayableGraph mGraph;
+    protected AnimationBlendTree1D mBaseTree;
+    protected AnimationBlendTree1D mStandTree;
+    protected AnimationBlendTree2D mStandWalkTree;
+    protected AnimationBlendTree2D mStandRunTree;
+    protected AnimationBlendTree1D mCrouchTree;
+    protected AnimationBlendTree2D mCrouchWalkTree;
+    protected AnimationBlendTree2D mCrouchRunTree;
 }
