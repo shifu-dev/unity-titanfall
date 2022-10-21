@@ -33,11 +33,6 @@ public partial class CharacterMovement
             }
         }
 
-        public virtual bool ShouldUpdate()
-        {
-            return false;
-        }
-
         public virtual void Update()
         {
             if (mCharMovement is null)
@@ -47,12 +42,37 @@ public partial class CharacterMovement
             }
 
             mCapsule = mCharMovement.mCapsule;
-            mCollider = mCharMovement.mCollider;
+            mCapsuleCollider = mCharMovement.mCollider;
             mSkinWidth = mCharMovement.mSkinWidth;
 
+            mFrameCount = (uint)Time.frameCount;
+            mDeltaTime = Time.deltaTime;
             mCharUp = mCharacter.up;
             mCharRight = mCharacter.right;
             mCharForward = mCharacter.forward;
+            mVelocity = mCharMovement.mVelocity;
+        }
+
+        public virtual bool ShouldRun()
+        {
+            return false;
+        }
+
+        public virtual void StartPhysics()
+        {
+        }
+
+        public virtual void RunPhysics()
+        {
+            mLastPhysicsRun = mFrameCount;
+        }
+
+        public virtual void StopPhysics()
+        {
+        }
+
+        public virtual void PostUpdate()
+        {
         }
 
         public virtual void SetMoveVector(Vector2 move)
@@ -73,9 +93,9 @@ public partial class CharacterMovement
         {
             if (mSkinWidth > 0f)
             {
-                mCapsule.radius += mSkinWidth;
-                mCapsule.CapsuleCast(move, out bigHit);
-                mCapsule.radius -= mSkinWidth;
+                VirtualCapsule bigCapsule = mCapsule;
+                bigCapsule.radius += mSkinWidth;
+                bigCapsule.CapsuleCast(move, out bigHit);
 
                 if (bigHit.collider)
                 {
@@ -113,9 +133,9 @@ public partial class CharacterMovement
         {
             if (mSkinWidth > 0f)
             {
-                mCapsule.radius += mSkinWidth;
-                mCapsule.BaseSphereCast(move, out bigHit);
-                mCapsule.radius -= mSkinWidth;
+                VirtualCapsule bigCapsule = mCapsule;
+                bigCapsule.radius += mSkinWidth;
+                bigCapsule.BaseSphereCast(move, out bigHit);
 
                 if (bigHit.collider)
                 {
@@ -204,13 +224,14 @@ public partial class CharacterMovement
 
             if (mSkinWidth > 0f)
             {
-                mCapsule.radius += mSkinWidth;
-                resolve = mCapsule.ResolvePenetration(mCollider, COLLISION_OFFSET);
-                mCapsule.radius -= mSkinWidth;
+                VirtualCapsule bigCapsule = mCapsule;
+                bigCapsule.radius += mSkinWidth;
+
+                resolve = bigCapsule.ResolvePenetration(mCapsuleCollider, COLLISION_OFFSET);
             }
             else
             {
-                resolve = mCapsule.ResolvePenetration(mCollider, COLLISION_OFFSET);
+                resolve = mCapsule.ResolvePenetration(mCapsuleCollider, COLLISION_OFFSET);
             }
 
             return resolve;
@@ -267,26 +288,23 @@ public partial class CharacterMovement
         protected void FlushCapsuleMove()
         {
             mCharMovement.mCapsule = mCapsule;
-            mCapsule.WriteValuesTo(mCollider);
+            mCapsule.WriteValuesTo(mCapsuleCollider);
         }
 
-        protected virtual void SetVelocityByMove(Vector3 moved)
-        {
-            moved = moved / mDeltaTime;
-            mVelocity = moved;
-        }
-
-        protected CharacterMovement mCharMovement;
         protected Character mCharacter;
-        protected CapsuleCollider mCollider;
-        protected VirtualCapsule mCapsule;
-        protected float mSkinWidth;
+        protected CharacterMovement mCharMovement;
+        protected CapsuleCollider mCapsuleCollider;
 
-        protected float mDeltaTime;
+        protected float mSkinWidth;
+        protected VirtualCapsule mCapsule;
         protected Vector3 mCharUp;
         protected Vector3 mCharRight;
         protected Vector3 mCharForward;
         protected Vector3 mVelocity;
+
+        protected float mDeltaTime;
+        protected uint mFrameCount;
+        protected uint mLastPhysicsRun;
 
         protected Vector3 mInputMove;
         protected float mInputMoveAngle;

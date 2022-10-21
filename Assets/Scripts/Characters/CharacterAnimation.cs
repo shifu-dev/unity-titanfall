@@ -163,11 +163,11 @@ public class CharacterAnimation : CharacterBehaviour
 
     protected virtual void UpdateLocomotionGraph()
     {
-        float walkSpeed = _source.groundStandWalkSpeed;
-        float runSpeed = _source.groundStandRunSpeed;
-        float sprintSpeed = _source.groundStandSprintSpeed;
+        float walkSpeed = _source.groundModuleSource.standWalkSpeed;
+        float runSpeed = _source.groundModuleSource.standRunSpeed;
+        float sprintSpeed = _source.groundModuleSource.standSprintSpeed;
 
-        Vector3 charVelocity = _charMovement.Velocity;
+        Vector3 charVelocity = _charMovement.velocity;
         Vector2 velocity = new Vector2(charVelocity.x, charVelocity.z);
         float speed = velocity.magnitude;
         speed = MathF.Round(speed, 2);

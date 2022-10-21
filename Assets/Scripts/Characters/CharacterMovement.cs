@@ -4,11 +4,6 @@ using System.Collections.Generic;
 [RequireComponent(typeof(CapsuleCollider))]
 public partial class CharacterMovement : CharacterBehaviour
 {
-    public CharacterMovement()
-    {
-        mVelocity = Vector3.zero;
-    }
-
     public override void OnCharacterCreate(Character character, CharacterInitializer initializer)
     {
         base.OnCharacterCreate(character, initializer);
@@ -24,9 +19,8 @@ public partial class CharacterMovement : CharacterBehaviour
             mCapsule.rotation = Quaternion.identity;
             mCapsule.height = 2f;
             mCapsule.radius = .5f;
-            mCapsule.layerMask = source.layerMask;
+            // mCapsule.layerMask = source.layerMask;
             mCapsule.queryTrigger = QueryTriggerInteraction.Ignore;
-            mSkinWidth = source.skinWidth;
 
             var moduleList = new List<CharacterMovementModule>();
             if (source.groundModuleSource is not null)
@@ -68,29 +62,81 @@ public partial class CharacterMovement : CharacterBehaviour
         base.OnCharacterUpdate();
 
         UpdateModules();
+
+        mLastPosition = mCapsule.position;
+        RunModulePhysics();
+
+        Vector3 moved = mCapsule.position - mLastPosition;
+        mVelocity = moved / mDeltaTime;
+
+        PostUpdateModules();
     }
 
     protected virtual void UpdateModules()
     {
         foreach (var module in mModules)
         {
-            if (module.ShouldUpdate())
-            {
-                module.Update();
-                break;
-            }
+            module.Update();
         }
     }
 
-    public Vector3 Velocity => mVelocity;
-    public VirtualCapsule capsule => mCapsule;
-    public IReadOnlyCollection<CharacterMovementModule> modules => mModules;
+    protected virtual void RunModulePhysics()
+    {
+        mPreviousModule = mActiveModule;
+        mActiveModule = null;
+        foreach (var module in mModules)
+        {
+            if (module.ShouldRun())
+            {
+                mActiveModule = module;
+                break;
+            }
+        }
+
+        if (mPreviousModule != mActiveModule)
+        {
+            if (mPreviousModule is not null)
+            {
+                mPreviousModule.StopPhysics();
+            }
+
+            if (mActiveModule is not null)
+            {
+                mActiveModule.StartPhysics();
+            }
+        }
+
+        if (mActiveModule is not null)
+        {
+            mActiveModule.RunPhysics();
+        }
+    }
+
+    protected virtual void PostUpdateModules()
+    {
+        foreach (var module in mModules)
+        {
+            module.PostUpdate();
+        }
+    }
 
     protected CharacterMovementModule[] mModules;
+    public IReadOnlyCollection<CharacterMovementModule> modules => mModules;
+
+    protected CharacterMovementModule mActiveModule;
+    protected CharacterMovementModule mPreviousModule;
+    public CharacterMovementModule activeModule => mActiveModule;
+    public CharacterMovementModule previousModule => mPreviousModule;
 
     protected CapsuleCollider mCollider;
-    protected VirtualCapsule mCapsule;
+
     protected float mSkinWidth;
+    protected VirtualCapsule mCapsule;
+    public VirtualCapsule capsule => mCapsule;
+
     protected Vector3 mVelocity;
+    protected Vector3 mLastPosition;
+    public Vector3 velocity => mVelocity;
+
     protected float mDeltaTime = 0f;
 }

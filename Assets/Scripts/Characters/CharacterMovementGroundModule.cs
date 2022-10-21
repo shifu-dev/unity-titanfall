@@ -39,12 +39,11 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         // cache Data from CharacterDataSource
         if (source is not null)
         {
-            checkDepth = source.checkDepth;
+            mGroundCheckDepth = source.checkDepth;
             mGroundLayer = source.groundLayer;
-            minMoveDistance = source.minMoveDistance;
+            mMinMoveDistance = source.minMoveDistance;
 
-            mStandIdleSpeed = source.standIdleSpeed;
-            mStandIdleAcceleration = source.standIdleAcceleration;
+            mStandDeacceleration = source.standIdleAcceleration;
             mStandWalkSpeed = source.standWalkSpeed;
             mStandWalkAcceleration = source.standWalkAcceleration;
             mStandRunSpeed = source.standRunSpeed;
@@ -65,13 +64,11 @@ public class CharacterMovementGroundModule : CharacterMovementModule
             mStandCapsuleRadius = source.standCapsuleRadius;
             mStandToCrouchTransitionSpeed = source.standToCrouchTransitionSpeed;
 
-            mCrouchIdleSpeed = source.crouchIdleSpeed;
-            mCrouchIdleAcceleration = source.crouchIdleAcceleration;
+            mCrouchDeacceleration = source.crouchIdleAcceleration;
             mCrouchWalkSpeed = source.crouchWalkSpeed;
             mCrouchWalkAcceleration = source.crouchWalkAcceleration;
             mCrouchRunSpeed = source.crouchRunSpeed;
             mCrouchRunAcceleration = source.crouchRunAcceleration;
-            mCrouchAutoRiseToStandSprint = source.crouchAutoRiseToStandSprint;
             mCrouchJumpForce = source.crouchJumpForce;
             mCrouchStepUpPercent = source.crouchStepUpPercent;
             mCrouchStepDownPercent = source.crouchStepDownPercent;
@@ -83,80 +80,6 @@ public class CharacterMovementGroundModule : CharacterMovementModule
             mCrouchCapsuleHeight = source.crouchCapsuleHeight;
             mCrouchCapsuleRadius = source.crouchCapsuleRadius;
             mCrouchToStandTransitionSpeed = source.crouchToStandTransitionSpeed;
-        }
-    }
-
-    public void CanHandle()
-    {
-        if (mCanGround && mGroundResult.isValid)
-        {
-            if (mInputCrouch)
-            {
-                if (mInputMove.magnitude == 0)
-                {
-                    newState.current = CharacterMovementState.GROUND_CROUCH_IDLE;
-                }
-                else if (mInputWalk)
-                {
-                    newState.current = CharacterMovementState.GROUND_CROUCH_WALK;
-                }
-                else if (mInputSprint && mInputMoveAngle > mStandSprintLeftAngleMax &&
-                    mInputMoveAngle < mStandSprintRightAngleMax)
-                {
-                    newState.current = CharacterMovementState.GROUND_STAND_SPRINT;
-                }
-                else
-                {
-                    newState.current = CharacterMovementState.GROUND_CROUCH_RUN;
-                }
-            }
-            else    // Standing
-            {
-                if (mInputMove.magnitude == 0)
-                {
-                    if (mInputJump)
-                    {
-                        newState.current = CharacterMovementState.GROUND_STAND_IDLE_JUMP;
-                    }
-                    else
-                    {
-                        newState.current = CharacterMovementState.GROUND_STAND_IDLE;
-                    }
-                }
-                else if (mInputWalk)
-                {
-                    if (mInputJump)
-                    {
-                        newState.current = CharacterMovementState.GROUND_STAND_WALK_JUMP;
-                    }
-                    else
-                    {
-                        newState.current = CharacterMovementState.GROUND_STAND_WALK;
-                    }
-                }
-                else if (mInputSprint && mInputMoveAngle > mStandSprintLeftAngleMax && mInputMoveAngle < mStandSprintRightAngleMax)
-                {
-                    if (mInputJump)
-                    {
-                        newState.current = CharacterMovementState.GROUND_STAND_SPRINT_JUMP;
-                    }
-                    else
-                    {
-                        newState.current = CharacterMovementState.GROUND_STAND_SPRINT;
-                    }
-                }
-                else
-                {
-                    if (mInputJump)
-                    {
-                        newState.current = CharacterMovementState.GROUND_STAND_RUN_JUMP;
-                    }
-                    else
-                    {
-                        newState.current = CharacterMovementState.GROUND_STAND_RUN;
-                    }
-                }
-            }
         }
     }
 
@@ -177,7 +100,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         mCharView = null;
     }
 
-    public override bool ShouldUpdate()
+    public override bool ShouldRun()
     {
         mBaseDeltaPosition = Vector3.zero;
         mBaseDeltaRotation = Vector3.zero;
@@ -196,10 +119,8 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         return mGroundResult.isValid;
     }
 
-    public override void Update()
+    public override void RunPhysics()
     {
-        base.Update();
-
         RecoverFromBaseMove();
 
         UpdateValues();
@@ -220,27 +141,35 @@ public class CharacterMovementGroundModule : CharacterMovementModule
 
     //////////////////////////////////////////////////////////////////
 
-    public virtual void StartWalk()
+    public virtual void Walk()
     {
         mInputWalk = true;
     }
 
-    public virtual void StartSprint()
+    public virtual void Run()
+    {
+    }
+
+    public virtual void Sprint()
     {
         mInputSprint = true;
     }
 
-    public virtual void StartCrouch()
+    public virtual void Stand()
+    {
+    }
+
+    public virtual void Crouch()
     {
         mInputCrouch = true;
     }
 
-    public virtual void StartProne()
+    public virtual void Prone()
     {
         mInputProne = true;
     }
 
-    public virtual void StartJump()
+    public virtual void Jump()
     {
         mInputJump = true;
     }
@@ -264,9 +193,6 @@ public class CharacterMovementGroundModule : CharacterMovementModule
 
     protected virtual void UpdateValues()
     {
-        mCurrentJumpCount = 0;
-        mCurrentMinMoveDist = minMoveDistance;
-
         if (mMoveState.isGroundStanding)
         {
             mCurrentMaintainVelocityOnSurface = mStandMaintainVelocityOnSurface;
@@ -283,27 +209,27 @@ public class CharacterMovementGroundModule : CharacterMovementModule
             case CharacterMovementState.GROUND_STAND_IDLE:
                 mCurrentStepDownDepth = mStandStepDownDepth;
                 mCurrentStepUpHeight = mStandStepUpHeight;
-                mCurrentSlopeUpAngle = mStandSlopeUpAngle;
+                mCurrentMaxSlopeUpAngle = mStandSlopeUpAngle;
                 mCurrentSlopeDownAngle = mStandSlopeDownAngle;
-                mCurrentMoveAccel = mStandIdleAcceleration;
-                mCurrentMoveSpeed = mStandIdleSpeed;
+                mCurrentMoveAccel = mStandDeacceleration;
+                mCurrentMoveSpeed = 0;
                 mCurrentJumpPower = 0f;
                 break;
 
             case CharacterMovementState.GROUND_STAND_IDLE_JUMP:
                 mCurrentStepDownDepth = mStandStepDownDepth;
                 mCurrentStepUpHeight = mStandStepUpHeight;
-                mCurrentSlopeUpAngle = mStandSlopeUpAngle;
+                mCurrentMaxSlopeUpAngle = mStandSlopeUpAngle;
                 mCurrentSlopeDownAngle = mStandSlopeDownAngle;
-                mCurrentMoveAccel = mStandIdleAcceleration;
-                mCurrentMoveSpeed = mStandIdleSpeed;
+                mCurrentMoveAccel = mStandDeacceleration;
+                mCurrentMoveSpeed = 0;
                 mCurrentJumpPower = mStandJumpForce;
                 break;
 
             case CharacterMovementState.GROUND_STAND_WALK:
                 mCurrentStepDownDepth = mStandStepDownDepth;
                 mCurrentStepUpHeight = mStandStepUpHeight;
-                mCurrentSlopeUpAngle = mStandSlopeUpAngle;
+                mCurrentMaxSlopeUpAngle = mStandSlopeUpAngle;
                 mCurrentSlopeDownAngle = mStandSlopeDownAngle;
                 mCurrentMoveAccel = mStandWalkAcceleration;
                 mCurrentMoveSpeed = mStandWalkSpeed;
@@ -313,7 +239,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
             case CharacterMovementState.GROUND_STAND_WALK_JUMP:
                 mCurrentStepDownDepth = mStandStepDownDepth;
                 mCurrentStepUpHeight = mStandStepUpHeight;
-                mCurrentSlopeUpAngle = mStandSlopeUpAngle;
+                mCurrentMaxSlopeUpAngle = mStandSlopeUpAngle;
                 mCurrentSlopeDownAngle = mStandSlopeDownAngle;
                 mCurrentMoveAccel = mStandWalkAcceleration;
                 mCurrentMoveSpeed = mStandWalkSpeed;
@@ -324,7 +250,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
             case CharacterMovementState.GROUND_STAND_RUN:
                 mCurrentStepDownDepth = mStandStepDownDepth;
                 mCurrentStepUpHeight = mStandStepUpHeight;
-                mCurrentSlopeUpAngle = mStandSlopeUpAngle;
+                mCurrentMaxSlopeUpAngle = mStandSlopeUpAngle;
                 mCurrentSlopeDownAngle = mStandSlopeDownAngle;
                 mCurrentMoveAccel = mStandRunAcceleration;
                 mCurrentMoveSpeed = mStandRunSpeed;
@@ -334,7 +260,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
             case CharacterMovementState.GROUND_STAND_RUN_JUMP:
                 mCurrentStepDownDepth = mStandStepDownDepth;
                 mCurrentStepUpHeight = mStandStepUpHeight;
-                mCurrentSlopeUpAngle = mStandSlopeUpAngle;
+                mCurrentMaxSlopeUpAngle = mStandSlopeUpAngle;
                 mCurrentSlopeDownAngle = mStandSlopeDownAngle;
                 mCurrentMoveAccel = mStandRunAcceleration;
                 mCurrentMoveSpeed = mStandRunSpeed;
@@ -344,7 +270,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
             case CharacterMovementState.GROUND_STAND_SPRINT:
                 mCurrentStepDownDepth = mStandStepDownDepth;
                 mCurrentStepUpHeight = mStandStepUpHeight;
-                mCurrentSlopeUpAngle = mStandSlopeUpAngle;
+                mCurrentMaxSlopeUpAngle = mStandSlopeUpAngle;
                 mCurrentSlopeDownAngle = mStandSlopeDownAngle;
                 mCurrentMoveAccel = mStandSprintAcceleration;
                 mCurrentMoveSpeed = mStandSprintSpeed;
@@ -354,7 +280,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
             case CharacterMovementState.GROUND_STAND_SPRINT_JUMP:
                 mCurrentStepDownDepth = mStandStepDownDepth;
                 mCurrentStepUpHeight = mStandStepUpHeight;
-                mCurrentSlopeUpAngle = mStandSlopeUpAngle;
+                mCurrentMaxSlopeUpAngle = mStandSlopeUpAngle;
                 mCurrentSlopeDownAngle = mStandSlopeDownAngle;
                 mCurrentMoveAccel = mStandSprintAcceleration;
                 mCurrentMoveSpeed = mStandSprintSpeed;
@@ -364,17 +290,17 @@ public class CharacterMovementGroundModule : CharacterMovementModule
             case CharacterMovementState.GROUND_CROUCH_IDLE:
                 mCurrentStepDownDepth = mCrouchStepDownDepth;
                 mCurrentStepUpHeight = mCrouchStepUpHeight;
-                mCurrentSlopeUpAngle = mCrouchSlopeUpAngle;
+                mCurrentMaxSlopeUpAngle = mCrouchSlopeUpAngle;
                 mCurrentSlopeDownAngle = mCrouchSlopeDownAngle;
-                mCurrentMoveAccel = mCrouchIdleAcceleration;
-                mCurrentMoveSpeed = mCrouchIdleSpeed;
+                mCurrentMoveAccel = mCrouchDeacceleration;
+                mCurrentMoveSpeed = 0;
                 mCurrentJumpPower = 0f;
                 break;
 
             case CharacterMovementState.GROUND_CROUCH_WALK:
                 mCurrentStepDownDepth = mCrouchStepDownDepth;
                 mCurrentStepUpHeight = mCrouchStepUpHeight;
-                mCurrentSlopeUpAngle = mCrouchSlopeUpAngle;
+                mCurrentMaxSlopeUpAngle = mCrouchSlopeUpAngle;
                 mCurrentSlopeDownAngle = mCrouchSlopeDownAngle;
                 mCurrentMoveAccel = mCrouchWalkAcceleration;
                 mCurrentMoveSpeed = mCrouchWalkSpeed;
@@ -384,7 +310,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
             case CharacterMovementState.GROUND_CROUCH_RUN:
                 mCurrentStepDownDepth = mCrouchStepDownDepth;
                 mCurrentStepUpHeight = mCrouchStepUpHeight;
-                mCurrentSlopeUpAngle = mCrouchSlopeUpAngle;
+                mCurrentMaxSlopeUpAngle = mCrouchSlopeUpAngle;
                 mCurrentSlopeDownAngle = mCrouchSlopeDownAngle;
                 mCurrentMoveAccel = mCrouchRunAcceleration;
                 mCurrentMoveSpeed = mCrouchRunSpeed;
@@ -396,19 +322,20 @@ public class CharacterMovementGroundModule : CharacterMovementModule
             default:
                 mCurrentStepDownDepth = 0f;
                 mCurrentStepUpHeight = 0f;
-                mCurrentSlopeUpAngle = 0f;
+                mCurrentMaxSlopeUpAngle = 0f;
                 mCurrentSlopeDownAngle = 0f;
                 mCurrentMoveAccel = 0f;
                 mCurrentMoveSpeed = 0f;
                 mCurrentJumpPower = 0f;
                 break;
         }
+
+        mCurrentMaxSlopeUpAngle = Math.Clamp(mCurrentMaxSlopeUpAngle,
+            MIN_SLOPE_ANGLE, MAX_SLOPE_ANGLE);
     }
 
     protected virtual void GroundMove(Vector3 originalMove)
     {
-        Vector3 lastPosition = mCapsule.position;
-
         UpdateCapsuleSize();
 
         Vector3 moveH = Vector3.ProjectOnPlane(originalMove, mCharUp);
@@ -421,10 +348,9 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         if (moveVMag > 0f)
         {
             CapsuleMove(moveV);
-            mCanGround = false;
         }
 
-        if (remainingMove.magnitude > mCurrentMinMoveDist)
+        if (remainingMove.magnitude > mMinMoveDistance)
         {
             var stepUpHeight = 0f;
             var canStepUp = moveVMag == 0f;
@@ -505,14 +431,6 @@ public class CharacterMovementGroundModule : CharacterMovementModule
 
         StepDown(originalMove);
         CapsuleResolvePenetration();
-
-        Vector3 moved = mCapsule.position - lastPosition;
-        if (moveVMag == 0f)
-        {
-            moved = Vector3.ProjectOnPlane(moved, mCharUp);
-        }
-
-        SetVelocityByMove(moved);
     }
 
     protected virtual void RecoverFromBaseMove()
@@ -656,21 +574,17 @@ public class CharacterMovementGroundModule : CharacterMovementModule
     {
         slopeAngle = 0f;
 
-        if (hit.collider)
+        if (hit.collider is not null)
         {
-            if (CheckIsGround(hit.collider) == false)
+            if (CheckIsGround(hit.collider) is false)
             {
                 return false;
             }
 
             RecalculateNormalIfZero(hit, ref slopeNormal);
 
-            float maxSlopeAngle = Math.Clamp(mCurrentSlopeUpAngle,
-                MIN_SLOPE_ANGLE, MAX_SLOPE_ANGLE);
-
             slopeAngle = Vector3.Angle(mCharUp, slopeNormal);
-
-            if (FloatExtensions.IsInRange(slopeAngle, MIN_SLOPE_ANGLE, maxSlopeAngle))
+            if (slopeAngle >= MIN_SLOPE_ANGLE && slopeAngle <= mCurrentMaxSlopeUpAngle)
             {
                 return true;
             }
@@ -714,7 +628,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
     protected virtual void UpdateGroundResult()
     {
         mGroundPreviousResult = mGroundResult;
-        CastForGround(checkDepth, out mGroundResult);
+        CastForGround(mGroundCheckDepth, out mGroundResult);
     }
 
     protected CharacterView mCharView;
@@ -725,6 +639,10 @@ public class CharacterMovementGroundModule : CharacterMovementModule
     protected Vector3 mBaseDeltaPosition;
     protected Vector3 mBaseDeltaRotation;
 
+    protected float mMinMoveDistance;
+    protected float mGroundCheckDepth;
+
+    protected float mStandDeacceleration;
     protected float mStandWalkSpeed;
     protected float mStandWalkAcceleration;
     protected float mStandRunSpeed;
@@ -741,6 +659,13 @@ public class CharacterMovementGroundModule : CharacterMovementModule
     protected float mStandCapsuleHeight;
     protected float mStandCapsuleRadius;
     protected float mStandToCrouchTransitionSpeed;
+    protected float mStandStepUpHeight => mCapsule.height * mStandStepUpPercent / 100;
+    protected float mStandStepDownDepth => mCapsule.height * mStandStepDownPercent / 100;
+    protected bool mStandMaintainVelocityOnSurface;
+    protected bool mStandMaintainVelocityAlongSurface;
+    protected Vector3 mStandCapsuleCenter;
+
+    protected float mCrouchDeacceleration;
     protected float mCrouchWalkSpeed;
     protected float mCrouchWalkAcceleration;
     protected float mCrouchRunSpeed;
@@ -753,40 +678,23 @@ public class CharacterMovementGroundModule : CharacterMovementModule
     protected float mCrouchCapsuleHeight;
     protected float mCrouchCapsuleRadius;
     protected float mCrouchToStandTransitionSpeed;
-    protected float minMoveDistance;
-    protected float checkDepth;
-    protected float mStandIdleAcceleration;
-    protected float mStandIdleSpeed;
-    protected float mCrouchIdleSpeed;
-    protected float mCrouchIdleAcceleration;
-    protected float mStandStepUpHeight => mCapsule.height * mStandStepUpPercent / 100;
-    protected float mStandStepDownDepth => mCapsule.height * mStandStepDownPercent / 100;
     protected float mCrouchStepUpHeight => mCapsule.height * mCrouchStepUpPercent / 100;
     protected float mCrouchStepDownDepth => mCapsule.height * mCrouchStepUpPercent / 100;
-
-    protected bool mStandMaintainVelocityOnSurface;
-    protected bool mStandMaintainVelocityAlongSurface;
-    protected bool mCrouchAutoRiseToStandSprint;
     protected bool mCrouchMaintainVelocityOnSurface;
     protected bool mCrouchMaintainVelocityAlongSurface;
-
-    protected Vector3 mStandCapsuleCenter;
     protected Vector3 mCrouchCapsuleCenter;
-    protected bool mCanGround = true;
 
-    protected float mCurrentMinMoveDist = 0;
     protected float mCurrentMoveSpeed = 0;
     protected float mCurrentMoveAccel = 0;
     protected float mCurrentJumpPower = 0;
     protected float mCurrentStepUpHeight = 0;
     protected float mCurrentStepDownDepth = 0;
-    protected float mCurrentSlopeUpAngle = 0;
+    protected float mCurrentMaxSlopeUpAngle = 0;
     protected float mCurrentSlopeDownAngle = 0;
-    protected uint mCurrentJumpCount = 0;
-    protected uint mCurrentMaxJumpCount = 0;
-    protected bool mCurrentMaintainVelocityOnJump = false;
     protected bool mCurrentMaintainVelocityOnSurface = true;
     protected bool mCurrentMaintainVelocityAlongSurface = true;
+
+    protected bool mDidJumpedLastUpdate;
 
     protected CharacterMovementState mMoveState = null;
     protected CharacterMovementState newState = null;

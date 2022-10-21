@@ -27,7 +27,7 @@ public class CharacterMovementAirModule : CharacterMovementModule
         UpdateGroundModule();
     }
 
-    public override bool ShouldUpdate()
+    public override bool ShouldRun()
     {
         return true;
     }
@@ -141,7 +141,6 @@ public class CharacterMovementAirModule : CharacterMovementModule
 
     protected virtual void PerformMove(Vector3 move)
     {
-        Vector3 lastPosition = mCapsule.position;
         Vector3 remainingMove = move;
 
         for (int i = 0; i < AIR_MAX_MOVE_ITERATIONS; i++)
@@ -157,9 +156,6 @@ public class CharacterMovementAirModule : CharacterMovementModule
 
             MoveAlongSurface(move, ref remainingMove, hit, hitNormal);
         }
-
-        Vector3 moved = mCapsule.position - lastPosition;
-        SetVelocityByMove(moved);
     }
 
     protected virtual void MoveAlongSurface(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit, Vector3 hitNormal)
@@ -201,6 +197,7 @@ public class CharacterMovementAirModule : CharacterMovementModule
     protected uint mMaxJumpCount;
 
     protected bool mInputJump;
+
 
     protected float mCurrentMinMoveDist = 0;
     protected float mCurrentMoveSpeed = 0;
