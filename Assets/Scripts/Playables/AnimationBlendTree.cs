@@ -10,25 +10,25 @@ namespace UnityEngine.Playables
         public Playable CreatePlayable();
     }
 
-    public abstract class AnimationBlendTree<P> : IBlendTreeElement
-        where P : struct, IEquatable<P>
+    public abstract class AnimationBlendTree<TPosition> : IBlendTreeElement
+        where TPosition : struct, IEquatable<TPosition>
     {
         //////////////////////////////////////////////////////////////////
         /// IBlendTreeElement : BEGIN
 
         public float GetLength()
         {
-            return _blendedClipLength;
+            return mBlendedClipLength;
         }
 
         public Playable GetPlayable()
         {
-            return _mixer;
+            return mMixer;
         }
 
         public Playable CreatePlayable()
         {
-            return _mixer;
+            return mMixer;
         }
 
         /// IBlendTreeElement : END
@@ -79,29 +79,29 @@ namespace UnityEngine.Playables
         protected struct Node
         {
             public IBlendTreeElement element;
-            public P position;
+            public TPosition position;
             public float speed;
             public float weight;
         }
 
         ~AnimationBlendTree()
         {
-            if (_mixer.IsValid())
+            if (mMixer.IsValid())
             {
-                _mixer.Destroy();
+                mMixer.Destroy();
             }
         }
 
         public AnimationBlendTree(PlayableGraph graph, int capacity = 0)
         {
-            _graph = graph;
-            _mixer = AnimationMixerPlayable.Create(_graph, capacity);
-            _blendPosition = default;
-            _nodes = new Node[capacity];
-            _blendedClipLength = 0f;
-            _masterSpeed = 1f;
-            _footIk = false;
-            _count = 0;
+            mGraph = graph;
+            mMixer = AnimationMixerPlayable.Create(mGraph, capacity);
+            mBlendPosition = default;
+            mNodes = new Node[capacity];
+            mBlendedClipLength = 0f;
+            mMasterSpeed = 1f;
+            mFootIk = false;
+            mCount = 0;
         }
 
         protected virtual void AddNode(Node node)
@@ -110,16 +110,16 @@ namespace UnityEngine.Playables
             node.weight = 0f;
 
             // increase capacity if not enough
-            if (_count == _nodes.Length)
+            if (mCount == mNodes.Length)
             {
-                Reserve(_nodes.Length + 1);
+                Reserve(mNodes.Length + 1);
             }
 
-            _nodes[_count] = node;
-            _count++;
+            mNodes[mCount] = node;
+            mCount++;
         }
 
-        public bool AddElement(IBlendTreeElement element, P position, float speed = 1f)
+        public bool AddElement(IBlendTreeElement element, TPosition position, float speed = 1f)
         {
             if (element is null)
             {
@@ -135,18 +135,18 @@ namespace UnityEngine.Playables
             return true;
         }
 
-        public bool AddElement(AnimationClip clip, P position, float speed = 1f)
+        public bool AddElement(AnimationClip clip, TPosition position, float speed = 1f)
         {
             AnimationClipElement element = new AnimationClipElement();
             element.clip = clip;
-            element.graph = _graph;
+            element.graph = mGraph;
 
             return AddElement(element, position, speed);
         }
 
         public bool SetElement(int index, IBlendTreeElement element)
         {
-            if (index < 0 || index > _count - 1)
+            if (index < 0 || index > mCount - 1)
             {
                 return false;
             }
@@ -156,7 +156,7 @@ namespace UnityEngine.Playables
                 return false;
             }
 
-            _nodes[index].element = element;
+            mNodes[index].element = element;
 
             return true;
         }
@@ -165,38 +165,38 @@ namespace UnityEngine.Playables
         {
             AnimationClipElement element = new AnimationClipElement();
             element.clip = clip;
-            element.graph = _graph;
+            element.graph = mGraph;
 
             return SetElement(index, element);
         }
 
-        public bool SetPosition(int index, P position)
+        public bool SetPosition(int index, TPosition position)
         {
-            if (index < 0 || index > _count - 1)
+            if (index < 0 || index > mCount - 1)
             {
                 return false;
             }
 
-            _nodes[index].position = position;
+            mNodes[index].position = position;
             return true;
         }
 
         public bool SetSpeed(int index, float speed)
         {
-            if (index < 0 || index > _count - 1)
+            if (index < 0 || index > mCount - 1)
             {
                 return false;
             }
 
-            _nodes[index].speed = speed;
+            mNodes[index].speed = speed;
             return true;
         }
 
-        public void SetBlendPosition(P position, bool? updateGraph = null)
+        public void SetBlendPosition(TPosition position, bool? updateGraph = null)
         {
             if (updateGraph.HasValue == false)
             {
-                if (_blendPosition.Equals(position))
+                if (mBlendPosition.Equals(position))
                 {
                     updateGraph = false;
                 }
@@ -206,7 +206,7 @@ namespace UnityEngine.Playables
                 }
             }
 
-            _blendPosition = position;
+            mBlendPosition = position;
 
             if (updateGraph.Value)
             {
@@ -216,8 +216,8 @@ namespace UnityEngine.Playables
 
         public void Reserve(int capacity)
         {
-            capacity = Mathf.Max(capacity, _count);
-            Array.Resize(ref _nodes, capacity);
+            capacity = Mathf.Max(capacity, mCount);
+            Array.Resize(ref mNodes, capacity);
         }
 
         public abstract void UpdateWeights();
@@ -230,15 +230,15 @@ namespace UnityEngine.Playables
             }
 
             // update _blendedClipLength
-            _blendedClipLength = 0f;
-            for (var i = 0; i < _count; i++)
+            mBlendedClipLength = 0f;
+            for (var i = 0; i < mCount; i++)
             {
-                var node = _nodes[i];
+                var node = mNodes[i];
 
-                _blendedClipLength += (node.element.GetLength() / node.speed) * node.weight;
+                mBlendedClipLength += (node.element.GetLength() / node.speed) * node.weight;
             }
 
-            _blendedClipLength /= _masterSpeed;
+            mBlendedClipLength /= mMasterSpeed;
         }
 
         public void UpdateGraph(bool updateTree = false)
@@ -248,23 +248,23 @@ namespace UnityEngine.Playables
                 UpdateTree(updateTree);
             }
 
-            int count = Mathf.Min(_count, _mixer.GetInputCount());
+            int count = Mathf.Min(mCount, mMixer.GetInputCount());
             for (int i = 0; i < count; i++)
             {
-                _mixer.SetInputWeight(i, _nodes[i].weight);
+                mMixer.SetInputWeight(i, mNodes[i].weight);
 
                 try
                 {
-                    AnimationClipPlayable clipPlayable = (AnimationClipPlayable)_mixer.GetInput(i);
+                    AnimationClipPlayable clipPlayable = (AnimationClipPlayable)mMixer.GetInput(i);
                     float speed = 0f;
 
-                    if (_blendedClipLength != 0f)
+                    if (mBlendedClipLength != 0f)
                     {
-                        speed = _nodes[i].element.GetLength() / _blendedClipLength;
+                        speed = mNodes[i].element.GetLength() / mBlendedClipLength;
                     }
 
                     clipPlayable.SetSpeed(speed);
-                    clipPlayable.SetApplyFootIK(_footIk);
+                    clipPlayable.SetApplyFootIK(mFootIk);
                 }
                 catch (Exception) { }
             }
@@ -275,46 +275,46 @@ namespace UnityEngine.Playables
             int inputCount = 0;
             if (rebuildAll == false)
             {
-                inputCount = _mixer.GetInputCount();
+                inputCount = mMixer.GetInputCount();
             }
 
-            _mixer.SetInputCount(_count);
-            for (int i = inputCount; i < _count; i++)
+            mMixer.SetInputCount(mCount);
+            for (int i = inputCount; i < mCount; i++)
             {
-                Playable playable = _nodes[i].element.GetPlayable();
+                Playable playable = mNodes[i].element.GetPlayable();
                 if (playable.IsNull())
                 {
-                    playable = _nodes[i].element.CreatePlayable();
+                    playable = mNodes[i].element.CreatePlayable();
                 }
 
-                _mixer.ConnectInput(i, playable, 0, _nodes[i].weight);
+                mMixer.ConnectInput(i, playable, 0, mNodes[i].weight);
             }
         }
 
-        public PlayableGraph Graph => _graph;
-        public AnimationMixerPlayable Playable => _mixer;
-        public P BlendPosition => _blendPosition;
-        public float BlendedClipLength => _blendedClipLength;
+        public PlayableGraph Graph => mGraph;
+        public AnimationMixerPlayable Playable => mMixer;
+        public TPosition BlendPosition => mBlendPosition;
+        public float BlendedClipLength => mBlendedClipLength;
         public float MasterSpeed
         {
-            get => _masterSpeed;
-            set => _masterSpeed = value;
+            get => mMasterSpeed;
+            set => mMasterSpeed = value;
         }
         public bool FootIk
         {
-            get => _footIk;
-            set => _footIk = value;
+            get => mFootIk;
+            set => mFootIk = value;
         }
-        public int Count => _count;
-        public int Capacity => _nodes.Length;
+        public int Count => mCount;
+        public int Capacity => mNodes.Length;
 
-        protected PlayableGraph _graph;
-        protected AnimationMixerPlayable _mixer;
-        protected P _blendPosition;
-        protected Node[] _nodes;
-        protected float _blendedClipLength;
-        protected float _masterSpeed;
-        protected bool _footIk;
-        protected int _count;
+        protected PlayableGraph mGraph;
+        protected AnimationMixerPlayable mMixer;
+        protected TPosition mBlendPosition;
+        protected Node[] mNodes;
+        protected float mBlendedClipLength;
+        protected float mMasterSpeed;
+        protected bool mFootIk;
+        protected int mCount;
     }
 }
