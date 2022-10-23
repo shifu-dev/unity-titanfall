@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: Training Level
   m_EditorClassIdentifier: 
   _scenes:
-  - {fileID: 11400000, guid: f24e3721c467c2f48a4fa7f0b0bd4984, type: 2}
+  - _scenePath: Scenes/Playground/Playground
+    _sceneAsset: {fileID: 102900000, guid: 707acc8dffb72b144bb1ffbe1c965f3d, type: 3}
