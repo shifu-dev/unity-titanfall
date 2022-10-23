@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using ILogger = GameFramework.LogManagement.ILogger;
+using GameFramework.Logging;
 
 public class StateMachine<T>
 {
@@ -7,7 +7,7 @@ public class StateMachine<T>
 
     protected State m_currentState;
     protected Dictionary<T, State> m_states;
-    protected ILogger m_logger;
+    protected IGameLogger m_logger;
 
     public T currentState => m_currentState.Id;
 
@@ -18,7 +18,7 @@ public class StateMachine<T>
         m_logger = null;
     }
 
-    public StateMachine(ILogger logger)
+    public StateMachine(IGameLogger logger)
     {
         m_currentState = null;
         m_states = new Dictionary<T, State>();

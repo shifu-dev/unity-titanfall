@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using GameFramework.LogManagement;
-
-using ILogger = GameFramework.LogManagement.ILogger;
+using GameFramework.Logging;
 
 public abstract class ObjectRegistry<T>
     where T : UnityEngine.Object
@@ -32,7 +30,7 @@ public abstract class ObjectRegistry<T>
 
     protected virtual void CreateLogger()
     {
-        _logger = LogManager.CreateLogger($"{typeof(T).Name}Registry");
+        _logger = GameLog.CreateLogger($"{typeof(T).Name}Registry");
     }
 
     protected virtual void InternalInit()
@@ -115,6 +113,6 @@ public abstract class ObjectRegistry<T>
     public IReadOnlyList<T> Assets => _assets;
     public int Count => _assets.Length;
 
-    protected ILogger _logger;
+    protected IGameLogger _logger;
     protected T[] _assets;
 }

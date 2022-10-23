@@ -1,8 +1,6 @@
 using UnityEngine;
 using GameFramework;
-using GameFramework.LogManagement;
-
-using ILogger = GameFramework.LogManagement.ILogger;
+using GameFramework.Logging;
 
 [GameSystemRegistration(typeof(PlayerManagerSystem))]
 public class PlayerManagerSystem : GameSystem
@@ -13,7 +11,7 @@ public class PlayerManagerSystem : GameSystem
 
         base.OnRegistered(system);
 
-        _logger = LogManager.CreateLogger("PlayerManager");
+        _logger = GameLog.CreateLogger("PlayerManager");
 
         _logger.Information("Initializing...");
         _logger.Information("Initialized");
@@ -47,7 +45,7 @@ public class PlayerManagerSystem : GameSystem
         return player;
     }
 
-    protected ILogger _logger;
+    protected IGameLogger _logger;
 
     protected Player _localPlayer;
     public Player localPlayer

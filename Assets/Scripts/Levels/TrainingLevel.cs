@@ -1,9 +1,6 @@
 using UnityEngine;
-using GameFramework;
-using GameFramework.LogManagement;
+using GameFramework.Logging;
 using GameFramework.LevelManagement;
-
-using ILogger = GameFramework.LogManagement.ILogger;
 
 [CreateAssetMenu(menuName = MENU_PATH + "TrainingLevel", fileName = "TrainingLevel")]
 public class TrainingLevel : BasicLevelAsset
@@ -12,7 +9,7 @@ public class TrainingLevel : BasicLevelAsset
     {
         LevelAsyncOperation operation = base.PerformLoad();
 
-        ILogger logger = LogManager.CreateLogger("TrainingLevel");
+        IGameLogger logger = GameLog.CreateLogger("TrainingLevel");
 
         // var sceneObject = SceneManager.FindSceneObject(_scenes[0]);
         SceneObject sceneObject = null;
