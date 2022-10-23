@@ -13,7 +13,7 @@ namespace UnityEngine.Playables
             int l = -1;
             int r = -1;
             for (int i = 0; i < _count; i++)
-            {
+            {   
                 float posI = _nodes[i].position;
 
                 if (posI == _blendPosition)

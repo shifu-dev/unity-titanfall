@@ -40,7 +40,10 @@ public partial class CharacterMovement
                 throw new NullReferenceException(@"mCharMovement is null, 
                     this module is not loaded by CharacterMovementBehaviour");
             }
+        }
 
+        protected virtual void PullPhysicsData()
+        {
             mCapsule = mCharMovement.mCapsule;
             mCapsuleCollider = mCharMovement.mCollider;
             mSkinWidth = mCharMovement.mSkinWidth;
@@ -51,6 +54,12 @@ public partial class CharacterMovement
             mCharRight = mCharacter.right;
             mCharForward = mCharacter.forward;
             mVelocity = mCharMovement.mVelocity;
+        }
+
+        protected virtual void PushPhysicsData()
+        {
+            mCharMovement.mCapsule = mCapsule;
+            mCharMovement.mSkinWidth = mSkinWidth;
         }
 
         public virtual bool ShouldRun()
@@ -283,12 +292,6 @@ public partial class CharacterMovement
             }
 
             return true;
-        }
-
-        protected void FlushCapsuleMove()
-        {
-            mCharMovement.mCapsule = mCapsule;
-            mCapsule.WriteValuesTo(mCapsuleCollider);
         }
 
         protected Character mCharacter;
