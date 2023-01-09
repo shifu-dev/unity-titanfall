@@ -10,13 +10,13 @@ public class CharacterMovementAirModule : CharacterMovementModule
         // cache Data from CharacterDataSource
         if (source is not null)
         {
-            mGravityAcceleration = source.gravityAcceleration;
-            mGravityMaxSpeed = source.gravityMaxSpeed;
-            mMinMoveDistance = source.minMoveDistance;
-            mMoveSpeed = source.moveSpeed;
-            mMoveAcceleration = source.moveAcceleration;
-            mJumpPower = source.jumpPower;
-            mMaxJumpCount = source.maxJumpCount;
+            _gravityAcceleration = source.gravityAcceleration;
+            _gravityMaxSpeed = source.gravityMaxSpeed;
+            _minMoveDistance = source.minMoveDistance;
+            _moveSpeed = source.moveSpeed;
+            _moveAcceleration = source.moveAcceleration;
+            _jumpPower = source.jumpPower;
+            _maxJumpCount = source.maxJumpCount;
         }
     }
 
@@ -36,13 +36,13 @@ public class CharacterMovementAirModule : CharacterMovementModule
     {
         UpdateValues();
 
-        Vector3 charUp = mCharUp;
-        Vector3 charForward = mCharacter.forward;
-        Vector3 charRight = mCharacter.right;
-        float mass = mCharacter.mass;
-        float gravitySpeed = mGravityAcceleration * mass * mDeltaTime * mDeltaTime * GRAVITY_MULTIPLIER;
+        Vector3 charUp = _charUp;
+        Vector3 charForward = _character.forward;
+        Vector3 charRight = _character.right;
+        float mass = _character.mass;
+        float gravitySpeed = _gravityAcceleration * mass * _deltaTime * _deltaTime * GRAVITY_MULTIPLIER;
 
-        Vector3 vel = mVelocity * mDeltaTime;
+        Vector3 vel = _velocity * _deltaTime;
         Vector3 velH = Vector3.ProjectOnPlane(vel, charUp);
         Vector3 velV = vel - velH;
 
@@ -54,11 +54,11 @@ public class CharacterMovementAirModule : CharacterMovementModule
         // // processed move input
         // Vector3 moveInputRaw = _move;
         // Vector3 moveInput = new Vector3(moveInputRaw.x, 0f, moveInputRaw.y);
-        // moveInput = Quaternion.Euler(0f, mCharView.turnAngle, 0f) * moveInput;
+        // moveInput = Quaternion.Euler(0f, _charView.turnAngle, 0f) * moveInput;
         // moveInput = character.rotation * moveInput;
 
         // // helping movement in mAir
-        // Vector3 move_help_h = mCurrentMoveSpeed * moveInput * mDeltaTime;
+        // Vector3 move_help_h = _currentMoveSpeed * moveInput * mDeltaTime;
         // Vector3 move_help_h_x = Vector3.ProjectOnPlane(move_help_h, charForward);
         // Vector3 move_help_h_z = move_help_h - move_help_h_x;
 
@@ -95,16 +95,16 @@ public class CharacterMovementAirModule : CharacterMovementModule
         // moveH = moveHX + moveHZ;
 
         // process character jump
-        if (mInputJump && mCurrentJumpCount < mMaxJumpCount)
+        if (_inputJump && _currentJumpCount < _maxJumpCount)
         {
-            mCurrentJumpCount++;
+            _currentJumpCount++;
 
-            if (mCurrentMaintainVelocityOnJump == false)
+            if (_currentMaintainVelocityOnJump == false)
             {
                 moveV = Vector3.zero;
             }
 
-            moveV = charUp * mCurrentJumpPower;
+            moveV = charUp * _currentJumpPower;
         }
 
         Vector3 move = moveH + moveV;
@@ -114,14 +114,14 @@ public class CharacterMovementAirModule : CharacterMovementModule
 
     protected virtual void UpdateGroundModule()
     {
-        mGroundModule = null;
-        if (mCharMovement is not null)
+        _groundModule = null;
+        if (_charMovement is not null)
         {
-            foreach (var module in mCharMovement.modules)
+            foreach (var module in _charMovement.modules)
             {
                 if (module is CharacterMovementGroundModule)
                 {
-                    mGroundModule = module as CharacterMovementGroundModule;
+                    _groundModule = module as CharacterMovementGroundModule;
                 }
             }
         }
@@ -129,14 +129,14 @@ public class CharacterMovementAirModule : CharacterMovementModule
 
     protected virtual void UpdateValues()
     {
-        mCurrentMoveAccel = mMoveAcceleration;
-        mCurrentMoveSpeed = mMoveSpeed;
-        mCurrentJumpPower = mJumpPower;
-        mCurrentMaxJumpCount = mMaxJumpCount;
-        mCurrentMinMoveDist = mMinMoveDistance;
+        _currentMoveAccel = _moveAcceleration;
+        _currentMoveSpeed = _moveSpeed;
+        _currentJumpPower = _jumpPower;
+        _currentMaxJumpCount = _maxJumpCount;
+        _currentMinMoveDist = _minMoveDistance;
 
         // TODO: add this field in data asset
-        mCurrentMaintainVelocityOnJump = false;
+        _currentMaintainVelocityOnJump = false;
     }
 
     protected virtual void PerformMove(Vector3 move)
@@ -165,8 +165,8 @@ public class CharacterMovementAirModule : CharacterMovementModule
 
         RecalculateNormalIfZero(hit, ref hitNormal);
 
-        bool canStandOnGround = mGroundModule is not null &&
-            mGroundModule.CanStandOnGround(hit, hitNormal, out float slopeAngle);
+        bool canStandOnGround = _groundModule is not null &&
+         _groundModule.CanStandOnGround(hit, hitNormal, out float slopeAngle);
 
         if (canStandOnGround)
         {
@@ -177,7 +177,7 @@ public class CharacterMovementAirModule : CharacterMovementModule
         // hit.normal gives normal respective to capsule's body,
         // useful for sliding off on corners
         Vector3 slideMove = Vector3.ProjectOnPlane(remainingMove, hit.normal);
-        if (mCurrentMaintainVelocityAlongSurface)
+        if (_currentMaintainVelocityAlongSurface)
         {
             slideMove = slideMove.normalized * remainingMove.magnitude;
         }
@@ -185,31 +185,30 @@ public class CharacterMovementAirModule : CharacterMovementModule
         remainingMove = slideMove;
     }
 
-    protected CharacterMovementGroundModule mGroundModule;
+    protected CharacterMovementGroundModule _groundModule;
 
-    protected float mGravityAcceleration;
-    protected float mGravityMaxSpeed;
-    protected float mMinMoveDistance;
-    protected float mMoveSpeed;
-    protected float mMoveAcceleration;
-    protected float mJumpPower;
+    protected float _gravityAcceleration;
+    protected float _gravityMaxSpeed;
+    protected float _minMoveDistance;
+    protected float _moveSpeed;
+    protected float _moveAcceleration;
+    protected float _jumpPower;
 
-    protected uint mMaxJumpCount;
+    protected uint _maxJumpCount;
 
-    protected bool mInputJump;
+    protected bool _inputJump;
 
-
-    protected float mCurrentMinMoveDist = 0;
-    protected float mCurrentMoveSpeed = 0;
-    protected float mCurrentMoveAccel = 0;
-    protected float mCurrentJumpPower = 0;
-    protected float mCurrentStepUpHeight = 0;
-    protected float mCurrentStepDownDepth = 0;
-    protected float mCurrentSlopeUpAngle = 0;
-    protected float mCurrentSlopeDownAngle = 0;
-    protected uint mCurrentJumpCount = 0;
-    protected uint mCurrentMaxJumpCount = 0;
-    protected bool mCurrentMaintainVelocityOnJump = false;
-    protected bool mCurrentMaintainVelocityOnSurface = true;
-    protected bool mCurrentMaintainVelocityAlongSurface = true;
+    protected float _currentMinMoveDist = 0;
+    protected float _currentMoveSpeed = 0;
+    protected float _currentMoveAccel = 0;
+    protected float _currentJumpPower = 0;
+    protected float _currentStepUpHeight = 0;
+    protected float _currentStepDownDepth = 0;
+    protected float _currentSlopeUpAngle = 0;
+    protected float _currentSlopeDownAngle = 0;
+    protected uint _currentJumpCount = 0;
+    protected uint _currentMaxJumpCount = 0;
+    protected bool _currentMaintainVelocityOnJump = false;
+    protected bool _currentMaintainVelocityOnSurface = true;
+    protected bool _currentMaintainVelocityAlongSurface = true;
 }

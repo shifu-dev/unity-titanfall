@@ -6,7 +6,6 @@ public class CharacterView : CharacterBehaviour
 {
     //////////////////////////////////////////////////////////////////
     /// Types
-    //////////////////////////////////////////////////////////////////
 
     public enum Mode
     {
@@ -46,39 +45,6 @@ public class CharacterView : CharacterBehaviour
         public float maxDistanceFromLookSource;
     }
 
-    //////////////////////////////////////////////////////////////////
-    /// Variables
-    //////////////////////////////////////////////////////////////////
-
-    protected CharacterMovement _charMovement;
-
-    [SerializeField] protected Camera _camera;
-    public new Camera camera
-    {
-        get => _camera;
-        set => _camera = value;
-    }
-
-    [SerializeField, ReadOnly] protected Vector3 _lookVector;
-    public Vector2 lookVector => _lookVector;
-
-    public Mode mode
-    {
-        get => _stateMachine.currentState;
-        set => _stateMachine.Switch(value);
-    }
-
-    [Header("View Modes Data"), Space]
-    [SerializeField] protected EyesData _eyesData;
-    [SerializeField] protected FirstPersonData _firstPersonData;
-    [SerializeField] protected ThirdPersonData _thirdPersonData;
-
-    protected StateMachine<Mode> _stateMachine;
-
-    protected Vector2 _look;
-
-    public float turnAngle => _lookVector.x;
-
     public CharacterView()
     {
         _stateMachine = new StateMachine<Mode>();
@@ -115,7 +81,6 @@ public class CharacterView : CharacterBehaviour
 
     //////////////////////////////////////////////////////////////////
     /// ViewMode States
-    //////////////////////////////////////////////////////////////////
 
     protected virtual void EnterViewMode_Eyes()
     {
@@ -212,4 +177,32 @@ public class CharacterView : CharacterBehaviour
     protected virtual void ExitViewMode_ThirdPerson()
     {
     }
+
+    protected CharacterMovement _charMovement;
+
+    [SerializeField] protected Camera _camera;
+    public new Camera camera
+    {
+        get => _camera;
+        set => _camera = value;
+    }
+
+    [SerializeField, ReadOnly] protected Vector3 _lookVector;
+    public Vector2 lookVector => _lookVector;
+
+    public Mode mode
+    {
+        get => _stateMachine.currentState;
+        set => _stateMachine.Switch(value);
+    }
+
+    [Header("View Modes Data"), Space]
+    [SerializeField] protected EyesData _eyesData;
+    [SerializeField] protected FirstPersonData _firstPersonData;
+    [SerializeField] protected ThirdPersonData _thirdPersonData;
+
+    protected StateMachine<Mode> _stateMachine;
+
+    protected Vector2 _look;
+    public float turnAngle => _lookVector.x;
 }

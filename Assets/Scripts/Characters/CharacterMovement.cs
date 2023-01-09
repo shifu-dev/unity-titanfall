@@ -8,19 +8,19 @@ public partial class CharacterMovement : CharacterBehaviour
     {
         base.OnCharacterCreate(character, initializer);
 
-        mCollider = GetComponent<CapsuleCollider>();
-        mVelocity = Vector3.zero;
+        _collider = GetComponent<CapsuleCollider>();
+        _velocity = Vector3.zero;
 
         CharacterAsset source = _character.source;
         if (source is not null)
         {
-            mCapsule = new VirtualCapsule();
-            mCapsule.position = Vector3.zero;
-            mCapsule.rotation = Quaternion.identity;
-            mCapsule.height = 2f;
-            mCapsule.radius = .5f;
-            // mCapsule.layerMask = source.layerMask;
-            mCapsule.queryTrigger = QueryTriggerInteraction.Ignore;
+            _capsule = new VirtualCapsule();
+            _capsule.position = Vector3.zero;
+            _capsule.rotation = Quaternion.identity;
+            _capsule.height = 2f;
+            _capsule.radius = .5f;
+            // _capsule.layerMask = source.layerMask;
+            _capsule.queryTrigger = QueryTriggerInteraction.Ignore;
 
             var moduleList = new List<CharacterMovementModule>();
             if (source.groundModuleSource is not null)
@@ -47,14 +47,14 @@ public partial class CharacterMovement : CharacterBehaviour
     {
         base.OnCharacterSpawn();
 
-        mCapsule.position = transform.position;
-        mCapsule.rotation = transform.rotation;
+        _capsule.position = transform.position;
+        _capsule.rotation = transform.rotation;
     }
 
     public override void OnCharacterUpdate()
     {
-        mDeltaTime = Time.deltaTime;
-        if (mDeltaTime <= 0)
+        _deltaTime = Time.deltaTime;
+        if (_deltaTime <= 0)
         {
             return;
         }
@@ -63,18 +63,18 @@ public partial class CharacterMovement : CharacterBehaviour
 
         UpdateModules();
 
-        mLastPosition = mCapsule.position;
+        _lastPosition = _capsule.position;
         RunModulePhysics();
 
-        Vector3 moved = mCapsule.position - mLastPosition;
-        mVelocity = moved / mDeltaTime;
+        Vector3 moved = _capsule.position - _lastPosition;
+        _velocity = moved / _deltaTime;
 
         PostUpdateModules();
     }
 
     protected virtual void UpdateModules()
     {
-        foreach (var module in mModules)
+        foreach (var module in _modules)
         {
             module.Update();
         }
@@ -82,61 +82,61 @@ public partial class CharacterMovement : CharacterBehaviour
 
     protected virtual void RunModulePhysics()
     {
-        mPreviousModule = mActiveModule;
-        mActiveModule = null;
-        foreach (var module in mModules)
+        _previousModule = _activeModule;
+        _activeModule = null;
+        foreach (var module in _modules)
         {
             if (module.ShouldRun())
             {
-                mActiveModule = module;
+                _activeModule = module;
                 break;
             }
         }
 
-        if (mPreviousModule != mActiveModule)
+        if (_previousModule != _activeModule)
         {
-            if (mPreviousModule is not null)
+            if (_previousModule is not null)
             {
-                mPreviousModule.StopPhysics();
+                _previousModule.StopPhysics();
             }
 
-            if (mActiveModule is not null)
+            if (_activeModule is not null)
             {
-                mActiveModule.StartPhysics();
+                _activeModule.StartPhysics();
             }
         }
 
-        if (mActiveModule is not null)
+        if (_activeModule is not null)
         {
-            mActiveModule.RunPhysics();
+            _activeModule.RunPhysics();
         }
     }
 
     protected virtual void PostUpdateModules()
     {
-        foreach (var module in mModules)
+        foreach (var module in _modules)
         {
             module.PostUpdate();
         }
     }
 
-    protected CharacterMovementModule[] mModules;
-    public IReadOnlyCollection<CharacterMovementModule> modules => mModules;
+    protected CharacterMovementModule[] _modules;
+    public IReadOnlyCollection<CharacterMovementModule> modules => _modules;
 
-    protected CharacterMovementModule mActiveModule;
-    protected CharacterMovementModule mPreviousModule;
-    public CharacterMovementModule activeModule => mActiveModule;
-    public CharacterMovementModule previousModule => mPreviousModule;
+    protected CharacterMovementModule _activeModule;
+    protected CharacterMovementModule _previousModule;
+    public CharacterMovementModule activeModule => _activeModule;
+    public CharacterMovementModule previousModule => _previousModule;
 
-    protected CapsuleCollider mCollider;
+    protected CapsuleCollider _collider;
 
-    protected float mSkinWidth;
-    protected VirtualCapsule mCapsule;
-    public VirtualCapsule capsule => mCapsule;
+    protected float _skinWidth;
+    protected VirtualCapsule _capsule;
+    public VirtualCapsule capsule => _capsule;
 
-    protected Vector3 mVelocity;
-    protected Vector3 mLastPosition;
-    public Vector3 velocity => mVelocity;
+    protected Vector3 _velocity;
+    protected Vector3 _lastPosition;
+    public Vector3 velocity => _velocity;
 
-    protected float mDeltaTime = 0f;
+    protected float _deltaTime = 0f;
 }

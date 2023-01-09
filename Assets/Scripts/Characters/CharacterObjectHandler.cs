@@ -27,36 +27,6 @@ public class CharacterObjectHandler : CharacterBehaviour
         UnequipFinish
     }
 
-    protected CharacterInventory _charInventory;
-
-    [Header("Left Hand"), Space]
-    [SerializeField, ReadOnly] protected EquipData _leftCurrent;
-    [SerializeField, ReadOnly] protected EquipData _leftNext;
-    [SerializeField, ReadOnly] protected EquipStatus _leftStatus;
-    [SerializeField, ReadOnly, Range(0, 1)] protected float _leftWeight;
-    [SerializeField, ReadOnly] protected bool _leftLocked;
-    [SerializeField, ReadOnly] protected bool _leftSupporting;
-
-    [Header("Right Hand"), Space]
-    [SerializeField, ReadOnly] protected EquipData _rightCurrent;
-    [SerializeField, ReadOnly] protected EquipData _rightNext;
-    [SerializeField, ReadOnly] protected EquipStatus _rightStatus;
-    [SerializeField, ReadOnly, Range(0, 1)] protected float _rightWeight;
-    [SerializeField, ReadOnly] protected bool _rightLocked;
-    [SerializeField, ReadOnly] protected bool _rightSupporting;
-    [SerializeField, ReadOnly] protected bool _rightWeaponReloading;
-    [SerializeField, ReadOnly] protected bool _rightCanStopWeaponReloading;
-
-    // inputs
-    protected float _deltaTime;
-    protected int _weaponSlot;
-    protected int _grenadeSlot;
-    protected bool _leftFire;
-    protected bool _rightFire;
-    protected bool _sight;
-    protected bool _rightReload;
-    protected Equipable _toEquip;
-
     public CharacterObjectHandler()
     {
         _leftCurrent = EquipData.empty;
@@ -828,4 +798,34 @@ public class CharacterObjectHandler : CharacterBehaviour
 
     /// Character Inventory API | END
     //////////////////////////////////////////////////////////////////
+
+    protected CharacterInventory _charInventory;
+
+    [Header("Left Hand"), Space]
+    [SerializeField, ReadOnly] protected EquipData _leftCurrent;
+    [SerializeField, ReadOnly] protected EquipData _leftNext;
+    [SerializeField, ReadOnly] protected EquipStatus _leftStatus;
+    [SerializeField, ReadOnly, Range(0, 1)] protected float _leftWeight;
+    [SerializeField, ReadOnly] protected bool _leftLocked;
+    [SerializeField, ReadOnly] protected bool _leftSupporting;
+
+    [Header("Right Hand"), Space]
+    [SerializeField, ReadOnly] protected EquipData _rightCurrent;
+    [SerializeField, ReadOnly] protected EquipData _rightNext;
+    [SerializeField, ReadOnly] protected EquipStatus _rightStatus;
+    [SerializeField, ReadOnly, Range(0, 1)] protected float _rightWeight;
+    [SerializeField, ReadOnly] protected bool _rightLocked;
+    [SerializeField, ReadOnly] protected bool _rightSupporting;
+    [SerializeField, ReadOnly] protected bool _rightWeaponReloading;
+    [SerializeField, ReadOnly] protected bool _rightCanStopWeaponReloading;
+
+    // inputs
+    protected float _deltaTime;
+    protected int _weaponSlot;
+    protected int _grenadeSlot;
+    protected bool _leftFire;
+    protected bool _rightFire;
+    protected bool _sight;
+    protected bool _rightReload;
+    protected Equipable _toEquip;
 }

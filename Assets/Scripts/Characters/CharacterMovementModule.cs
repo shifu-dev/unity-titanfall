@@ -12,22 +12,22 @@ public partial class CharacterMovement
 
         public virtual void OnLoaded(CharacterMovement charMovement)
         {
-            if (mCharMovement is not null)
+            if (_charMovement is not null)
             {
-                throw new UnityException($"{this} module is already loaded by {mCharMovement}");
+                throw new UnityException($"{this} module is already loaded by {_charMovement}");
             }
 
-            mCharMovement = charMovement;
+            _charMovement = charMovement;
         }
 
         public virtual void OnUnloaded(CharacterMovement charMovement)
         {
-            if (mCharMovement is null)
+            if (_charMovement is null)
             {
                 throw new UnityException($"{this} module is not loaded by any CharacterMovementBehaviour");
             }
 
-            if (charMovement != mCharMovement)
+            if (charMovement != _charMovement)
             {
                 throw new UnityException($"{this} module is not loaded by {charMovement}");
             }
@@ -35,7 +35,7 @@ public partial class CharacterMovement
 
         public virtual void Update()
         {
-            if (mCharMovement is null)
+            if (_charMovement is null)
             {
                 throw new NullReferenceException(@"mCharMovement is null, 
                     this module is not loaded by CharacterMovementBehaviour");
@@ -44,22 +44,22 @@ public partial class CharacterMovement
 
         protected virtual void PullPhysicsData()
         {
-            mCapsule = mCharMovement.mCapsule;
-            mCapsuleCollider = mCharMovement.mCollider;
-            mSkinWidth = mCharMovement.mSkinWidth;
+            _capsule = _charMovement._capsule;
+            _capsuleCollider = _charMovement._collider;
+            _skinWidth = _charMovement._skinWidth;
 
-            mFrameCount = (uint)Time.frameCount;
-            mDeltaTime = Time.deltaTime;
-            mCharUp = mCharacter.up;
-            mCharRight = mCharacter.right;
-            mCharForward = mCharacter.forward;
-            mVelocity = mCharMovement.mVelocity;
+            _frameCount = (uint)Time.frameCount;
+            _deltaTime = Time.deltaTime;
+            _charUp = _character.up;
+            _charRight = _character.right;
+            _charForward = _character.forward;
+            _velocity = _charMovement._velocity;
         }
 
         protected virtual void PushPhysicsData()
         {
-            mCharMovement.mCapsule = mCapsule;
-            mCharMovement.mSkinWidth = mSkinWidth;
+            _charMovement._capsule = _capsule;
+            _charMovement._skinWidth = _skinWidth;
         }
 
         public virtual bool ShouldRun()
@@ -73,7 +73,7 @@ public partial class CharacterMovement
 
         public virtual void RunPhysics()
         {
-            mLastPhysicsRun = mFrameCount;
+            _lastPhysicsRun = _frameCount;
         }
 
         public virtual void StopPhysics()
@@ -86,8 +86,8 @@ public partial class CharacterMovement
 
         public virtual void SetMoveVector(Vector2 move)
         {
-            mInputMove = move;
-            mInputMoveAngle = Vector2.SignedAngle(mInputMove, Vector2.up);
+            _inputMove = move;
+            _inputMoveAngle = Vector2.SignedAngle(_inputMove, Vector2.up);
         }
 
         protected bool CapsuleCast(Vector3 move, out RaycastHit hit)
@@ -100,10 +100,10 @@ public partial class CharacterMovement
 
         protected bool CapsuleCast(Vector3 move, out RaycastHit smallHit, out RaycastHit bigHit)
         {
-            if (mSkinWidth > 0f)
+            if (_skinWidth > 0f)
             {
-                VirtualCapsule bigCapsule = mCapsule;
-                bigCapsule.radius += mSkinWidth;
+                VirtualCapsule bigCapsule = _capsule;
+                bigCapsule.radius += _skinWidth;
                 bigCapsule.CapsuleCast(move, out bigHit);
 
                 if (bigHit.collider)
@@ -111,11 +111,11 @@ public partial class CharacterMovement
                     move = move.normalized * bigHit.distance;
                 }
 
-                mCapsule.CapsuleCast(move, out smallHit);
+                _capsule.CapsuleCast(move, out smallHit);
             }
             else
             {
-                mCapsule.CapsuleCast(move, out bigHit);
+                _capsule.CapsuleCast(move, out bigHit);
                 smallHit = bigHit;
             }
 
@@ -140,10 +140,10 @@ public partial class CharacterMovement
 
         protected bool BaseSphereCast(Vector3 move, out RaycastHit smallHit, out RaycastHit bigHit)
         {
-            if (mSkinWidth > 0f)
+            if (_skinWidth > 0f)
             {
-                VirtualCapsule bigCapsule = mCapsule;
-                bigCapsule.radius += mSkinWidth;
+                VirtualCapsule bigCapsule = _capsule;
+                bigCapsule.radius += _skinWidth;
                 bigCapsule.BaseSphereCast(move, out bigHit);
 
                 if (bigHit.collider)
@@ -151,11 +151,11 @@ public partial class CharacterMovement
                     move = move.normalized * bigHit.distance;
                 }
 
-                mCapsule.BaseSphereCast(move, out smallHit);
+                _capsule.BaseSphereCast(move, out smallHit);
             }
             else
             {
-                mCapsule.BaseSphereCast(move, out bigHit);
+                _capsule.BaseSphereCast(move, out bigHit);
                 smallHit = bigHit;
             }
 
@@ -202,7 +202,7 @@ public partial class CharacterMovement
 
             if (smallHit.collider)
             {
-                float skinWidth = Mathf.Max(0, mSkinWidth);
+                float skinWidth = Mathf.Max(0, _skinWidth);
                 distance = smallHit.distance - skinWidth - COLLISION_OFFSET;
             }
             else if (bigHit.collider)
@@ -210,7 +210,7 @@ public partial class CharacterMovement
                 distance = bigHit.distance - COLLISION_OFFSET;
             }
 
-            mCapsule.position += direction * distance;
+            _capsule.position += direction * distance;
 
             CapsuleResolvePenetration();
 
@@ -231,16 +231,16 @@ public partial class CharacterMovement
         {
             Vector3 resolve = Vector3.zero;
 
-            if (mSkinWidth > 0f)
+            if (_skinWidth > 0f)
             {
-                VirtualCapsule bigCapsule = mCapsule;
-                bigCapsule.radius += mSkinWidth;
+                VirtualCapsule bigCapsule = _capsule;
+                bigCapsule.radius += _skinWidth;
 
-                resolve = bigCapsule.ResolvePenetration(mCapsuleCollider, COLLISION_OFFSET);
+                resolve = bigCapsule.ResolvePenetration(_capsuleCollider, COLLISION_OFFSET);
             }
             else
             {
-                resolve = mCapsule.ResolvePenetration(mCapsuleCollider, COLLISION_OFFSET);
+                resolve = _capsule.ResolvePenetration(_capsuleCollider, COLLISION_OFFSET);
             }
 
             return resolve;
@@ -248,14 +248,14 @@ public partial class CharacterMovement
 
         protected void TeleportTo(Vector3 pos, Quaternion rot)
         {
-            mCapsule.position = pos;
-            mCapsule.rotation = rot;
+            _capsule.position = pos;
+            _capsule.rotation = rot;
         }
 
         protected bool RecalculateNormal(RaycastHit hit, out Vector3 normal)
         {
             return hit.RecalculateNormalUsingRaycast(out normal,
-                mCapsule.layerMask, mCapsule.queryTrigger);
+                _capsule.layerMask, _capsule.queryTrigger);
         }
 
         protected bool RecalculateNormal(RaycastHit hit, Vector3 direction, out Vector3 normal)
@@ -266,7 +266,7 @@ public partial class CharacterMovement
                 const float rayDistance = RECALCULATE_NORMAL_FALLBACK + RECALCULATE_NORMAL_ADDON;
 
                 Physics.Raycast(origin, direction, out RaycastHit rayHit,
-                    rayDistance, mCapsule.layerMask, mCapsule.queryTrigger);
+                    rayDistance, _capsule.layerMask, _capsule.queryTrigger);
 
                 if (rayHit.collider && rayHit.collider == hit.collider)
                 {
@@ -294,23 +294,23 @@ public partial class CharacterMovement
             return true;
         }
 
-        protected Character mCharacter;
-        protected CharacterMovement mCharMovement;
-        protected CapsuleCollider mCapsuleCollider;
+        protected Character _character;
+        protected CharacterMovement _charMovement;
+        protected CapsuleCollider _capsuleCollider;
 
-        protected float mSkinWidth;
-        protected VirtualCapsule mCapsule;
-        protected Vector3 mCharUp;
-        protected Vector3 mCharRight;
-        protected Vector3 mCharForward;
-        protected Vector3 mVelocity;
+        protected float _skinWidth;
+        protected VirtualCapsule _capsule;
+        protected Vector3 _charUp;
+        protected Vector3 _charRight;
+        protected Vector3 _charForward;
+        protected Vector3 _velocity;
 
-        protected float mDeltaTime;
-        protected uint mFrameCount;
-        protected uint mLastPhysicsRun;
+        protected float _deltaTime;
+        protected uint _frameCount;
+        protected uint _lastPhysicsRun;
 
-        protected Vector3 mInputMove;
-        protected float mInputMoveAngle;
+        protected Vector3 _inputMove;
+        protected float _inputMoveAngle;
     }
 }
 
