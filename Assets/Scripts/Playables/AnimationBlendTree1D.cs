@@ -7,16 +7,16 @@ namespace UnityEngine.Playables
 
         public override void UpdateWeights()
         {
-            if (mCount == 0) return;
+            if (_count == 0) return;
 
             // find the elements affected by current weight
             int l = -1;
             int r = -1;
-            for (int i = 0; i < mCount; i++)
+            for (int i = 0; i < _count; i++)
             {
-                float posI = mNodes[i].position;
+                float posI = _nodes[i].position;
 
-                if (posI == mBlendPosition)
+                if (posI == _blendPosition)
                 {
                     l = i;
                     r = i;
@@ -26,12 +26,12 @@ namespace UnityEngine.Playables
                     break;
                 }
 
-                if (posI < mBlendPosition && (l < 0 || posI > mNodes[l].position))
+                if (posI < _blendPosition && (l < 0 || posI > _nodes[l].position))
                 {
                     l = i;
                 }
 
-                if (posI > mBlendPosition && (r < 0 || posI < mNodes[r].position))
+                if (posI > _blendPosition && (r < 0 || posI < _nodes[r].position))
                 {
                     r = i;
                 }
@@ -41,19 +41,19 @@ namespace UnityEngine.Playables
             r = r < 0 ? l : r;
 
             // set weights for all elements
-            for (int i = 0; i < mCount; i++)
+            for (int i = 0; i < _count; i++)
             {
                 float weight = 0f;
 
                 if (i >= l && i <= r)
                 {
-                    float diff = mNodes[r].position - mNodes[l].position;
-                    float pos = mNodes[i].position;
+                    float diff = _nodes[r].position - _nodes[l].position;
+                    float pos = _nodes[i].position;
 
                     // diff == 0 indicates elements are at same place
                     if (diff != 0)
                     {
-                        weight = diff - Mathf.Abs(mBlendPosition - pos);
+                        weight = diff - Mathf.Abs(_blendPosition - pos);
                         weight = weight / diff;
                     }
                     else
@@ -62,7 +62,7 @@ namespace UnityEngine.Playables
                     }
                 }
 
-                mNodes[i].weight = weight;
+                _nodes[i].weight = weight;
             }
         }
     }

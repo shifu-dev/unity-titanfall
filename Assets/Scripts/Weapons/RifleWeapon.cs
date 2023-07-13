@@ -7,7 +7,7 @@ public class RifleWeapon : ReloadableWeapon
     protected new RifleWeaponAsset _asset;
     public new RifleWeaponAsset sourceAsset => _asset;
 
-    public override WeaponCategory category => WeaponCategory.ASSAULT;
+    public override WeaponCategory category => WeaponCategory.Assault;
 
     protected override void Init(WeaponInitializer initializer)
     {

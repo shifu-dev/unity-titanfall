@@ -4,14 +4,14 @@ using UnityEngine;
 [Flags]
 public enum WeaponCategory
 {
-    MELEE = 2 << 1,
-    PISTOL = 2 << 2,
-    LIGHT = 2 << 3,
-    ASSAULT = 2 << 4,
-    HEAVY = 2 << 5,
-    SNIPER = 2 << 6,
-    SPECIAL = 2 << 7,
-    MISC = 2 << 8
+    Melee = 1 << 0,
+    Pistol = 1 << 1,
+    Light = 1 << 2,
+    Assault = 1 << 3,
+    Heavy = 1 << 4,
+    Sniper = 1 << 5,
+    Special = 1 << 6,
+    Misc = 1 << 7
 }
 
 [DisallowMultipleComponent]

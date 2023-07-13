@@ -641,7 +641,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         _animStandWalkTree.AddElement(_source.animStandWalkBackward, back);
         _animStandWalkTree.AddElement(_source.animStandWalkBackwardLeft, backLeft);
         _animStandWalkTree.AddElement(_source.animStandWalkBackwardRight, backRight);
-        _animStandWalkTree.FootIk = true;
+        _animStandWalkTree.footIk = true;
         _animStandWalkTree.BuildGraph(true);
         _animStandWalkTree.UpdateGraph(true);
 
@@ -655,7 +655,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         _animStandRunTree.AddElement(_source.animStandRunBackward, back * 2f);
         _animStandRunTree.AddElement(_source.animStandRunBackwardLeft, backLeft * 2f);
         _animStandRunTree.AddElement(_source.animStandRunBackwardRight, backRight * 2f);
-        _animStandRunTree.FootIk = true;
+        _animStandRunTree.footIk = true;
         _animStandRunTree.BuildGraph(true);
         _animStandRunTree.UpdateGraph(true);
 
@@ -664,7 +664,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         _animStandTree.AddElement(_animStandWalkTree, 1f);
         _animStandTree.AddElement(_animStandRunTree, 2f);
         _animStandTree.AddElement(_source.animStandSprintForward, 3f);
-        _animStandTree.FootIk = true;
+        _animStandTree.footIk = true;
         _animStandTree.BuildGraph(true);
         _animStandTree.UpdateGraph(true);
 
@@ -680,7 +680,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         _animCrouchWalkTree.AddElement(_source.animCrouchWalkBackward, back);
         _animCrouchWalkTree.AddElement(_source.animCrouchWalkBackwardLeft, backLeft);
         _animCrouchWalkTree.AddElement(_source.animCrouchWalkBackwardRight, backRight);
-        _animCrouchWalkTree.FootIk = true;
+        _animCrouchWalkTree.footIk = true;
         _animCrouchWalkTree.BuildGraph(true);
         _animCrouchWalkTree.UpdateGraph(true);
 
@@ -694,7 +694,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         _animCrouchRunTree.AddElement(_source.animCrouchRunBackward, back * 2f);
         _animCrouchRunTree.AddElement(_source.animCrouchRunBackwardLeft, backLeft * 2f);
         _animCrouchRunTree.AddElement(_source.animCrouchRunBackwardRight, backRight * 2f);
-        _animCrouchRunTree.FootIk = true;
+        _animCrouchRunTree.footIk = true;
         _animCrouchRunTree.BuildGraph(true);
         _animCrouchRunTree.UpdateGraph(true);
 
@@ -702,7 +702,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         _animCrouchTree.AddElement(_source.animCrouchIdle, 0f);
         _animCrouchTree.AddElement(_animCrouchWalkTree, 1f);
         _animCrouchTree.AddElement(_animCrouchRunTree, 2f);
-        _animCrouchTree.FootIk = true;
+        _animCrouchTree.footIk = true;
         _animCrouchTree.BuildGraph(true);
         _animCrouchTree.UpdateGraph(true);
 
@@ -711,7 +711,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         _animBaseTree.Reserve(2);
         _animBaseTree.AddElement(_animStandTree, 0f);
         _animBaseTree.AddElement(_animCrouchTree, 1f);
-        _animBaseTree.FootIk = true;
+        _animBaseTree.footIk = true;
         _animBaseTree.BuildGraph(true);
         _animBaseTree.UpdateGraph(true);
     }

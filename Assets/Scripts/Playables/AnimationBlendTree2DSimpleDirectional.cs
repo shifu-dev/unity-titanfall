@@ -8,40 +8,40 @@ namespace UnityEngine.Playables
         public override void UpdateWeights()
         {
             // initialize all weights to 0
-            for (var i = 0; i < mNodes.Length; i++)
+            for (var i = 0; i < _nodes.Length; i++)
             {
-                mNodes[i].weight = 0f;
+                _nodes[i].weight = 0f;
             }
 
             // handle fallback
-            if (mCount < 2)
+            if (_count < 2)
             {
-                if (mCount == 1)
+                if (_count == 1)
                 {
-                    mNodes[0].weight = 1;
+                    _nodes[0].weight = 1;
                 }
 
                 return;
             }
 
             // handle special case when sampled exactly in the middle
-            if (mBlendPosition == Vector2.zero)
+            if (_blendPosition == Vector2.zero)
             {
                 // if we have a center motion, give that one all the weight
-                for (var i = 0; i < mCount; i++)
+                for (var i = 0; i < _count; i++)
                 {
-                    if (mNodes[i].position == Vector2.zero)
+                    if (_nodes[i].position == Vector2.zero)
                     {
-                        mNodes[i].weight = 1;
+                        _nodes[i].weight = 1;
                         return;
                     }
                 }
 
                 // otherwise divide weight evenly
-                float sharedWeight = 1.0f / mCount;
-                for (var i = 0; i < mCount; i++)
+                float sharedWeight = 1.0f / _count;
+                for (var i = 0; i < _count; i++)
                 {
-                    mNodes[i].weight = sharedWeight;
+                    _nodes[i].weight = sharedWeight;
                 }
 
                 return;
@@ -52,9 +52,9 @@ namespace UnityEngine.Playables
             int indexCenter = -1;
             float maxDotForNegCross = -100000.0f;
             float maxDotForPosCross = -100000.0f;
-            for (var i = 0; i < mCount; i++)
+            for (var i = 0; i < _count; i++)
             {
-                if (mNodes[i].position == Vector2.zero)
+                if (_nodes[i].position == Vector2.zero)
                 {
                     if (indexCenter >= 0)
                         return;
@@ -62,9 +62,9 @@ namespace UnityEngine.Playables
                     continue;
                 }
 
-                Vector2 posNormalized = mNodes[i].position.normalized;
-                var dot = Vector2.Dot(posNormalized, mBlendPosition);
-                var cross = posNormalized.x * mBlendPosition.y - posNormalized.y * mBlendPosition.x;
+                Vector2 posNormalized = _nodes[i].position.normalized;
+                var dot = Vector2.Dot(posNormalized, _blendPosition);
+                var cross = posNormalized.x * _blendPosition.y - posNormalized.y * _blendPosition.x;
                 if (cross > 0f)
                 {
                     if (dot > maxDotForPosCross)
@@ -92,16 +92,16 @@ namespace UnityEngine.Playables
             }
             else
             {
-                var a = mNodes[indexA].position;
-                var b = mNodes[indexB].position;
+                var a = _nodes[indexA].position;
+                var b = _nodes[indexB].position;
 
                 // Calculate weights using barycentric coordinates
                 // (formulas from http://en.wikipedia.org/wiki/Barycentric_coordinate_system_%28mathematics%29 )
                 float det = b.y * a.x - b.x * a.y; // Simplified from: (b.y-0)*(a.x-0) + (0-b.x)*(a.y-0);
 
                 // TODO: Is x and y used correctly below??
-                float wA = (b.y * mBlendPosition.x - b.x * mBlendPosition.y) / det; // Simplified from: ((b.y-0)*(l.x-0) + (0-b.x)*(l.y-0)) / det;
-                float wB = (a.x * mBlendPosition.y - a.y * mBlendPosition.x) / det; // Simplified from: ((0-a.y)*(l.x-0) + (a.x-0)*(l.y-0)) / det;
+                float wA = (b.y * _blendPosition.x - b.x * _blendPosition.y) / det; // Simplified from: ((b.y-0)*(l.x-0) + (0-b.x)*(l.y-0)) / det;
+                float wB = (a.x * _blendPosition.y - a.y * _blendPosition.x) / det; // Simplified from: ((0-a.y)*(l.x-0) + (a.x-0)*(l.y-0)) / det;
                 centerWeight = 1 - wA - wB;
 
                 // Clamp to be inside triangle
@@ -120,20 +120,20 @@ namespace UnityEngine.Playables
                 }
 
                 // Give weight to the two vertices on the periphery that are closest
-                mNodes[indexA].weight = wA;
-                mNodes[indexB].weight = wB;
+                _nodes[indexA].weight = wA;
+                _nodes[indexB].weight = wB;
             }
 
             if (indexCenter >= 0)
             {
-                mNodes[indexCenter].weight = centerWeight;
+                _nodes[indexCenter].weight = centerWeight;
             }
             else
             {
                 // Give weight to all children when input is in the center
-                float sharedWeight = 1.0f / mCount;
-                for (var i = 0; i < mCount; i++)
-                    mNodes[i].weight += sharedWeight * centerWeight;
+                float sharedWeight = 1.0f / _count;
+                for (var i = 0; i < _count; i++)
+                    _nodes[i].weight += sharedWeight * centerWeight;
             }
         }
     }
