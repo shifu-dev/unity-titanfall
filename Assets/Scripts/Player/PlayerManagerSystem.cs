@@ -1,8 +1,9 @@
+using System.Diagnostics.Contracts;
 using UnityEngine;
 using GameFramework;
 using GameFramework.Logging;
 
-[GameSystemRegistration(typeof(PlayerManagerSystem))]
+[RegisterGameSystem(typeof(PlayerManagerSystem))]
 public class PlayerManagerSystem : GameSystem
 {
     protected override void OnRegistered(GameSystem system)
@@ -35,21 +36,23 @@ public class PlayerManagerSystem : GameSystem
             return null;
         }
 
-        GameObject PlayerGameObject = GameObject.Instantiate(playerPrefab);
-        PlayerGameObject.name = "LocalPlayer";
-        Player player = PlayerGameObject.GetComponent<Player>();
-        GameObject.DontDestroyOnLoad(PlayerGameObject);
+        GameObject playerGo = GameObject.Instantiate(playerPrefab);
+        GameObject.DontDestroyOnLoad(playerGo);
+        playerGo.name = "LocalPlayer";
 
-        _logger.Information("Created LocalPlayer");
+        Player player = playerGo.GetComponent<Player>();
+        Contract.Assert(player is not null);
+
+        _logger.Information("Created LocalPlayer.");
 
         return player;
     }
 
-    protected IGameLogger _logger;
-
-    protected Player _localPlayer;
     public Player localPlayer
     {
         get => _localPlayer;
     }
+
+    protected Player _localPlayer;
+    protected IGameLogger _logger;
 }

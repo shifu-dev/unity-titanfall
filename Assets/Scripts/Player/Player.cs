@@ -10,40 +10,28 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerHUD))]
 public class Player : Controller
 {
-    protected PlayerBehaviour[] _behaviours;
-    protected PlayerInputs _playerInputs;
-    protected PlayerState _PlayerState;
-    protected PlayerCamera _playerCamera;
-    protected PlayerInteraction _playerInteraction;
-    protected PlayerHUD _playerHUD;
-
-    public PlayerInputs playerInputs => _playerInputs;
-    public PlayerState PlayerState => _PlayerState;
-    public PlayerCamera playerCamera => _playerCamera;
-    public PlayerInteraction playerInteraction => _playerInteraction;
-    public PlayerHUD playerHUD => _playerHUD;
-
     protected override void Awake()
     {
-        CollectBehaviours();
+        _CollectBehaviours();
 
-        GenerateOnPlayerCreateEvents();
+        _DispatchPlayerCreateEvent();
     }
 
     protected override void Update()
     {
-        GenerateOnPlayerPreUpdateEvents();
-        GenerateOnPlayerUpdateEvents();
-        GenerateOnPlayerPostUpdateEvents();
+        _DispatchPlayerPreUpdateEvent();
+        _DispatchPlayerUpdateEvent();
+        _DispatchPlayerPostUpdateEvent();
     }
 
     protected override void OnPossess(Character character)
     {
-        GenerateOnPlayerPossessEvents();
+        _DispatchPlayerPossessEvent();
     }
 
-    //////////////////////////////////////////////////////////////////
-    /// Behaviours | BEGIN
+    //// -------------------------------------------------------------------------------------------
+    //// Behaviours Begin
+    //// -------------------------------------------------------------------------------------------
 
     public virtual T GetBehaviour<T>()
         where T : PlayerBehaviour
@@ -66,22 +54,22 @@ public class Player : Controller
         return GetBehaviour<T>() is not null;
     }
 
-    protected virtual void CollectBehaviours(params PlayerBehaviour[] exceptions)
+    protected void _CollectBehaviours(params PlayerBehaviour[] filter)
     {
         List<PlayerBehaviour> behaviours = new List<PlayerBehaviour>();
         GetComponents<PlayerBehaviour>(behaviours);
 
-        // no need to check for exceptional behaviours, if there are none
-        if (exceptions.Length > 0)
+        // no need to check for filter behaviours, if there are none
+        if (filter.Length > 0)
         {
             behaviours.RemoveAll((PlayerBehaviour behaviour) =>
             {
                 if (behaviour is null)
                     return true;
 
-                foreach (var exceptionBehaviour in exceptions)
+                foreach (var filterBehaviour in filter)
                 {
-                    if (behaviour == exceptionBehaviour)
+                    if (behaviour == filterBehaviour)
                         return true;
                 }
 
@@ -90,15 +78,13 @@ public class Player : Controller
         }
 
         _behaviours = behaviours.ToArray();
-
-        // cache behaviours
         _playerInputs = GetBehaviour<PlayerInputs>();
         _PlayerState = GetBehaviour<PlayerState>();
         _playerCamera = GetBehaviour<PlayerCamera>();
         _playerHUD = GetBehaviour<PlayerHUD>();
     }
 
-    protected virtual void GenerateOnPlayerCreateEvents()
+    protected void _DispatchPlayerCreateEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -106,7 +92,7 @@ public class Player : Controller
         }
     }
 
-    protected virtual void GenerateOnPlayerPreUpdateEvents()
+    protected void _DispatchPlayerPreUpdateEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -114,7 +100,7 @@ public class Player : Controller
         }
     }
 
-    protected virtual void GenerateOnPlayerUpdateEvents()
+    protected void _DispatchPlayerUpdateEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -122,7 +108,7 @@ public class Player : Controller
         }
     }
 
-    protected virtual void GenerateOnPlayerPostUpdateEvents()
+    protected void _DispatchPlayerPostUpdateEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -130,7 +116,7 @@ public class Player : Controller
         }
     }
 
-    protected virtual void GenerateOnPlayerDestroyEvents()
+    protected void _DispatchPlayerDestroyEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -138,7 +124,7 @@ public class Player : Controller
         }
     }
 
-    protected virtual void GenerateOnPlayerPossessEvents()
+    protected void _DispatchPlayerPossessEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -146,7 +132,7 @@ public class Player : Controller
         }
     }
 
-    protected virtual void GenerateOnPlayerResetEvents()
+    protected void _DispatchPlayerResetEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -154,6 +140,20 @@ public class Player : Controller
         }
     }
 
-    /// Behaviours | END
-    //////////////////////////////////////////////////////////////////
+    //// -------------------------------------------------------------------------------------------
+    //// Behaviours End
+    //// -------------------------------------------------------------------------------------------
+
+    public PlayerInputs playerInputs => _playerInputs;
+    public PlayerState PlayerState => _PlayerState;
+    public PlayerCamera playerCamera => _playerCamera;
+    public PlayerInteraction playerInteraction => _playerInteraction;
+    public PlayerHUD playerHUD => _playerHUD;
+
+    protected PlayerBehaviour[] _behaviours;
+    protected PlayerInputs _playerInputs;
+    protected PlayerState _PlayerState;
+    protected PlayerCamera _playerCamera;
+    protected PlayerInteraction _playerInteraction;
+    protected PlayerHUD _playerHUD;
 }
