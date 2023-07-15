@@ -3,18 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using GameFramework.Logging;
 
+using UnityObject = UnityEngine.Object;
+
 public abstract class ObjectRegistry<T>
-    where T : UnityEngine.Object
+    where T : UnityObject
 {
     public delegate void OnAssetRegisteredDelegate(T asset);
     public delegate void OnAssetUnregisteredDelegate(T asset);
 
     public void Init()
     {
-        CreateLogger();
+        _CreateLogger();
         _logger.Information("Initializing...");
 
-        InternalInit();
+        _Init();
 
         _logger.Information("Initialized Successfully");
     }
@@ -23,22 +25,22 @@ public abstract class ObjectRegistry<T>
     {
         _logger.Information("Shutting down...");
 
-        InternalShutdown();
+        _Shutdown();
 
         _logger.Information("Shutdown completed");
     }
 
-    protected virtual void CreateLogger()
+    protected virtual void _CreateLogger()
     {
-        _logger = GameLog.CreateLogger($"{typeof(T).Name}Registry");
+        _logger = GameLog.System.CreateLogger($"{typeof(T).Name}Registry");
     }
 
-    protected virtual void InternalInit()
+    protected virtual void _Init()
     {
         LoadAssets();
     }
 
-    protected virtual void InternalShutdown()
+    protected virtual void _Shutdown()
     {
         UnloadAssets();
     }
@@ -50,7 +52,7 @@ public abstract class ObjectRegistry<T>
         _assets = Resources.LoadAll<T>("");
         foreach (var asset in _assets)
         {
-            InternalOnAssetLoad(asset);
+            _OnAssetLoad(asset);
         }
 
         _logger.Information("Loaded {0} assets", _assets.Length);
@@ -62,19 +64,19 @@ public abstract class ObjectRegistry<T>
 
         foreach (var asset in _assets)
         {
-            InternalOnAssetUnload(asset);
+            _OnAssetUnload(asset);
             Resources.UnloadAsset(asset);
         }
 
         _logger.Information("Unloaded assets successfully");
     }
 
-    protected virtual void InternalOnAssetLoad(T asset)
+    protected virtual void _OnAssetLoad(T asset)
     {
         _logger.Information("Loaded [{0}] asset", asset.name);
     }
 
-    protected virtual void InternalOnAssetUnload(T asset)
+    protected virtual void _OnAssetUnload(T asset)
     {
         _logger.Information("Unloading [{0}] asset", asset.name);
     }
@@ -107,8 +109,8 @@ public abstract class ObjectRegistry<T>
         return _assets[index];
     }
 
-    public OnAssetRegisteredDelegate OnAssetRegistered;
-    public OnAssetUnregisteredDelegate OnAssetUnregistered;
+    public OnAssetRegisteredDelegate AssetRegisteredEvent;
+    public OnAssetUnregisteredDelegate AssetUnregisteredEvent;
 
     public IReadOnlyList<T> Assets => _assets;
     public int Count => _assets.Length;

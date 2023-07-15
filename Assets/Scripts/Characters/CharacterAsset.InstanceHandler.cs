@@ -95,10 +95,10 @@ public partial class CharacterAsset : DataAsset
             }
         }
 
-        public virtual void Reserve(int count, int maxCount)
+        public virtual void SetMaxReserve(int count)
         {
-            _maxCount = Mathf.Max(maxCount, 0);
-            Reserve(count);
+            Debug.Assert(count >= 0);
+            _maxCount = count;
         }
 
         public virtual void CreatePool()

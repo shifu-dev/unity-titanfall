@@ -10,50 +10,6 @@ using System.Collections.Generic;
 [RequireComponent(typeof(CharacterAnimation))]
 public class Character : Equipable
 {
-    private CharacterAsset _source;
-    public CharacterAsset source => _source;
-
-    //////////////////////////////////////////////////////////////////
-    /// Behaviours | BEGIN
-
-    protected CharacterBehaviour[] _behaviours;
-    protected CharacterInitializer _charInitializer;
-    protected CharacterBody _charBody;
-    protected CharacterInventory _charInventory;
-    protected CharacterMovement _charMovement;
-    protected CharacterObjectHandler _charObjectHandler;
-    protected CharacterView _charView;
-    protected CharacterAnimation _charAnimation;
-
-    public CharacterInitializer charInitializer => _charInitializer;
-    public CharacterBody charBody => _charBody;
-    public CharacterInventory charInventory => _charInventory;
-    public CharacterMovement charMovement => _charMovement;
-    public CharacterObjectHandler charObjectHandler => _charObjectHandler;
-    public CharacterView charView => _charView;
-    public CharacterAnimation charAnimation => _charAnimation;
-
-    /// Behaviours | END
-    //////////////////////////////////////////////////////////////////
-
-    // character mass
-    protected float _mass;
-    public float mass => _mass;
-    public float scaledMass => transform.lossyScale.magnitude * _mass;
-
-    // character directions
-    public Quaternion rotation => transform.rotation;
-    public Vector3 forward => transform.forward;
-    public Vector3 back => -transform.forward;
-    public Vector3 right => transform.right;
-    public Vector3 left => -transform.right;
-    public Vector3 up => transform.up;
-    public Vector3 down => -transform.up;
-
-    // controller controlling the character
-    protected Controller _controller;
-    public Controller controller => _controller;
-
     public Character()
     {
         _source = null;
@@ -66,37 +22,37 @@ public class Character : Equipable
         _charView = null;
         _charAnimation = null;
         _controller = null;
-
-        _mass = 0f;
+        _charMass = 0f;
     }
 
-    //////////////////////////////////////////////////////////////////
-    /// Events | BEGIN
+    //// -------------------------------------------------------------------------------------------
+    //// Events Begin
+    //// -------------------------------------------------------------------------------------------
 
     protected virtual void Awake()
     {
-        CollectBehaviours();
-        GetInitializer();
+        _CollectBehaviours();
+        _FetchInitializer();
 
         OnInit();
-        GenerateOnCharacterCreateEvents();
+        _DispatchCharCreateEvent();
 
         if (_charInitializer is not null && _charInitializer.destroyOnUse)
         {
-            DestroyInitializer();
+            _DestroyInitializer();
         }
     }
 
     protected virtual void Update()
     {
-        GenerateOnCharacterPreUpdateEvents();
-        GenerateOnCharacterUpdateEvents();
-        GenerateOnCharacterPostUpdateEvents();
+        _DispatchCharPreUpdateEvent();
+        _DispatchCharUpdateEvent();
+        _DispatchCharPostUpdateEvent();
     }
 
     protected virtual void FixedUpdate()
     {
-        GenerateOnCharacterFixedUpdateEvents();
+        _DispatchCharFixedUpdateEvent();
     }
 
     protected virtual void OnInit()
@@ -108,7 +64,7 @@ public class Character : Equipable
 
         if (_source is not null)
         {
-            _mass = _source.characterMass;
+            _charMass = _source.characterMass;
         }
     }
 
@@ -119,37 +75,35 @@ public class Character : Equipable
 
     public virtual void Destroy()
     {
-        GenerateOnCharacterDestroyEvents();
+        _DispatchCharDestroyEvent();
     }
 
     public virtual void Reset()
     {
-        GenerateOnCharacterResetEvents();
+        _DispatchCharResetEvent();
     }
 
     public virtual void OnSpawn()
     {
-        GenerateOnCharacterSpawnEvents();
+        _DispatchCharSpawnEvent();
     }
 
     public virtual void OnDespawn()
     {
-        GenerateOnCharacterDespawnEvents();
+        _DispatchCharDespawnEvent();
     }
 
     public virtual void OnPossess(Controller controller)
     {
         _controller = controller;
-        GenerateOnCharacterPossessEvents();
+        _DispatchCharPossessEvent();
     }
 
-    /// Events | END
-    //////////////////////////////////////////////////////////////////
+    //// -------------------------------------------------------------------------------------------
+    //// Events End
+    //// -------------------------------------------------------------------------------------------
 
-    //////////////////////////////////////////////////////////////////
-    /// Behaviours | BEGIN
-
-    public virtual T GetBehaviour<T>()
+    protected T _GetBehaviour<T>()
         where T : CharacterBehaviour
     {
         foreach (var behaviour in _behaviours)
@@ -164,57 +118,28 @@ public class Character : Equipable
         return null;
     }
 
-    public virtual bool HasBehaviour<T>()
-        where T : CharacterBehaviour
+    protected void _CollectBehaviours()
     {
-        return GetBehaviour<T>() is not null;
+        _behaviours = GetComponents<CharacterBehaviour>();
+        _charBody = _GetBehaviour<CharacterBody>();
+        _charInventory = _GetBehaviour<CharacterInventory>();
+        _charMovement = _GetBehaviour<CharacterMovement>();
+        _charObjectHandler = _GetBehaviour<CharacterObjectHandler>();
+        _charView = _GetBehaviour<CharacterView>();
+        _charAnimation = _GetBehaviour<CharacterAnimation>();
     }
 
-    protected virtual void CollectBehaviours(params CharacterBehaviour[] exceptions)
-    {
-        List<CharacterBehaviour> behaviours = new List<CharacterBehaviour>();
-        GetComponents<CharacterBehaviour>(behaviours);
-
-        // no need to check for exceptional behaviours, if there are none
-        if (exceptions.Length > 0)
-        {
-            behaviours.RemoveAll((CharacterBehaviour behaviour) =>
-            {
-                if (behaviour is null)
-                    return true;
-
-                foreach (var exceptionBehaviour in exceptions)
-                {
-                    if (behaviour == exceptionBehaviour)
-                        return true;
-                }
-
-                return false;
-            });
-        }
-
-        _behaviours = behaviours.ToArray();
-
-        // cache behaviours
-        _charBody = GetBehaviour<CharacterBody>();
-        _charInventory = GetBehaviour<CharacterInventory>();
-        _charMovement = GetBehaviour<CharacterMovement>();
-        _charObjectHandler = GetBehaviour<CharacterObjectHandler>();
-        _charView = GetBehaviour<CharacterView>();
-        _charAnimation = GetBehaviour<CharacterAnimation>();
-    }
-
-    protected virtual void GetInitializer()
+    protected void _FetchInitializer()
     {
         _charInitializer = GetComponent<CharacterInitializer>();
     }
 
-    protected virtual void DestroyInitializer()
+    protected void _DestroyInitializer()
     {
         Destroy(_charInitializer);
     }
 
-    protected virtual void GenerateOnCharacterCreateEvents()
+    protected void _DispatchCharCreateEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -222,7 +147,7 @@ public class Character : Equipable
         }
     }
 
-    protected virtual void GenerateOnCharacterSpawnEvents()
+    protected void _DispatchCharSpawnEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -230,7 +155,7 @@ public class Character : Equipable
         }
     }
 
-    protected virtual void GenerateOnCharacterPreUpdateEvents()
+    protected void _DispatchCharPreUpdateEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -238,7 +163,7 @@ public class Character : Equipable
         }
     }
 
-    protected virtual void GenerateOnCharacterUpdateEvents()
+    protected void _DispatchCharUpdateEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -246,7 +171,7 @@ public class Character : Equipable
         }
     }
 
-    protected virtual void GenerateOnCharacterPostUpdateEvents()
+    protected void _DispatchCharPostUpdateEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -254,7 +179,7 @@ public class Character : Equipable
         }
     }
 
-    protected virtual void GenerateOnCharacterFixedUpdateEvents()
+    protected void _DispatchCharFixedUpdateEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -262,7 +187,7 @@ public class Character : Equipable
         }
     }
 
-    protected virtual void GenerateOnCharacterDeadEvents()
+    protected void _DispatchCharDeadEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -270,7 +195,7 @@ public class Character : Equipable
         }
     }
 
-    protected virtual void GenerateOnCharacterDespawnEvents()
+    protected void _DispatchCharDespawnEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -278,7 +203,7 @@ public class Character : Equipable
         }
     }
 
-    protected virtual void GenerateOnCharacterDestroyEvents()
+    protected void _DispatchCharDestroyEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -286,7 +211,7 @@ public class Character : Equipable
         }
     }
 
-    protected virtual void GenerateOnCharacterPossessEvents()
+    protected void _DispatchCharPossessEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -294,7 +219,7 @@ public class Character : Equipable
         }
     }
 
-    protected virtual void GenerateOnCharacterResetEvents()
+    protected void _DispatchCharResetEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -302,6 +227,38 @@ public class Character : Equipable
         }
     }
 
-    /// Behaviours | END
-    //////////////////////////////////////////////////////////////////
+    //// -------------------------------------------------------------------------------------------
+    //// Properties and Fields
+    //// -------------------------------------------------------------------------------------------
+
+    public CharacterAsset source => _source;
+    public CharacterInitializer charInitializer => _charInitializer;
+    public CharacterBody charBody => _charBody;
+    public CharacterInventory charInventory => _charInventory;
+    public CharacterMovement charMovement => _charMovement;
+    public CharacterObjectHandler charObjectHandler => _charObjectHandler;
+    public CharacterView charView => _charView;
+    public CharacterAnimation charAnimation => _charAnimation;
+    public Quaternion rotation => transform.rotation;
+    public Vector3 forward => transform.forward;
+    public Vector3 back => -transform.forward;
+    public Vector3 right => transform.right;
+    public Vector3 left => -transform.right;
+    public Vector3 up => transform.up;
+    public Vector3 down => -transform.up;
+    public float mass => _charMass;
+    public float scaledMass => transform.lossyScale.magnitude * _charMass;
+    public Controller controller => _controller;
+
+    protected Controller _controller;
+    protected CharacterBehaviour[] _behaviours;
+    protected CharacterInitializer _charInitializer;
+    protected CharacterBody _charBody;
+    protected CharacterInventory _charInventory;
+    protected CharacterMovement _charMovement;
+    protected CharacterObjectHandler _charObjectHandler;
+    protected CharacterView _charView;
+    protected CharacterAnimation _charAnimation;
+    protected float _charMass;
+    private CharacterAsset _source;
 }

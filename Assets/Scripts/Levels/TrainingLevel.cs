@@ -9,7 +9,7 @@ public class TrainingLevel : BasicLevelAsset
     {
         LevelAsyncOperation operation = base.PerformLoad();
 
-        IGameLogger logger = GameLog.CreateLogger("TrainingLevel");
+        IGameLogger logger = GameLog.System.CreateLogger("TrainingLevel");
 
         // var sceneObject = SceneManager.FindSceneObject(_scenes[0]);
         SceneObject sceneObject = null;
@@ -27,20 +27,24 @@ public class TrainingLevel : BasicLevelAsset
 
         if (spawnPoint is not null)
         {
-            var localPlayer = PlayerManager.localPlayer;
+            var localPlayer = PlayerManager.CreateLocalPlayer();
             if (localPlayer is not null)
             {
-                CharacterAsset charSource = CharacterRegistry.Instance.GetAsset("SwatGuy CharacterAsset");
-                charSource.instanceHandler.Reserve(4, 5);
+                CharacterAsset charSource = CharacterAssetRegistry.Instance.GetAsset(
+                    "SwatGuy CharacterAsset");
+                var charInstanceHandler = charSource.instanceHandler;
+                charInstanceHandler.SetMaxReserve(5);
+                charInstanceHandler.Reserve(4);
 
-                Character character = charSource.instanceHandler.Create(
+                Character character = charInstanceHandler.Create(
                     spawnPoint.position, spawnPoint.rotation);
 
                 logger.Information("Created Character");
-
-                // player possess character
                 localPlayer.Possess(character);
-                logger.Information("Player Possessed Character");
+            }
+            else
+            {
+                logger.Error("Could not create Local Player");
             }
         }
 

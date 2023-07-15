@@ -10,7 +10,7 @@ public class CharacterAnimation : CharacterBehaviour
     {
         base.OnCharacterCreate(character, initializer);
 
-        _charMovement = _character.GetBehaviour<CharacterMovement>();
+        _charMovement = _character.charMovement;
         _animator = GetComponent<Animator>();
 
         if (initializer is not null)

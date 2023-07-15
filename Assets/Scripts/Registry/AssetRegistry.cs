@@ -4,16 +4,16 @@ using UnityEngine;
 public abstract class AssetRegistry<T> : ObjectRegistry<T>
     where T : DataAsset
 {
-    protected override void InternalOnAssetLoad(T asset)
+    protected override void _OnAssetLoad(T asset)
     {
-        base.InternalOnAssetLoad(asset);
+        base._OnAssetLoad(asset);
 
         asset.OnLoad();
     }
 
-    protected override void InternalOnAssetUnload(T asset)
+    protected override void _OnAssetUnload(T asset)
     {
-        base.InternalOnAssetUnload(asset);
+        base._OnAssetUnload(asset);
 
         asset.OnUnload();
     }

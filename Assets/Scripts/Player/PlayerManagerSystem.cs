@@ -3,7 +3,7 @@ using UnityEngine;
 using GameFramework;
 using GameFramework.Logging;
 
-[RegisterGameSystem(typeof(PlayerManagerSystem))]
+// [RegisterGameSystem(typeof(PlayerManagerSystem))]
 public class PlayerManagerSystem : GameSystem
 {
     protected override void OnRegistered(GameSystem system)
@@ -12,7 +12,7 @@ public class PlayerManagerSystem : GameSystem
 
         base.OnRegistered(system);
 
-        _logger = GameLog.CreateLogger("PlayerManager");
+        _logger = GameLog.System.CreateLogger("PlayerManager");
 
         _logger.Information("Initializing...");
         _logger.Information("Initialized");

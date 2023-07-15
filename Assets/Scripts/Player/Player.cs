@@ -13,27 +13,26 @@ public class Player : Controller
     protected override void Awake()
     {
         _CollectBehaviours();
-
-        _DispatchPlayerCreateEvent();
+        _DispatchCreateEvent();
     }
 
     protected override void Update()
     {
-        _DispatchPlayerPreUpdateEvent();
-        _DispatchPlayerUpdateEvent();
-        _DispatchPlayerPostUpdateEvent();
+        _DispatchPreUpdateEvent();
+        _DispatchUpdateEvent();
+        _DispatchPostUpdateEvent();
     }
 
     protected override void OnPossess(Character character)
     {
-        _DispatchPlayerPossessEvent();
+        _DispatchPossessEvent();
     }
 
     //// -------------------------------------------------------------------------------------------
-    //// Behaviours Begin
+    //// Functions
     //// -------------------------------------------------------------------------------------------
 
-    public virtual T GetBehaviour<T>()
+    protected T _GetBehaviour<T>()
         where T : PlayerBehaviour
     {
         foreach (var behaviour in _behaviours)
@@ -48,43 +47,16 @@ public class Player : Controller
         return null;
     }
 
-    public virtual bool HasBehaviour<T>()
-        where T : PlayerBehaviour
+    protected void _CollectBehaviours()
     {
-        return GetBehaviour<T>() is not null;
+        _behaviours = GetComponents<PlayerBehaviour>();
+        _playerInputs = _GetBehaviour<PlayerInputs>();
+        _PlayerState = _GetBehaviour<PlayerState>();
+        _playerCamera = _GetBehaviour<PlayerCamera>();
+        _playerHUD = _GetBehaviour<PlayerHUD>();
     }
 
-    protected void _CollectBehaviours(params PlayerBehaviour[] filter)
-    {
-        List<PlayerBehaviour> behaviours = new List<PlayerBehaviour>();
-        GetComponents<PlayerBehaviour>(behaviours);
-
-        // no need to check for filter behaviours, if there are none
-        if (filter.Length > 0)
-        {
-            behaviours.RemoveAll((PlayerBehaviour behaviour) =>
-            {
-                if (behaviour is null)
-                    return true;
-
-                foreach (var filterBehaviour in filter)
-                {
-                    if (behaviour == filterBehaviour)
-                        return true;
-                }
-
-                return false;
-            });
-        }
-
-        _behaviours = behaviours.ToArray();
-        _playerInputs = GetBehaviour<PlayerInputs>();
-        _PlayerState = GetBehaviour<PlayerState>();
-        _playerCamera = GetBehaviour<PlayerCamera>();
-        _playerHUD = GetBehaviour<PlayerHUD>();
-    }
-
-    protected void _DispatchPlayerCreateEvent()
+    protected void _DispatchCreateEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -92,7 +64,7 @@ public class Player : Controller
         }
     }
 
-    protected void _DispatchPlayerPreUpdateEvent()
+    protected void _DispatchPreUpdateEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -100,7 +72,7 @@ public class Player : Controller
         }
     }
 
-    protected void _DispatchPlayerUpdateEvent()
+    protected void _DispatchUpdateEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -108,7 +80,7 @@ public class Player : Controller
         }
     }
 
-    protected void _DispatchPlayerPostUpdateEvent()
+    protected void _DispatchPostUpdateEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -116,7 +88,7 @@ public class Player : Controller
         }
     }
 
-    protected void _DispatchPlayerDestroyEvent()
+    protected void _DispatchDestroyEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -124,7 +96,7 @@ public class Player : Controller
         }
     }
 
-    protected void _DispatchPlayerPossessEvent()
+    protected void _DispatchPossessEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -132,7 +104,7 @@ public class Player : Controller
         }
     }
 
-    protected void _DispatchPlayerResetEvent()
+    protected void _DispatchResetEvent()
     {
         foreach (var behaviour in _behaviours)
         {
@@ -141,7 +113,7 @@ public class Player : Controller
     }
 
     //// -------------------------------------------------------------------------------------------
-    //// Behaviours End
+    //// Properties and Fields
     //// -------------------------------------------------------------------------------------------
 
     public PlayerInputs playerInputs => _playerInputs;
