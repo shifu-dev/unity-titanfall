@@ -3,6 +3,7 @@
     "com.shifu.game-framework": "https://github.com/shifu-dev/Unity-GameFramework.git",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
+    "com.unity.addressables": "1.21.14",
     "com.unity.ai.navigation": "1.1.4",
     "com.unity.collab-proxy": "2.0.5",
     "com.unity.ide.visualstudio": "2.0.18",
