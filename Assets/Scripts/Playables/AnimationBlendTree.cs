@@ -86,14 +86,6 @@ namespace UnityEngine.Playables
             public float weight;
         }
 
-        ~AnimationBlendTree()
-        {
-            if (_mixer.IsValid())
-            {
-                _mixer.Destroy();
-            }
-        }
-
         public AnimationBlendTree(PlayableGraph graph, int capacity = 0)
         {
             _graph = graph;
@@ -106,19 +98,12 @@ namespace UnityEngine.Playables
             _count = 0;
         }
 
-        protected virtual void AddNode(Node node)
+        ~AnimationBlendTree()
         {
-            // prepare the node
-            node.weight = 0f;
-
-            // increase capacity if not enough
-            if (_count == _nodes.Length)
+            if (_mixer.IsValid())
             {
-                Reserve(_nodes.Length + 1);
+                _mixer.Destroy();
             }
-
-            _nodes[_count] = node;
-            _count++;
         }
 
         public bool AddElement(IBlendTreeElement element, TPosition position, float speed = 1f)
@@ -133,7 +118,7 @@ namespace UnityEngine.Playables
             node.position = position;
             node.speed = speed;
 
-            AddNode(node);
+            _AddNode(node);
             return true;
         }
 
@@ -222,6 +207,21 @@ namespace UnityEngine.Playables
             Array.Resize(ref _nodes, capacity);
         }
 
+        public bool IsFootIkEnabled()
+        {
+            return _footIk;
+        }
+
+        public void EnableFootIk()
+        {
+            _footIk = true;
+        }
+
+        public void DisableFootIk()
+        {
+            _footIk = false;
+        }
+
         public abstract void UpdateWeights();
 
         public void UpdateTree(bool updateWeights = false)
@@ -291,6 +291,21 @@ namespace UnityEngine.Playables
 
                 _mixer.ConnectInput(i, playable, 0, _nodes[i].weight);
             }
+        }
+
+        protected virtual void _AddNode(Node node)
+        {
+            // prepare the node
+            node.weight = 0f;
+
+            // increase capacity if not enough
+            if (_count == _nodes.Length)
+            {
+                Reserve(_nodes.Length + 1);
+            }
+
+            _nodes[_count] = node;
+            _count++;
         }
 
         public PlayableGraph graph => _graph;

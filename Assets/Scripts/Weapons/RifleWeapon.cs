@@ -25,7 +25,7 @@ public class RifleWeapon : ReloadableWeapon
             _fireAudio = _asset.fireAudio;
 
             _capacity = _asset.capacity;
-            _current = _asset.initial;
+            _cur = _asset.initial;
         }
     }
 }

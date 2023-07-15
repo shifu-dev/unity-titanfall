@@ -6,8 +6,8 @@ public abstract class ReloadableWeapon : FireableWeapon
     protected uint _capacity;
     public uint capacity => _capacity;
 
-    protected uint _current;
-    public uint current => _current;
+    protected uint _cur;
+    public uint current => _cur;
 
     protected bool _hasMag;
     public bool hasMag => _hasMag;
@@ -18,7 +18,7 @@ public abstract class ReloadableWeapon : FireableWeapon
     public ReloadableWeapon()
     {
         _capacity = 0;
-        _current = 0;
+        _cur = 0;
         _hasMag = false;
         _isTriggered = false;
     }
@@ -38,7 +38,7 @@ public abstract class ReloadableWeapon : FireableWeapon
             return false;
         }
 
-        if (_hasMag == false || _current == 0 ||
+        if (_hasMag == false || _cur == 0 ||
             _isTriggered == false)
             return false;
 
@@ -47,12 +47,12 @@ public abstract class ReloadableWeapon : FireableWeapon
 
     public virtual bool ShouldReload()
     {
-        return _hasMag == false || _current < _capacity;
+        return _hasMag == false || _cur < _capacity;
     }
 
     public virtual bool NeedReload()
     {
-        return _hasMag == false || _current == 0;
+        return _hasMag == false || _cur == 0;
     }
 
     public virtual void OnReloadStart()

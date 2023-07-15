@@ -155,10 +155,10 @@ public class CharacterMovementGroundModule : CharacterMovementModule
 
         _velocity = Vector3.ProjectOnPlane(_velocity, _charUp);
 
-        Vector3 move = moveInput * _currentMoveSpeed * _deltaTime;
-        move = Vector3.MoveTowards(_velocity * _deltaTime, move, _currentMoveAccel * _deltaTime);
+        Vector3 move = moveInput * _curMoveSpeed * _deltaTime;
+        move = Vector3.MoveTowards(_velocity * _deltaTime, move, _curMoveAccel * _deltaTime);
 
-        move += _charUp * _currentJumpPower * _deltaTime;
+        move += _charUp * _curJumpPower * _deltaTime;
 
         GroundMove(move);
 
@@ -217,86 +217,86 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         switch (_locomotionState)
         {
             case LocomotionState.Standing:
-                _currentStepDownDepth = _standStepDownHeight;
-                _currentStepUpHeight = _standStepUpHeight;
-                _currentMaxSlopeUpAngle = _standSlopeUpAngle;
-                _currentSlopeDownAngle = _standSlopeDownAngle;
-                _currentMaintainVelocityOnSurface = _standMaintainVelocityOnSurface;
-                _currentMaintainVelocityAlongSurface = _standMaintainVelocityAlongSurface;
-                _currentJumpPower = 0f;
+                _curStepDownDepth = _standStepDownHeight;
+                _curStepUpHeight = _standStepUpHeight;
+                _curMaxSlopeUpAngle = _standSlopeUpAngle;
+                _curSlopeDownAngle = _standSlopeDownAngle;
+                _curMaintainVelocityOnSurface = _standMaintainVelocityOnSurface;
+                _curMaintainVelocityAlongSurface = _standMaintainVelocityAlongSurface;
+                _curJumpPower = 0f;
 
                 if (_locomotionState == LocomotionState.Jumping)
-                    _currentJumpPower = _standJumpForce;
+                    _curJumpPower = _standJumpForce;
 
                 switch (_movementState)
                 {
                     case MovementState.Idle:
-                        _currentMoveAccel = _standDeacceleration;
-                        _currentMoveSpeed = 0;
+                        _curMoveAccel = _standDeacceleration;
+                        _curMoveSpeed = 0;
                         break;
 
                     case MovementState.Walking:
-                        _currentMoveAccel = _standWalkAcceleration;
-                        _currentMoveSpeed = _standWalkSpeed;
+                        _curMoveAccel = _standWalkAcceleration;
+                        _curMoveSpeed = _standWalkSpeed;
                         break;
 
                     case MovementState.Running:
-                        _currentMoveAccel = _standRunAcceleration;
-                        _currentMoveSpeed = _standRunSpeed;
+                        _curMoveAccel = _standRunAcceleration;
+                        _curMoveSpeed = _standRunSpeed;
                         break;
 
                     case MovementState.Sprinting:
-                        _currentMoveAccel = _standSprintAcceleration;
-                        _currentMoveSpeed = _standSprintSpeed;
+                        _curMoveAccel = _standSprintAcceleration;
+                        _curMoveSpeed = _standSprintSpeed;
                         break;
 
                     default:
-                        _currentMoveAccel = 0;
-                        _currentMoveSpeed = 0;
+                        _curMoveAccel = 0;
+                        _curMoveSpeed = 0;
                         break;
                 }
 
                 break;
 
             case LocomotionState.Crouching:
-                _currentStepDownDepth = _crouchStepDownDepth;
-                _currentStepUpHeight = _crouchStepUpHeight;
-                _currentMaxSlopeUpAngle = _crouchSlopeUpAngle;
-                _currentSlopeDownAngle = _crouchSlopeDownAngle;
-                _currentMaintainVelocityOnSurface = _crouchMaintainVelocityOnSurface;
-                _currentMaintainVelocityAlongSurface = _crouchMaintainVelocityAlongSurface;
-                _currentJumpPower = 0f;
+                _curStepDownDepth = _crouchStepDownDepth;
+                _curStepUpHeight = _crouchStepUpHeight;
+                _curMaxSlopeUpAngle = _crouchSlopeUpAngle;
+                _curSlopeDownAngle = _crouchSlopeDownAngle;
+                _curMaintainVelocityOnSurface = _crouchMaintainVelocityOnSurface;
+                _curMaintainVelocityAlongSurface = _crouchMaintainVelocityAlongSurface;
+                _curJumpPower = 0f;
 
                 if (_locomotionState == LocomotionState.Jumping)
-                    _currentJumpPower = _crouchJumpForce;
+                    _curJumpPower = _crouchJumpForce;
 
                 switch (_movementState)
                 {
                     case MovementState.Idle:
-                        _currentMoveAccel = _crouchDeacceleration;
-                        _currentMoveSpeed = 0;
+                        _curMoveAccel = _crouchDeacceleration;
+                        _curMoveSpeed = 0;
                         break;
 
                     case MovementState.Walking:
-                        _currentMoveAccel = _crouchWalkAcceleration;
-                        _currentMoveSpeed = _crouchWalkSpeed;
+                        _curMoveAccel = _crouchWalkAcceleration;
+                        _curMoveSpeed = _crouchWalkSpeed;
                         break;
 
                     case MovementState.Running:
-                        _currentMoveAccel = _crouchRunAcceleration;
-                        _currentMoveSpeed = _crouchRunSpeed;
+                        _curMoveAccel = _crouchRunAcceleration;
+                        _curMoveSpeed = _crouchRunSpeed;
                         break;
 
                     default:
-                        _currentMoveAccel = 0;
-                        _currentMoveSpeed = 0;
+                        _curMoveAccel = 0;
+                        _curMoveSpeed = 0;
                         break;
                 }
 
                 break;
         }
 
-        _currentMaxSlopeUpAngle = Math.Clamp(_currentMaxSlopeUpAngle,
+        _curMaxSlopeUpAngle = Math.Clamp(_curMaxSlopeUpAngle,
             MIN_SLOPE_ANGLE, MAX_SLOPE_ANGLE);
     }
 
@@ -378,7 +378,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
                     positionBeforeStepUp = _capsule.position;
                     moveBeforeStepUp = remainingMove;
 
-                    stepUpHeight = CapsuleMove(_charUp * _currentStepUpHeight).magnitude;
+                    stepUpHeight = CapsuleMove(_charUp * _curStepUpHeight).magnitude;
 
                     continue;
                 }
@@ -459,7 +459,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
 
             Vector3 slopeMove = remainingMove + (_charUp * enter);
 
-            if (_currentMaintainVelocityOnSurface == false)
+            if (_curMaintainVelocityOnSurface == false)
             {
                 slopeMove = slopeMove.normalized * remainingMove.magnitude;
             }
@@ -482,7 +482,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
 
         Vector3 hitProject = Vector3.ProjectOnPlane(hitNormal, _charUp);
         Vector3 slideMove = Vector3.ProjectOnPlane(originalMove.normalized * remainingMoveSize, hitProject);
-        if (_currentMaintainVelocityAlongSurface)
+        if (_curMaintainVelocityAlongSurface)
         {
             // to avoid sliding along perpendicular surface for very small values,
             // may be a result of small miscalculations
@@ -499,12 +499,12 @@ public class CharacterMovementGroundModule : CharacterMovementModule
     protected virtual bool StepDown(Vector3 originalMove)
     {
         var verticalMove = Vector3.Project(originalMove, _charUp).magnitude;
-        if (verticalMove != 0f || _currentStepDownDepth <= 0)
+        if (verticalMove != 0f || _curStepDownDepth <= 0)
             return false;
 
         CapsuleResolvePenetration();
 
-        var moved = CapsuleMove(_character.down * _currentStepDownDepth, out RaycastHit hit, out Vector3 hitNormal);
+        var moved = CapsuleMove(_character.down * _curStepDownDepth, out RaycastHit hit, out Vector3 hitNormal);
 
         if (CanStandOn(hit, hitNormal) == false)
         {
@@ -549,7 +549,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
             RecalculateNormalIfZero(hit, ref slopeNormal);
 
             slopeAngle = Vector3.Angle(_charUp, slopeNormal);
-            if (slopeAngle >= MIN_SLOPE_ANGLE && slopeAngle <= _currentMaxSlopeUpAngle)
+            if (slopeAngle >= MIN_SLOPE_ANGLE && slopeAngle <= _curMaxSlopeUpAngle)
             {
                 return true;
             }
@@ -629,7 +629,8 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         Vector2 backLeft = new Vector2(-0.70f, -0.70f);
         Vector2 backRight = new Vector2(0.70f, -0.70f);
 
-        //////////////////////////////////////////////////////////////////
+        // Stand Tree
+        // -----------------------------------------------------------------------------------------
 
         _animStandWalkTree.Reserve(9);
         _animStandWalkTree.AddElement(_source.animStandIdle, center);
@@ -641,7 +642,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         _animStandWalkTree.AddElement(_source.animStandWalkBackward, back);
         _animStandWalkTree.AddElement(_source.animStandWalkBackwardLeft, backLeft);
         _animStandWalkTree.AddElement(_source.animStandWalkBackwardRight, backRight);
-        _animStandWalkTree.footIk = true;
+        _animStandWalkTree.EnableFootIk();
         _animStandWalkTree.BuildGraph(true);
         _animStandWalkTree.UpdateGraph(true);
 
@@ -655,7 +656,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         _animStandRunTree.AddElement(_source.animStandRunBackward, back * 2f);
         _animStandRunTree.AddElement(_source.animStandRunBackwardLeft, backLeft * 2f);
         _animStandRunTree.AddElement(_source.animStandRunBackwardRight, backRight * 2f);
-        _animStandRunTree.footIk = true;
+        _animStandRunTree.EnableFootIk();
         _animStandRunTree.BuildGraph(true);
         _animStandRunTree.UpdateGraph(true);
 
@@ -664,11 +665,12 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         _animStandTree.AddElement(_animStandWalkTree, 1f);
         _animStandTree.AddElement(_animStandRunTree, 2f);
         _animStandTree.AddElement(_source.animStandSprintForward, 3f);
-        _animStandTree.footIk = true;
+        _animStandTree.EnableFootIk();
         _animStandTree.BuildGraph(true);
         _animStandTree.UpdateGraph(true);
 
-        //////////////////////////////////////////////////////////////////
+        // Crouch Tree
+        // -----------------------------------------------------------------------------------------
 
         _animCrouchWalkTree.Reserve(9);
         _animCrouchWalkTree.AddElement(_source.animCrouchIdle, center);
@@ -680,7 +682,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         _animCrouchWalkTree.AddElement(_source.animCrouchWalkBackward, back);
         _animCrouchWalkTree.AddElement(_source.animCrouchWalkBackwardLeft, backLeft);
         _animCrouchWalkTree.AddElement(_source.animCrouchWalkBackwardRight, backRight);
-        _animCrouchWalkTree.footIk = true;
+        _animCrouchWalkTree.EnableFootIk();
         _animCrouchWalkTree.BuildGraph(true);
         _animCrouchWalkTree.UpdateGraph(true);
 
@@ -694,7 +696,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         _animCrouchRunTree.AddElement(_source.animCrouchRunBackward, back * 2f);
         _animCrouchRunTree.AddElement(_source.animCrouchRunBackwardLeft, backLeft * 2f);
         _animCrouchRunTree.AddElement(_source.animCrouchRunBackwardRight, backRight * 2f);
-        _animCrouchRunTree.footIk = true;
+        _animCrouchRunTree.EnableFootIk();
         _animCrouchRunTree.BuildGraph(true);
         _animCrouchRunTree.UpdateGraph(true);
 
@@ -702,16 +704,17 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         _animCrouchTree.AddElement(_source.animCrouchIdle, 0f);
         _animCrouchTree.AddElement(_animCrouchWalkTree, 1f);
         _animCrouchTree.AddElement(_animCrouchRunTree, 2f);
-        _animCrouchTree.footIk = true;
+        _animCrouchTree.EnableFootIk();
         _animCrouchTree.BuildGraph(true);
         _animCrouchTree.UpdateGraph(true);
 
-        //////////////////////////////////////////////////////////////////
+        // Base Tree
+        // -----------------------------------------------------------------------------------------
 
         _animBaseTree.Reserve(2);
         _animBaseTree.AddElement(_animStandTree, 0f);
         _animBaseTree.AddElement(_animCrouchTree, 1f);
-        _animBaseTree.footIk = true;
+        _animBaseTree.EnableFootIk();
         _animBaseTree.BuildGraph(true);
         _animBaseTree.UpdateGraph(true);
     }
@@ -775,15 +778,15 @@ public class CharacterMovementGroundModule : CharacterMovementModule
     protected AnimationBlendTree2D _animCrouchWalkTree;
     protected AnimationBlendTree2D _animCrouchRunTree;
 
-    protected float _currentMoveSpeed = 0;
-    protected float _currentMoveAccel = 0;
-    protected float _currentJumpPower = 0;
-    protected float _currentStepUpHeight = 0;
-    protected float _currentStepDownDepth = 0;
-    protected float _currentMaxSlopeUpAngle = 0;
-    protected float _currentSlopeDownAngle = 0;
-    protected bool _currentMaintainVelocityOnSurface = true;
-    protected bool _currentMaintainVelocityAlongSurface = true;
+    protected float _curMoveSpeed = 0;
+    protected float _curMoveAccel = 0;
+    protected float _curJumpPower = 0;
+    protected float _curStepUpHeight = 0;
+    protected float _curStepDownDepth = 0;
+    protected float _curMaxSlopeUpAngle = 0;
+    protected float _curSlopeDownAngle = 0;
+    protected bool _curMaintainVelocityOnSurface = true;
+    protected bool _curMaintainVelocityAlongSurface = true;
 
     // cached values from source asset
     protected readonly LayerMask _groundLayer;

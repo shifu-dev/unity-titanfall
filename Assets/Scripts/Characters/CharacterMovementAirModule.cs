@@ -58,7 +58,7 @@ public class CharacterMovementAirModule : CharacterMovementModule
         // moveInput = character.rotation * moveInput;
 
         // // helping movement in mAir
-        // Vector3 move_help_h = _currentMoveSpeed * moveInput * mDeltaTime;
+        // Vector3 move_help_h = _curMoveSpeed * moveInput * mDeltaTime;
         // Vector3 move_help_h_x = Vector3.ProjectOnPlane(move_help_h, charForward);
         // Vector3 move_help_h_z = move_help_h - move_help_h_x;
 
@@ -95,16 +95,16 @@ public class CharacterMovementAirModule : CharacterMovementModule
         // moveH = moveHX + moveHZ;
 
         // process character jump
-        if (_inputJump && _currentJumpCount < _maxJumpCount)
+        if (_inputJump && _curJumpCount < _maxJumpCount)
         {
-            _currentJumpCount++;
+            _curJumpCount++;
 
-            if (_currentMaintainVelocityOnJump == false)
+            if (_curMaintainVelocityOnJump == false)
             {
                 moveV = Vector3.zero;
             }
 
-            moveV = charUp * _currentJumpPower;
+            moveV = charUp * _curJumpPower;
         }
 
         Vector3 move = moveH + moveV;
@@ -129,14 +129,14 @@ public class CharacterMovementAirModule : CharacterMovementModule
 
     protected virtual void UpdateValues()
     {
-        _currentMoveAccel = _moveAcceleration;
-        _currentMoveSpeed = _moveSpeed;
-        _currentJumpPower = _jumpPower;
-        _currentMaxJumpCount = _maxJumpCount;
-        _currentMinMoveDist = _minMoveDistance;
+        _curMoveAccel = _moveAcceleration;
+        _curMoveSpeed = _moveSpeed;
+        _curJumpPower = _jumpPower;
+        _curMaxJumpCount = _maxJumpCount;
+        _curMinMoveDist = _minMoveDistance;
 
         // TODO: add this field in data asset
-        _currentMaintainVelocityOnJump = false;
+        _curMaintainVelocityOnJump = false;
     }
 
     protected virtual void PerformMove(Vector3 move)
@@ -177,7 +177,7 @@ public class CharacterMovementAirModule : CharacterMovementModule
         // hit.normal gives normal respective to capsule's body,
         // useful for sliding off on corners
         Vector3 slideMove = Vector3.ProjectOnPlane(remainingMove, hit.normal);
-        if (_currentMaintainVelocityAlongSurface)
+        if (_curMaintainVelocityAlongSurface)
         {
             slideMove = slideMove.normalized * remainingMove.magnitude;
         }
@@ -198,17 +198,17 @@ public class CharacterMovementAirModule : CharacterMovementModule
 
     protected bool _inputJump;
 
-    protected float _currentMinMoveDist = 0;
-    protected float _currentMoveSpeed = 0;
-    protected float _currentMoveAccel = 0;
-    protected float _currentJumpPower = 0;
-    protected float _currentStepUpHeight = 0;
-    protected float _currentStepDownDepth = 0;
-    protected float _currentSlopeUpAngle = 0;
-    protected float _currentSlopeDownAngle = 0;
-    protected uint _currentJumpCount = 0;
-    protected uint _currentMaxJumpCount = 0;
-    protected bool _currentMaintainVelocityOnJump = false;
-    protected bool _currentMaintainVelocityOnSurface = true;
-    protected bool _currentMaintainVelocityAlongSurface = true;
+    protected float _curMinMoveDist = 0;
+    protected float _curMoveSpeed = 0;
+    protected float _curMoveAccel = 0;
+    protected float _curJumpPower = 0;
+    protected float _curStepUpHeight = 0;
+    protected float _curStepDownDepth = 0;
+    protected float _curSlopeUpAngle = 0;
+    protected float _curSlopeDownAngle = 0;
+    protected uint _curJumpCount = 0;
+    protected uint _curMaxJumpCount = 0;
+    protected bool _curMaintainVelocityOnJump = false;
+    protected bool _curMaintainVelocityOnSurface = true;
+    protected bool _curMaintainVelocityAlongSurface = true;
 }
