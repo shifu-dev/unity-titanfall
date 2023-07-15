@@ -3,13 +3,13 @@ using UnityEngine;
 
 public class Health : MonoBehaviour
 {
-    [SerializeField, Min(0)] protected float m_Health;
+    [SerializeField, Min(0)] protected float _Health;
     public float health
     {
-        get => m_Health;
+        get => _Health;
         set
         {
-            m_Health = value;
+            _Health = value;
         }
     }
 }

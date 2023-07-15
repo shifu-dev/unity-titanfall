@@ -26,13 +26,13 @@ public class Interactable : MonoBehaviour
 
     [Header("INTERACTABLE"), Space]
 
-    [SerializeField, ReadOnly] protected Character m_Interactor;
-    public Character interactor => m_Interactor;
+    [SerializeField, ReadOnly] protected Character _Interactor;
+    public Character interactor => _Interactor;
 
     [SerializeField] public bool canInteract;
 
-    [SerializeField] protected bool m_RequireRaycast;
-    public bool requireRaycast => m_RequireRaycast;
+    [SerializeField] protected bool _RequireRaycast;
+    public bool requireRaycast => _RequireRaycast;
 
     [SerializeField, Vector3Range(0, 180)] protected Vector3 _faceAngle;
     public Vector3 faceAngle => _faceAngle;
@@ -50,7 +50,7 @@ public class Interactable : MonoBehaviour
         if (canInteract == false)
             return;
 
-        m_Interactor = interactor;
+        _Interactor = interactor;
     }
 
     public void OnUnInteract()

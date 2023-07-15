@@ -96,7 +96,7 @@ namespace UnityEngine.Playables
                 var b = _nodes[indexB].position;
 
                 // Calculate weights using barycentric coordinates
-                // (formulas from http://en.wikipedia.org/wiki/Barycentric_coordinate_system_%28mathematics%29 )
+                // (formulas from http://en.wikipedia.org/wiki/Barycentric_coordinate_syste_%28mathematics%29 )
                 float det = b.y * a.x - b.x * a.y; // Simplified from: (b.y-0)*(a.x-0) + (0-b.x)*(a.y-0);
 
                 // TODO: Is x and y used correctly below??

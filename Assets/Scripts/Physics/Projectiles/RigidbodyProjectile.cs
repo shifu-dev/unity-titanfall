@@ -3,22 +3,22 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class RigidbodyProjectile : Projectile
 {
-    private Rigidbody m_rigidBody = null;
+    private Rigidbody _rigidBody = null;
     new protected Rigidbody rigidbody
     {
         get
         {
-            if (m_rigidBody is null)
+            if (_rigidBody is null)
             {
-                m_rigidBody = GetComponent<Rigidbody>();
+                _rigidBody = GetComponent<Rigidbody>();
             }
 
-            return m_rigidBody;
+            return _rigidBody;
         }
 
         set
         {
-            m_rigidBody = value;
+            _rigidBody = value;
         }
     }
 

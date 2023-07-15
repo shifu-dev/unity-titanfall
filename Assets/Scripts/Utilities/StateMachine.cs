@@ -1,64 +1,54 @@
 using System.Collections.Generic;
-using GameFramework.Logging;
 
 public class StateMachine<T>
 {
     public delegate void StateFunc();
 
-    protected State m_curState;
-    protected Dictionary<T, State> m_states;
-    protected IGameLogger m_logger;
+    protected State _curState;
+    protected Dictionary<T, State> _states;
 
-    public T currentState => m_curState.Id;
+    public T currentState => _curState.Id;
 
     public StateMachine()
     {
-        m_curState = null;
-        m_states = new Dictionary<T, State>();
-        m_logger = null;
-    }
-
-    public StateMachine(IGameLogger logger)
-    {
-        m_curState = null;
-        m_states = new Dictionary<T, State>();
-        m_logger = logger;
+        _curState = null;
+        _states = new Dictionary<T, State>();
     }
 
     public void Add(T id, StateFunc enter, StateFunc update, StateFunc leave)
     {
-        m_states.Add(id, new State(id, enter, update, leave));
+        _states.Add(id, new State(id, enter, update, leave));
     }
 
     public void Update()
     {
-        if (m_curState is null) return;
-        if (m_curState.Update is null) return;
+        if (_curState is null) return;
+        if (_curState.Update is null) return;
 
-        m_curState.Update();
+        _curState.Update();
     }
 
     public void Shutdown()
     {
-        if (m_curState is not null && m_curState.Leave is not null)
-            m_curState.Leave();
+        if (_curState is not null && _curState.Leave is not null)
+            _curState.Leave();
 
-        m_curState = null;
+        _curState = null;
     }
 
     public void Switch(T state)
     {
-        var newState = m_states[state];
+        var newState = _states[state];
 
-        if (m_curState is not null && m_curState.Leave is not null)
-            m_curState.Leave();
+        if (_curState is not null && _curState.Leave is not null)
+            _curState.Leave();
 
         // no need to check if new state is valid, 
         // dictionary throws exception if key not found
         if (newState.Enter is not null)
             newState.Enter();
 
-        m_curState = newState;
+        _curState = newState;
     }
 
     protected class State

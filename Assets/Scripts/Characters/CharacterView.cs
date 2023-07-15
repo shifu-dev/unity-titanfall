@@ -116,19 +116,19 @@ public class CharacterView : CharacterBehaviour
         _lookVector.y = Math.Clamp(_lookVector.y, _firstPersonData.minRotation.y, _firstPersonData.maxRotation.y);
         _lookVector.z = Math.Clamp(_lookVector.z, _firstPersonData.minRotation.z, _firstPersonData.maxRotation.z);
 
-        Vector3 cam_pos = Vector3.zero;
-        Quaternion cam_rot = Quaternion.identity;
+        Vector3 camPos = Vector3.zero;
+        Quaternion camRot = Quaternion.identity;
 
         // calculate position
-        cam_pos = _firstPersonData.standPos;
-        cam_pos = _charMovement.capsule.ClampPositionInsideVolumeRelative(cam_pos);
+        camPos = _firstPersonData.standPos;
+        camPos = _charMovement.capsule.ClampPositionInsideVolumeRelative(camPos);
 
         // calculate rotation
-        cam_rot = Quaternion.Euler(new Vector3(_lookVector.y, _lookVector.x, _lookVector.z));
+        camRot = Quaternion.Euler(new Vector3(_lookVector.y, _lookVector.x, _lookVector.z));
 
         // apply position and rotation
-        _camera.transform.position = cam_pos;
-        _camera.transform.rotation = cam_rot;
+        _camera.transform.position = camPos;
+        _camera.transform.rotation = camRot;
     }
     protected virtual void ExitViewMode_FirstPerson()
     {

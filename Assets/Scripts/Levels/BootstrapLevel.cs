@@ -1,8 +1,3 @@
-﻿using System.Collections;
-using UnityEngine;
-using GameFramework.LevelManagement;
+﻿using GameFramework.LevelManagement;
 
-namespace Assets.Scripts.Levels
-{
-    public class BootstrapLevel : BasicLevelAsset { }
-}
+public class BootstrapLevel : BasicLevelAsset { }
