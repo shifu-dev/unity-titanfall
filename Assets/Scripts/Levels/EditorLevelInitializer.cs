@@ -1,15 +1,12 @@
 using System;
 using UnityEngine;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.AddressableAssets;
-using UnityEngine.AddressableAssets.ResourceLocators;
 using GameFramework.LevelManagement;
-using GameFramework.Extensions;
 
 [Serializable]
-public class LevelAssetReference : AssetReferenceT<LevelAsset>
+public class AssetReferenceLevel : AssetReferenceT<LevelAsset>
 {
-    public LevelAssetReference(string guid) : base(guid) { }
+    public AssetReferenceLevel(string guid) : base(guid) { }
 }
 
 public class EditorLevelInitializer : MonoBehaviour
@@ -29,10 +26,10 @@ public class EditorLevelInitializer : MonoBehaviour
         Debug.Log("Loaded level asset.");
 
         Debug.Log($"Loading level{level.name}...");
-        level.PerformLoad();
+        (level as TrainingLevel)._PerformLoad();
         Debug.Log($"Loaded level.");
     }
 
     [SerializeField]
-    LevelAssetReference _levelAsset;
+    AssetReferenceLevel _levelAsset;
 }
