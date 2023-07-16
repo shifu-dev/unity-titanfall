@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using GameFramework;
 using GameFramework.LevelManagement;
 
@@ -7,9 +8,10 @@ class TitanfallRootGameSystem : GameSystem
 {
     protected override void OnRegistered(GameSystem system)
     {
-        base.OnRegistered(system);
+        Debug.Log("Initializing Addressables...");
+        Addressables.InitializeAsync();
+        Debug.Log("Initialized Addressables.");
 
-        Debug.Log("TitanfallRootGameSystem registered");
         LevelManager.Registry.GetLevel("BootstrapLevel", out LevelAsset bootstrapLevel);
         LevelManager.LoadLevelAsync(bootstrapLevel);
     }

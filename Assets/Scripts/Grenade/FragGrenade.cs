@@ -7,17 +7,17 @@ public class FragGrenade : Grenade
     protected float _damage;
     protected float _radius;
 
-    protected override void OnTriggerFinish()
+    protected override void _OnTriggerFinish()
     {
-        // DisablePhysics();
-        DisableColliders();
-        DisableGeometry();
+        // _DisablePhysics();
+        _DisableColliders();
+        _DisableGeometry();
 
         // process colliders in range
         Collider[] colliders = Physics.OverlapSphere(transform.position, _radius);
         foreach (Collider collider in colliders)
         {
-            // cast a ray to check if there is no obstacle between collider adn explosion center
+            // cast a ray to check if there is no obstacle between collider and explosion center
             Vector3 thisToCollider = collider.transform.position - transform.position;
             bool hit = Physics.Raycast(transform.position, thisToCollider.normalized, out RaycastHit hitInfo,
                 thisToCollider.magnitude, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);

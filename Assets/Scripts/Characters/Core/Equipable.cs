@@ -9,7 +9,7 @@ public abstract class Equipable : Interactable
     public virtual void OnPickup()
     {
         canInteract = false;
-        DisableColliders();
+        _DisableColliders();
     }
 
     public virtual void OnDrop()
@@ -34,7 +34,7 @@ public abstract class Equipable : Interactable
     {
     }
 
-    protected virtual void DisableColliders()
+    protected virtual void _DisableColliders()
     {
         foreach (var collider in _colliders)
         {

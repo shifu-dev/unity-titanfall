@@ -67,9 +67,6 @@ LightmapSettings:
     m_LightmapParameters: {fileID: 15204, guid: 0000000000000000f000000000000000, type: 0}
     m_LightmapsBakeMode: 1
     m_TextureCompression: 1
-    m_FinalGather: 0
-    m_FinalGatherFiltering: 1
-    m_FinalGatherRayCount: 256
     m_ReflectionCompression: 2
     m_MixedBakeMode: 2
     m_BakeBackend: 1
@@ -104,7 +101,7 @@ NavMeshSettings:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_BuildSettings:
-    serializedVersion: 2
+    serializedVersion: 3
     agentTypeID: 0
     agentRadius: 0.5
     agentHeight: 2
@@ -117,7 +114,7 @@ NavMeshSettings:
     cellSize: 0.16666667
     manualTileSize: 0
     tileSize: 256
-    accuratePlacement: 0
+    buildHeightMesh: 0
     maxJobWorkers: 0
     preserveTilesOutsideBounds: 0
     debug:
@@ -605,6 +602,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 4511870531947677376, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
@@ -660,6 +658,12 @@ PrefabInstance:
       value: AXR-160 Prefab (4)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8595054391902159044, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 715402178}
   m_SourcePrefab: {fileID: 100100000, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
 --- !u!1 &1151477676
 GameObject:
@@ -915,6 +919,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 4511870531947677376, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
@@ -970,6 +975,12 @@ PrefabInstance:
       value: AXR-160 Prefab (3)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8595054391902159044, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 425097160}
   m_SourcePrefab: {fileID: 100100000, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
 --- !u!1 &1642470179 stripped
 GameObject:
@@ -996,6 +1007,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 4511870531947677376, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
@@ -1051,6 +1063,12 @@ PrefabInstance:
       value: AXR-160 Prefab (5)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8595054391902159044, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1033368285}
   m_SourcePrefab: {fileID: 100100000, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
 --- !u!1 &1764214107
 GameObject:
@@ -1170,6 +1188,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 4511870531947677376, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
@@ -1225,12 +1244,19 @@ PrefabInstance:
       value: AXR-160 Prefab (1)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8595054391902159044, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 524597906}
   m_SourcePrefab: {fileID: 100100000, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
 --- !u!1001 &2003042481
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 4511870531947677376, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
@@ -1286,12 +1312,19 @@ PrefabInstance:
       value: AXR-160 Prefab (2)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8595054391902159044, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1642470180}
   m_SourcePrefab: {fileID: 100100000, guid: c31418e8fcb0c884abfb76d8b231f016, type: 3}
 --- !u!1001 &2084445384
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 8345070699079395522, guid: 09aade0ecefd01e4b8f7661acf64f5c2, type: 3}
@@ -1343,6 +1376,9 @@ PrefabInstance:
       value: Environment
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 09aade0ecefd01e4b8f7661acf64f5c2, type: 3}
 --- !u!1 &2114283753834967212
 GameObject:
@@ -1487,11 +1523,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Version: 1
+  m_Version: 3
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
   m_LightLayerMask: 1
+  m_RenderingLayers: 1
   m_CustomShadowLayers: 0
   m_ShadowLayerMask: 1
+  m_ShadowRenderingLayers: 1
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 1

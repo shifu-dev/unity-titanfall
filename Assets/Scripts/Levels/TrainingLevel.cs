@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using GameFramework.Logging;
 using GameFramework.LevelManagement;
 
@@ -30,9 +31,19 @@ public class TrainingLevel : BasicLevelAsset
             var localPlayer = PlayerManager.CreateLocalPlayer();
             if (localPlayer is not null)
             {
-                CharacterAsset charSource = CharacterAssetRegistry.Instance.GetAsset(
-                    "SwatGuy CharacterAsset");
-                var charInstanceHandler = charSource.instanceHandler;
+                string charName = "Swat Guy";
+                CharacterAsset charAsset = Addressables.LoadAssetAsync<CharacterAsset>(
+                    $"Characters/{charName}").Result;
+
+                if (charAsset is null)
+                {
+                    Debug.LogError($"Could not load character asset[{charName}]", this);
+                    throw new UnityException();
+                }
+
+                // CharacterAsset charAsset = CharacterAssetRegistry.Instance.GetAsset(
+                //     "SwatGuy CharacterAsset");
+                var charInstanceHandler = charAsset.instanceHandler;
                 charInstanceHandler.SetMaxReserve(5);
                 charInstanceHandler.Reserve(4);
 

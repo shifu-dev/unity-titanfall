@@ -8,12 +8,10 @@ public abstract class Grenade : Equipable
     protected Projectile _projectile;
 
     protected bool _isTriggered;
-    public bool isTriggered => _isTriggered;
 
     [Header("GRENADE"), Space]
     [SerializeField, Min(0)]
     protected float _triggerTime;
-    public float triggerTime => _triggerTime;
 
     [SerializeField]
     protected bool _canStopTrigger;
@@ -30,8 +28,9 @@ public abstract class Grenade : Equipable
         _projectile = GetComponent<Projectile>();
     }
 
-    //////////////////////////////////////////////////////////////////
-    /// Trigger | START
+    //// -------------------------------------------------------------------------------------------
+    //// Trigger Begin
+    //// -------------------------------------------------------------------------------------------
 
     public virtual bool CanStartTrigger()
     {
@@ -47,25 +46,25 @@ public abstract class Grenade : Equipable
 
         if (_triggerTime == 0)
         {
-            OnTriggerFinish();
+            _OnTriggerFinish();
             return true;
         }
 
-        StartCoroutine(StartTriggerCoroutine());
+        StartCoroutine(_TriggerCoroutine());
         return true;
     }
 
-    protected IEnumerator StartTriggerCoroutine()
+    protected IEnumerator _TriggerCoroutine()
     {
         yield return new WaitForSeconds(_triggerTime);
 
         if (_isTriggered)
         {
-            OnTriggerFinish();
+            _OnTriggerFinish();
         }
     }
 
-    protected virtual void OnTriggerFinish()
+    protected virtual void _OnTriggerFinish()
     {
     }
 
@@ -83,24 +82,34 @@ public abstract class Grenade : Equipable
         return true;
     }
 
-    protected virtual void OnTriggerStop()
+    protected virtual void _OnTriggerStop()
     {
     }
 
-    /// Trigger | END
-    //////////////////////////////////////////////////////////////////
+    //// -------------------------------------------------------------------------------------------
+    //// Trigger End
+    //// -------------------------------------------------------------------------------------------
 
-    //////////////////////////////////////////////////////////////////
-    /// Physics & Geometry | BEGIN
+    //// -------------------------------------------------------------------------------------------
+    //// Physics and Geometry Begin
+    //// -------------------------------------------------------------------------------------------
 
-    protected virtual void DisableGeometry()
+    protected virtual void _DisableGeometry()
     {
     }
 
-    protected virtual void EnableGeometry()
+    protected virtual void _EnableGeometry()
     {
     }
 
-    /// Physics & Geometry | END
-    //////////////////////////////////////////////////////////////////
+    //// -------------------------------------------------------------------------------------------
+    //// Physics and Geometry End
+    //// -------------------------------------------------------------------------------------------
+
+    //// -------------------------------------------------------------------------------------------
+    //// Properties and Fields
+    //// -------------------------------------------------------------------------------------------
+
+    public bool isTriggered => _isTriggered;
+    public float triggerTime => _triggerTime;
 }
