@@ -43,11 +43,6 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         Jumping
     }
 
-    protected const uint MAX_MOVE_ITERATIONS = 10;
-    protected const float MIN_MOVE_ALONG_SURFACE_TO_MAINTAIN_VELOCITY = .0001f;
-    protected const float MIN_SLOPE_ANGLE = 0f;
-    protected const float MAX_SLOPE_ANGLE = 89.9f;
-
     public CharacterMovementGroundModule(CharacterMovementGroundModuleSource source)
     {
         _prevGroundResult = GroundResult.invalid;
@@ -104,6 +99,10 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         }
     }
 
+    //// -------------------------------------------------------------------------------------------
+    //// CharacterBehaviour events
+    //// -------------------------------------------------------------------------------------------
+
     public override void OnLoaded(CharacterMovement charMovement)
     {
         base.OnLoaded(charMovement);
@@ -145,9 +144,9 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         base.RunPhysics();
 
         PullPhysicsData();
-        RecoverFromBaseMove();
+        _RecoverFromBaseMove();
 
-        UpdateValues();
+        _UpdateValues();
 
         Vector3 moveInput = new Vector3(_inputMove.x, 0, _inputMove.y);
         moveInput = Quaternion.Euler(0, _charView.turnAngle, 0) * moveInput.normalized;
@@ -155,12 +154,12 @@ public class CharacterMovementGroundModule : CharacterMovementModule
 
         _velocity = Vector3.ProjectOnPlane(_velocity, _charUp);
 
-        Vector3 move = moveInput * _curMoveSpeed * _deltaTime;
-        move = Vector3.MoveTowards(_velocity * _deltaTime, move, _curMoveAccel * _deltaTime);
+        Vector3 move = moveInput * _moveSpeed * _deltaTime;
+        move = Vector3.MoveTowards(_velocity * _deltaTime, move, _moveAccel * _deltaTime);
 
-        move += _charUp * _curJumpPower * _deltaTime;
+        move += _charUp * _jumpPower * _deltaTime;
 
-        GroundMove(move);
+        _GroundMove(move);
 
         _lastMovementState = _movementState;
         _lastLocomotionState = _locomotionState;
@@ -168,141 +167,145 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         PushPhysicsData();
     }
 
-    //////////////////////////////////////////////////////////////////
+    //// -------------------------------------------------------------------------------------------
+    //// Commands to control ground movement of character.
+    //// -------------------------------------------------------------------------------------------
 
-    public virtual void Walk()
+    public void Walk()
     {
         _movementState = MovementState.Walking;
     }
 
-    public virtual void Run()
+    public void Run()
     {
         _movementState = MovementState.Running;
     }
 
-    public virtual void Sprint()
+    public void Sprint()
     {
         _movementState = MovementState.Sprinting;
     }
 
-    public virtual void Stand()
+    public void Stand()
     {
         _locomotionState = LocomotionState.Standing;
     }
 
-    public virtual void Crouch()
+    public void Crouch()
     {
         _locomotionState = LocomotionState.Crouching;
     }
 
-    public virtual void Prone()
+    public void Prone()
     {
         _locomotionState = LocomotionState.Proning;
     }
 
-    public virtual void Jump()
+    public void Jump()
     {
         _locomotionState = LocomotionState.Jumping;
     }
 
-    public virtual bool CanStandOnGround(RaycastHit hit, Vector3 slopeNormal, out float slopeAngle)
+    public bool CanStandOnGround(RaycastHit hit, Vector3 slopeNormal, out float slopeAngle)
     {
-        return CanStandOn(hit, slopeNormal, out slopeAngle);
+        return _CanStandOn(hit, slopeNormal, out slopeAngle);
     }
 
-    //////////////////////////////////////////////////////////////////
+    //// -------------------------------------------------------------------------------------------
+    //// Movement implementation
+    //// -------------------------------------------------------------------------------------------
 
-    protected virtual void UpdateValues()
+    protected void _UpdateValues()
     {
         switch (_locomotionState)
         {
             case LocomotionState.Standing:
-                _curStepDownDepth = _standStepDownHeight;
-                _curStepUpHeight = _standStepUpHeight;
-                _curMaxSlopeUpAngle = _standSlopeUpAngle;
-                _curSlopeDownAngle = _standSlopeDownAngle;
-                _curMaintainVelocityOnSurface = _standMaintainVelocityOnSurface;
-                _curMaintainVelocityAlongSurface = _standMaintainVelocityAlongSurface;
-                _curJumpPower = 0f;
+                _stepDownDepth = _standStepDownHeight;
+                _stepUpHeight = _standStepUpHeight;
+                _maxSlopeUpAngle = _standSlopeUpAngle;
+                _slopeDownAngle = _standSlopeDownAngle;
+                _maintainVelocityOnSurface = _standMaintainVelocityOnSurface;
+                _maintainVelocityAlongSurface = _standMaintainVelocityAlongSurface;
+                _jumpPower = 0f;
 
                 if (_locomotionState == LocomotionState.Jumping)
-                    _curJumpPower = _standJumpForce;
+                    _jumpPower = _standJumpForce;
 
                 switch (_movementState)
                 {
                     case MovementState.Idle:
-                        _curMoveAccel = _standDeacceleration;
-                        _curMoveSpeed = 0;
+                        _moveAccel = _standDeacceleration;
+                        _moveSpeed = 0;
                         break;
 
                     case MovementState.Walking:
-                        _curMoveAccel = _standWalkAcceleration;
-                        _curMoveSpeed = _standWalkSpeed;
+                        _moveAccel = _standWalkAcceleration;
+                        _moveSpeed = _standWalkSpeed;
                         break;
 
                     case MovementState.Running:
-                        _curMoveAccel = _standRunAcceleration;
-                        _curMoveSpeed = _standRunSpeed;
+                        _moveAccel = _standRunAcceleration;
+                        _moveSpeed = _standRunSpeed;
                         break;
 
                     case MovementState.Sprinting:
-                        _curMoveAccel = _standSprintAcceleration;
-                        _curMoveSpeed = _standSprintSpeed;
+                        _moveAccel = _standSprintAcceleration;
+                        _moveSpeed = _standSprintSpeed;
                         break;
 
                     default:
-                        _curMoveAccel = 0;
-                        _curMoveSpeed = 0;
+                        _moveAccel = 0;
+                        _moveSpeed = 0;
                         break;
                 }
 
                 break;
 
             case LocomotionState.Crouching:
-                _curStepDownDepth = _crouchStepDownDepth;
-                _curStepUpHeight = _crouchStepUpHeight;
-                _curMaxSlopeUpAngle = _crouchSlopeUpAngle;
-                _curSlopeDownAngle = _crouchSlopeDownAngle;
-                _curMaintainVelocityOnSurface = _crouchMaintainVelocityOnSurface;
-                _curMaintainVelocityAlongSurface = _crouchMaintainVelocityAlongSurface;
-                _curJumpPower = 0f;
+                _stepDownDepth = _crouchStepDownDepth;
+                _stepUpHeight = _crouchStepUpHeight;
+                _maxSlopeUpAngle = _crouchSlopeUpAngle;
+                _slopeDownAngle = _crouchSlopeDownAngle;
+                _maintainVelocityOnSurface = _crouchMaintainVelocityOnSurface;
+                _maintainVelocityAlongSurface = _crouchMaintainVelocityAlongSurface;
+                _jumpPower = 0f;
 
                 if (_locomotionState == LocomotionState.Jumping)
-                    _curJumpPower = _crouchJumpForce;
+                    _jumpPower = _crouchJumpForce;
 
                 switch (_movementState)
                 {
                     case MovementState.Idle:
-                        _curMoveAccel = _crouchDeacceleration;
-                        _curMoveSpeed = 0;
+                        _moveAccel = _crouchDeacceleration;
+                        _moveSpeed = 0;
                         break;
 
                     case MovementState.Walking:
-                        _curMoveAccel = _crouchWalkAcceleration;
-                        _curMoveSpeed = _crouchWalkSpeed;
+                        _moveAccel = _crouchWalkAcceleration;
+                        _moveSpeed = _crouchWalkSpeed;
                         break;
 
                     case MovementState.Running:
-                        _curMoveAccel = _crouchRunAcceleration;
-                        _curMoveSpeed = _crouchRunSpeed;
+                        _moveAccel = _crouchRunAcceleration;
+                        _moveSpeed = _crouchRunSpeed;
                         break;
 
                     default:
-                        _curMoveAccel = 0;
-                        _curMoveSpeed = 0;
+                        _moveAccel = 0;
+                        _moveSpeed = 0;
                         break;
                 }
 
                 break;
         }
 
-        _curMaxSlopeUpAngle = Math.Clamp(_curMaxSlopeUpAngle,
-            MIN_SLOPE_ANGLE, MAX_SLOPE_ANGLE);
+        _maxSlopeUpAngle = Math.Clamp(_maxSlopeUpAngle,
+            _MIN_SLOPE_ANGLE, _MAX_SLOPE_ANGLE);
     }
 
-    protected virtual void GroundMove(Vector3 originalMove)
+    protected void _GroundMove(Vector3 originalMove)
     {
-        UpdateCapsuleSize();
+        _UpdateCapsuleSize();
 
         Vector3 moveH = Vector3.ProjectOnPlane(originalMove, _charUp);
         Vector3 moveV = originalMove - moveH;
@@ -326,7 +329,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
 
             CapsuleResolvePenetration();
 
-            for (uint it = 0; it < MAX_MOVE_ITERATIONS; it++)
+            for (uint it = 0; it < _MAX_MOVE_ITERATIONS; it++)
             {
                 remainingMove -= CapsuleMove(remainingMove, out RaycastHit moveHit, out Vector3 moveHitNormal);
 
@@ -342,7 +345,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
                     {
                         // if we cannot step on this _ground, revert the step up
                         // and continue the loop without stepping up this time
-                        if (CanStandOn(stepUpRecoverHit, stepUpRecoverHitNormal, out float baseAngle) == false)
+                        if (_CanStandOn(stepUpRecoverHit, stepUpRecoverHitNormal, out float baseAngle) == false)
                         {
                             if (baseAngle < 90f)
                             {
@@ -364,7 +367,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
                 }
 
                 // try sliding on the obstacle
-                if (SlideOnSurface(originalMove, ref remainingMove, moveHit, moveHitNormal))
+                if (_SlideOnSurface(originalMove, ref remainingMove, moveHit, moveHitNormal))
                 {
                     continue;
                 }
@@ -378,13 +381,13 @@ public class CharacterMovementGroundModule : CharacterMovementModule
                     positionBeforeStepUp = _capsule.position;
                     moveBeforeStepUp = remainingMove;
 
-                    stepUpHeight = CapsuleMove(_charUp * _curStepUpHeight).magnitude;
+                    stepUpHeight = CapsuleMove(_charUp * _stepUpHeight).magnitude;
 
                     continue;
                 }
 
                 // try sliding along the obstacle
-                if (SlideAlongSurface(originalMove, ref remainingMove, moveHit, moveHitNormal))
+                if (_SlideAlongSurface(originalMove, ref remainingMove, moveHit, moveHitNormal))
                 {
                     continue;
                 }
@@ -394,11 +397,11 @@ public class CharacterMovementGroundModule : CharacterMovementModule
             }
         }
 
-        StepDown(originalMove);
+        _StepDown(originalMove);
         CapsuleResolvePenetration();
     }
 
-    protected virtual void RecoverFromBaseMove()
+    protected void _RecoverFromBaseMove()
     {
         if (_baseDeltaPosition != Vector3.zero)
         {
@@ -409,7 +412,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         // TODO: update position for base rotation also
     }
 
-    protected virtual void UpdateCapsuleSize()
+    protected void _UpdateCapsuleSize()
     {
         float weight = 0;
         float speed = 0;
@@ -441,12 +444,12 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         // _movementStateWeight = weight;
     }
 
-    protected virtual bool SlideOnSurface(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit, Vector3 hitNormal)
+    protected bool _SlideOnSurface(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit, Vector3 hitNormal)
     {
         if (remainingMove == Vector3.zero)
             return false;
 
-        if (CanStandOn(hit, hitNormal, out float slopeAngle))
+        if (_CanStandOn(hit, hitNormal, out float slopeAngle))
         {
             if (slopeAngle == 0f)
             {
@@ -459,7 +462,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
 
             Vector3 slopeMove = remainingMove + (_charUp * enter);
 
-            if (_curMaintainVelocityOnSurface == false)
+            if (_maintainVelocityOnSurface == false)
             {
                 slopeMove = slopeMove.normalized * remainingMove.magnitude;
             }
@@ -471,7 +474,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         return false;
     }
 
-    protected virtual bool SlideAlongSurface(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit, Vector3 hitNormal)
+    protected bool _SlideAlongSurface(Vector3 originalMove, ref Vector3 remainingMove, RaycastHit hit, Vector3 hitNormal)
     {
         float remainingMoveSize = remainingMove.magnitude;
 
@@ -482,11 +485,11 @@ public class CharacterMovementGroundModule : CharacterMovementModule
 
         Vector3 hitProject = Vector3.ProjectOnPlane(hitNormal, _charUp);
         Vector3 slideMove = Vector3.ProjectOnPlane(originalMove.normalized * remainingMoveSize, hitProject);
-        if (_curMaintainVelocityAlongSurface)
+        if (_maintainVelocityAlongSurface)
         {
             // to avoid sliding along perpendicular surface for very small values,
             // may be a result of small miscalculations
-            if (slideMove.magnitude > MIN_MOVE_ALONG_SURFACE_TO_MAINTAIN_VELOCITY)
+            if (slideMove.magnitude > _MIN_MOVE_ALONG_SURFACE_TO_MAINTAIN_VELOCITY)
             {
                 slideMove = slideMove.normalized * remainingMoveSize;
             }
@@ -496,17 +499,17 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         return true;
     }
 
-    protected virtual bool StepDown(Vector3 originalMove)
+    protected bool _StepDown(Vector3 originalMove)
     {
         var verticalMove = Vector3.Project(originalMove, _charUp).magnitude;
-        if (verticalMove != 0f || _curStepDownDepth <= 0)
+        if (verticalMove != 0f || _stepDownDepth <= 0)
             return false;
 
         CapsuleResolvePenetration();
 
-        var moved = CapsuleMove(_character.down * _curStepDownDepth, out RaycastHit hit, out Vector3 hitNormal);
+        var moved = CapsuleMove(_character.down * _stepDownDepth, out RaycastHit hit, out Vector3 hitNormal);
 
-        if (CanStandOn(hit, hitNormal) == false)
+        if (_CanStandOn(hit, hitNormal) == false)
         {
             _capsule.position -= moved;
             return false;
@@ -515,7 +518,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         return true;
     }
 
-    protected virtual bool CheckIsGround(Collider collider)
+    protected bool _CheckIsGround(Collider collider)
     {
         if (collider is null)
         {
@@ -525,23 +528,23 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         return _groundLayer.Contains(collider.gameObject.layer);
     }
 
-    protected virtual bool CanStandOn(RaycastHit hit)
+    protected bool _CanStandOn(RaycastHit hit)
     {
-        return CanStandOn(hit, Vector3.zero);
+        return _CanStandOn(hit, Vector3.zero);
     }
 
-    protected virtual bool CanStandOn(RaycastHit hit, Vector3 slopeNormal)
+    protected bool _CanStandOn(RaycastHit hit, Vector3 slopeNormal)
     {
-        return CanStandOn(hit, slopeNormal, out float slopeAngle);
+        return _CanStandOn(hit, slopeNormal, out float slopeAngle);
     }
 
-    protected virtual bool CanStandOn(RaycastHit hit, Vector3 slopeNormal, out float slopeAngle)
+    protected bool _CanStandOn(RaycastHit hit, Vector3 slopeNormal, out float slopeAngle)
     {
         slopeAngle = 0f;
 
         if (hit.collider is not null)
         {
-            if (CheckIsGround(hit.collider) is false)
+            if (_CheckIsGround(hit.collider) is false)
             {
                 return false;
             }
@@ -549,7 +552,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
             RecalculateNormalIfZero(hit, ref slopeNormal);
 
             slopeAngle = Vector3.Angle(_charUp, slopeNormal);
-            if (slopeAngle >= MIN_SLOPE_ANGLE && slopeAngle <= _curMaxSlopeUpAngle)
+            if (slopeAngle >= _MIN_SLOPE_ANGLE && slopeAngle <= _maxSlopeUpAngle)
             {
                 return true;
             }
@@ -558,7 +561,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         return false;
     }
 
-    protected virtual bool CastForGround(float depth, out GroundResult result)
+    protected bool _CastForGround(float depth, out GroundResult result)
     {
         BaseSphereCast(_character.down * depth, out RaycastHit hit, out Vector3 hitNormal);
         if (hitNormal == Vector3.zero)
@@ -568,7 +571,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
 
         result = new GroundResult();
 
-        if (CanStandOn(hit, hitNormal, out float slopeAngle) == false)
+        if (_CanStandOn(hit, hitNormal, out float slopeAngle) == false)
         {
             if (slopeAngle < 90f)
             {
@@ -590,15 +593,17 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         return true;
     }
 
-    protected virtual void UpdateGroundResult()
+    protected void _UpdateGroundResult()
     {
         _prevGroundResult = _groundResult;
-        CastForGround(_groundCheckDepth, out _groundResult);
+        _CastForGround(_groundCheckDepth, out _groundResult);
     }
 
-    //////////////////////////////////////////////////////////////////
+    //// -------------------------------------------------------------------------------------------
+    //// Animations
+    //// -------------------------------------------------------------------------------------------
 
-    protected virtual void CreateAnimationGraph()
+    protected void _CreateAnimationGraph()
     {
         if (_animGraph.IsValid())
         {
@@ -719,7 +724,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         _animBaseTree.UpdateGraph(true);
     }
 
-    protected virtual void UpdateAnimationGraph()
+    protected void _UpdateAnimationGraph()
     {
         float walkSpeed = _standWalkSpeed;
         float runSpeed = _standRunSpeed;
@@ -754,6 +759,15 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         _animBaseTree.SetBlendPosition(0f);
     }
 
+    //// -------------------------------------------------------------------------------------------
+    //// Properties and Fields
+    //// -------------------------------------------------------------------------------------------
+
+    protected const uint _MAX_MOVE_ITERATIONS = 10;
+    protected const float _MIN_MOVE_ALONG_SURFACE_TO_MAINTAIN_VELOCITY = .0001f;
+    protected const float _MIN_SLOPE_ANGLE = 0f;
+    protected const float _MAX_SLOPE_ANGLE = 89.9f;
+
     protected CharacterMovementGroundModuleSource _source;
     protected CharacterView _charView;
     protected GroundResult _groundResult;
@@ -778,17 +792,20 @@ public class CharacterMovementGroundModule : CharacterMovementModule
     protected AnimationBlendTree2D _animCrouchWalkTree;
     protected AnimationBlendTree2D _animCrouchRunTree;
 
-    protected float _curMoveSpeed = 0;
-    protected float _curMoveAccel = 0;
-    protected float _curJumpPower = 0;
-    protected float _curStepUpHeight = 0;
-    protected float _curStepDownDepth = 0;
-    protected float _curMaxSlopeUpAngle = 0;
-    protected float _curSlopeDownAngle = 0;
-    protected bool _curMaintainVelocityOnSurface = true;
-    protected bool _curMaintainVelocityAlongSurface = true;
+    protected float _moveSpeed = 0;
+    protected float _moveAccel = 0;
+    protected float _jumpPower = 0;
+    protected float _stepUpHeight = 0;
+    protected float _stepDownDepth = 0;
+    protected float _maxSlopeUpAngle = 0;
+    protected float _slopeDownAngle = 0;
+    protected bool _maintainVelocityOnSurface = true;
+    protected bool _maintainVelocityAlongSurface = true;
 
-    // cached values from source asset
+    //// -------------------------------------------------------------------------------------------
+    //// Cached values from source asset
+    //// -------------------------------------------------------------------------------------------
+
     protected readonly LayerMask _groundLayer;
     protected readonly float _minMoveDistance;
     protected readonly float _groundCheckDepth;
@@ -834,4 +851,6 @@ public class CharacterMovementGroundModule : CharacterMovementModule
     protected readonly bool _crouchMaintainVelocityOnSurface;
     protected readonly bool _crouchMaintainVelocityAlongSurface;
     protected readonly Vector3 _crouchCapsuleCenter;
+
+    //// -------------------------------------------------------------------------------------------
 }
