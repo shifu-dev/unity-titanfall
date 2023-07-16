@@ -28,9 +28,9 @@ public abstract class FireableWeapon : Weapon
         _recoil = 0f;
     }
 
-    protected override void Init(WeaponInitializer initializer)
+    protected override void _Init(WeaponInitializer initializer)
     {
-        base.Init(initializer);
+        base._Init(initializer);
     }
 
     public virtual void OnTriggerDown()
@@ -40,7 +40,7 @@ public abstract class FireableWeapon : Weapon
 
     public virtual void OnTriggerHold()
     {
-        if (CanFire())
+        if (_CanFire())
         {
             Fire();
         }
@@ -58,7 +58,7 @@ public abstract class FireableWeapon : Weapon
         return recoil;
     }
 
-    protected virtual bool CanFire()
+    protected virtual bool _CanFire()
     {
         if (_isTriggerDown == false)
             return false;

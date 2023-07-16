@@ -2,40 +2,36 @@
 
 public class FragGrenade : Grenade
 {
-    protected ParticleSystem _effect;
-    protected float _force;
-    protected float _damage;
-    protected float _radius;
-
-    protected override void _OnTriggerFinish()
+    protected sealed override void _OnTriggerFinish()
     {
         // _DisablePhysics();
         _DisableColliders();
         _DisableGeometry();
 
-        // process colliders in range
+        // Process colliders in range
         Collider[] colliders = Physics.OverlapSphere(transform.position, _radius);
         foreach (Collider collider in colliders)
         {
-            // cast a ray to check if there is no obstacle between collider and explosion center
+            // Cast a ray to check if there is no obstacle between collider and explosion center.
             Vector3 thisToCollider = collider.transform.position - transform.position;
-            bool hit = Physics.Raycast(transform.position, thisToCollider.normalized, out RaycastHit hitInfo,
-                thisToCollider.magnitude, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+            bool hit = Physics.Raycast(transform.position, thisToCollider.normalized,
+                out RaycastHit hitInfo, thisToCollider.magnitude, Physics.DefaultRaycastLayers,
+                QueryTriggerInteraction.Ignore);
 
-            // check if there is no collider other than the collider itself
+            // Check if there is no collider other than the collider itself.
             if (hit && hitInfo.collider != collider)
             {
                 continue;
             }
 
-            // add force to rigidbody
+            // Add force to rigidbody.
             Rigidbody rigidbody = collider.GetComponent<Rigidbody>();
             if (rigidbody)
             {
                 rigidbody.AddExplosionForce(_force, transform.position, _radius, 0.1f, ForceMode.Impulse);
             }
 
-            // add damage to health component
+            // Add damage to health component.
             Health health = collider.GetComponent<Health>();
             if (health)
             {
@@ -44,15 +40,20 @@ public class FragGrenade : Grenade
             }
         }
 
-        if (_effect is null)
+        if (_effect is not null)
+        {
+            // Run visual effects
+            _effect.Play();
+            Destroy(gameObject, _effect.main.duration);
+        }
+        else
         {
             Destroy(gameObject);
-            return;
         }
-
-        // run visual effects
-        _effect.Play();
-        Destroy(gameObject, _effect.main.duration);
-        return;
     }
+
+    protected ParticleSystem _effect;
+    protected float _force;
+    protected float _damage;
+    protected float _radius;
 }

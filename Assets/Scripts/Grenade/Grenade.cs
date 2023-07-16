@@ -5,17 +5,6 @@ using System.Collections;
 [RequireComponent(typeof(Projectile))]
 public abstract class Grenade : Equipable
 {
-    protected Projectile _projectile;
-
-    protected bool _isTriggered;
-
-    [Header("GRENADE"), Space]
-    [SerializeField, Min(0)]
-    protected float _triggerTime;
-
-    [SerializeField]
-    protected bool _canStopTrigger;
-
     public Grenade()
     {
         _triggerTime = 0;
@@ -29,7 +18,7 @@ public abstract class Grenade : Equipable
     }
 
     //// -------------------------------------------------------------------------------------------
-    //// Trigger Begin
+    //// Methods
     //// -------------------------------------------------------------------------------------------
 
     public virtual bool CanStartTrigger()
@@ -54,6 +43,20 @@ public abstract class Grenade : Equipable
         return true;
     }
 
+    public virtual bool CanStopTrigger()
+    {
+        return _canStopTrigger && _isTriggered;
+    }
+
+    public virtual bool StopTrigger()
+    {
+        if (!CanStopTrigger())
+            return false;
+
+        _isTriggered = false;
+        return true;
+    }
+
     protected IEnumerator _TriggerCoroutine()
     {
         yield return new WaitForSeconds(_triggerTime);
@@ -64,47 +67,13 @@ public abstract class Grenade : Equipable
         }
     }
 
-    protected virtual void _OnTriggerFinish()
-    {
-    }
+    protected virtual void _OnTriggerFinish() { }
 
-    public virtual bool CanStopTrigger()
-    {
-        return _canStopTrigger && _isTriggered;
-    }
+    protected virtual void _OnTriggerStop() { }
 
-    public virtual bool StopTrigger()
-    {
-        if (CanStopTrigger() == false)
-            return false;
+    protected virtual void _DisableGeometry() { }
 
-        _isTriggered = false;
-        return true;
-    }
-
-    protected virtual void _OnTriggerStop()
-    {
-    }
-
-    //// -------------------------------------------------------------------------------------------
-    //// Trigger End
-    //// -------------------------------------------------------------------------------------------
-
-    //// -------------------------------------------------------------------------------------------
-    //// Physics and Geometry Begin
-    //// -------------------------------------------------------------------------------------------
-
-    protected virtual void _DisableGeometry()
-    {
-    }
-
-    protected virtual void _EnableGeometry()
-    {
-    }
-
-    //// -------------------------------------------------------------------------------------------
-    //// Physics and Geometry End
-    //// -------------------------------------------------------------------------------------------
+    protected virtual void _EnableGeometry() { }
 
     //// -------------------------------------------------------------------------------------------
     //// Properties and Fields
@@ -112,4 +81,9 @@ public abstract class Grenade : Equipable
 
     public bool isTriggered => _isTriggered;
     public float triggerTime => _triggerTime;
+
+    protected Projectile _projectile;
+    protected bool _isTriggered;
+    protected float _triggerTime;
+    protected bool _canStopTrigger;
 }

@@ -5,13 +5,13 @@ public class RifleWeapon : ReloadableWeapon
 {
     [NonSerialized]
     protected new RifleWeaponAsset _asset;
-    public new RifleWeaponAsset sourceAsset => _asset;
+    public new RifleWeaponAsset asset => _asset;
 
     public override WeaponCategory category => WeaponCategory.Assault;
 
-    protected override void Init(WeaponInitializer initializer)
+    protected override void _Init(WeaponInitializer initializer)
     {
-        base.Init(initializer);
+        base._Init(initializer);
 
         _bulletSource = initializer.bulletDataSource;
 
@@ -24,8 +24,8 @@ public class RifleWeapon : ReloadableWeapon
             _fireRecoil = _asset.fireRecoil;
             _fireAudio = _asset.fireAudio;
 
-            _capacity = _asset.capacity;
-            _cur = _asset.initial;
+            _ammoCap = _asset.capacity;
+            _curAmmo = _asset.initial;
         }
     }
 }

@@ -17,18 +17,13 @@ public enum WeaponCategory
 [DisallowMultipleComponent]
 public abstract class Weapon : Equipable
 {
-    protected WeaponAsset _asset;
-    public WeaponAsset sourceAsset => _asset;
-
-    public abstract WeaponCategory category { get; }
-
     protected virtual void Awake()
     {
         WeaponInitializer initializer = GetComponent<WeaponInitializer>();
 
         if (initializer)
         {
-            Init(initializer);
+            _Init(initializer);
 
             if (initializer.destroyAfterUse)
             {
@@ -37,8 +32,13 @@ public abstract class Weapon : Equipable
         }
     }
 
-    protected virtual void Init(WeaponInitializer initializer)
+    protected virtual void _Init(WeaponInitializer initializer)
     {
         _asset = initializer.source as WeaponAsset;
     }
+
+    public WeaponAsset asset => _asset;
+    public abstract WeaponCategory category { get; }
+
+    protected WeaponAsset _asset;
 }

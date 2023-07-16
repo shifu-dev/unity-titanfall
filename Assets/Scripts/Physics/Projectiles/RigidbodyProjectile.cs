@@ -3,38 +3,20 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class RigidbodyProjectile : Projectile
 {
-    private Rigidbody _rigidBody = null;
-    new protected Rigidbody rigidbody
+    private void Awake()
     {
-        get
-        {
-            if (_rigidBody is null)
-            {
-                _rigidBody = GetComponent<Rigidbody>();
-            }
-
-            return _rigidBody;
-        }
-
-        set
-        {
-            _rigidBody = value;
-        }
+        _rigidbody = GetComponent<Rigidbody>();
     }
 
-    public override void Launch(Vector3 launchVector)
+    public sealed override void Launch(Vector3 launchVector)
     {
-        if (rigidbody)
-        {
-            rigidbody.AddForce(launchVector);
-        }
+        _rigidbody.AddForce(launchVector);
     }
 
-    public override void Stop()
+    public sealed override void Stop()
     {
-        if (rigidbody)
-        {
-            rigidbody.isKinematic = true;
-        }
+        _rigidbody.isKinematic = true;
     }
+
+    protected Rigidbody _rigidbody;
 }
