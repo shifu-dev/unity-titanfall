@@ -40,6 +40,12 @@ public partial class CharacterMovement : CharacterBehaviour
                     moduleList.Add(airModule);
                 }
             }
+
+            _modules = moduleList.ToArray();
+            foreach (var module in _modules)
+            {
+                module.OnLoaded(this);
+            }
         }
     }
 

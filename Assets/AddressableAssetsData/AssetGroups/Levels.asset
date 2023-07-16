@@ -10,15 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: Characters
+  m_Name: Levels
   m_EditorClassIdentifier: 
-  m_GroupName: Characters
+  m_GroupName: Levels
   m_Data:
     m_SerializedData: []
-  m_GUID: a8f396b5e3a3f070dbaa56c95dfd768b
+  m_GUID: 3245b36235ffbf94fbe16fb9af964fe4
   m_SerializeEntries:
-  - m_GUID: dab369d3de5b62a4da379f1d2e86bc3a
-    m_Address: Characters/SwatGuy
+  - m_GUID: e1c471cdb9e6e544e8dc2fd9d981b08c
+    m_Address: Levels/Bootstrap
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 74e44d2eebce64744bddf4c567059e1e
+    m_Address: Levels/Playground
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -26,5 +31,5 @@ MonoBehaviour:
   m_Settings: {fileID: 11400000, guid: 1ab7890b54bbf2254843d121cb6fcb11, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 72ad7f4e63337fe55b54ceec6dae02be, type: 2}
-    - {fileID: 11400000, guid: 48bc503740dedeb99a886d2ae885edbe, type: 2}
+    - {fileID: 11400000, guid: 33b72bebc8ed4b16e93ca23caab28e12, type: 2}
+    - {fileID: 11400000, guid: 2a283fc4673844408aceb1323d12e658, type: 2}

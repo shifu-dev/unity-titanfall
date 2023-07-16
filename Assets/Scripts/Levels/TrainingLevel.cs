@@ -1,48 +1,45 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using GameFramework.Logging;
 using GameFramework.LevelManagement;
+using GameFramework;
 
 [CreateAssetMenu(menuName = MENU_PATH + "TrainingLevel", fileName = "TrainingLevel")]
 public class TrainingLevel : BasicLevelAsset
 {
     public override LevelAsyncOperation PerformLoad()
     {
-        LevelAsyncOperation operation = base.PerformLoad();
+        LevelAsyncOperation op = base.PerformLoad();
+        _PerformLoad();
+        return op;
+    }
 
+    public async void _PerformLoad()
+    {
         IGameLogger logger = GameLog.System.CreateLogger("TrainingLevel");
 
-        // var sceneObject = SceneManager.FindSceneObject(_scenes[0]);
-        SceneObject sceneObject = null;
-        var spawnPositions = sceneObject.playerSpawnPoints;
-
-        Transform spawnPoint = null;
-        foreach (var spawnPos in spawnPositions)
-        {
-            if (spawnPos is not null)
-            {
-                spawnPoint = spawnPos;
-                break;
-            }
-        }
+        var sceneObject = SceneManager.System.FindSceneObjectFor(_scenes[0]) as SceneObject;
+        Transform spawnPoint = sceneObject.playerSpawnPoints.First
+        (
+            (Transform transform) => transform is not null
+        );
 
         if (spawnPoint is not null)
         {
             var localPlayer = PlayerManager.CreateLocalPlayer();
             if (localPlayer is not null)
             {
-                string charName = "Swat Guy";
-                CharacterAsset charAsset = Addressables.LoadAssetAsync<CharacterAsset>(
-                    $"Characters/{charName}").Result;
+                string charName = "SwatGuy";
+                CharacterAsset charAsset = await Addressables.LoadAssetAsync<CharacterAsset>(
+                    $"Characters/{charName}").Task;
 
                 if (charAsset is null)
                 {
-                    Debug.LogError($"Could not load character asset[{charName}]", this);
+                    Debug.LogError($"Could not load character asset, {charName}", this);
                     throw new UnityException();
                 }
 
-                // CharacterAsset charAsset = CharacterAssetRegistry.Instance.GetAsset(
-                //     "SwatGuy CharacterAsset");
                 var charInstanceHandler = charAsset.instanceHandler;
                 charInstanceHandler.SetMaxReserve(5);
                 charInstanceHandler.Reserve(4);
@@ -58,7 +55,5 @@ public class TrainingLevel : BasicLevelAsset
                 logger.Error("Could not create Local Player");
             }
         }
-
-        return operation;
     }
 }

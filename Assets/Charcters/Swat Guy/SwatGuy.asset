@@ -15,7 +15,7 @@ MonoBehaviour:
   _characterName: Manny
   _tppBody: {fileID: 0}
   _fppBody: {fileID: 0}
-  _tppPrefab: {fileID: 6526974782931169490, guid: 6b66c241476452548a8769ce8b2a69e3, type: 3}
+  _tppPrefab: {fileID: 6526974782931169490, guid: 79e02451be545264ba8f6991f17f127d, type: 3}
   _fppPrefab: {fileID: 0}
   _characterMass: 80
   mGroundModuleSource: {fileID: 11400000, guid: 6da330a94796bcdbe86b456d35de8fa0, type: 2}
@@ -23,38 +23,3 @@ MonoBehaviour:
   _avatar: {fileID: 9000000, guid: 15003a1bcee5a8a4fb2e8e608f16f035, type: 3}
   _avatarMaskUpperBody: {fileID: 0}
   _avatarMaskLowerBody: {fileID: 0}
-  _animGroundStandIdle: {fileID: 0}
-  _animGroundStandWalkForward: {fileID: 0}
-  _animGroundStandWalkForwardLeft: {fileID: 0}
-  _animGroundStandWalkForwardRight: {fileID: 0}
-  _animGroundStandWalkLeft: {fileID: 0}
-  _animGroundStandWalkRight: {fileID: 0}
-  _animGroundStandWalkBackward: {fileID: 0}
-  _animGroundStandWalkBackwardLeft: {fileID: 0}
-  _animGroundStandWalkBackwardRight: {fileID: 0}
-  _animGroundStandRunForward: {fileID: 0}
-  _animGroundStandRunForwardLeft: {fileID: 0}
-  _animGroundStandRunForwardRight: {fileID: 0}
-  _animGroundStandRunLeft: {fileID: 0}
-  _animGroundStandRunRight: {fileID: 0}
-  _animGroundStandRunBackward: {fileID: 0}
-  _animGroundStandRunBackwardLeft: {fileID: 0}
-  _animGroundStandRunBackwardRight: {fileID: 0}
-  _animGroundStandSprintForward: {fileID: 0}
-  _animGroundCrouchIdle: {fileID: 0}
-  _animGroundCrouchWalkForward: {fileID: 0}
-  _animGroundCrouchWalkForwardLeft: {fileID: 0}
-  _animGroundCrouchWalkForwardRight: {fileID: 0}
-  _animGroundCrouchWalkLeft: {fileID: 0}
-  _animGroundCrouchWalkRight: {fileID: 0}
-  _animGroundCrouchWalkBackward: {fileID: 0}
-  _animGroundCrouchWalkBackwardLeft: {fileID: 0}
-  _animGroundCrouchWalkBackwardRight: {fileID: 0}
-  _animGroundCrouchRunForward: {fileID: 0}
-  _animGroundCrouchRunForwardLeft: {fileID: 0}
-  _animGroundCrouchRunForwardRight: {fileID: 0}
-  _animGroundCrouchRunLeft: {fileID: 0}
-  _animGroundCrouchRunRight: {fileID: 0}
-  _animGroundCrouchRunBackward: {fileID: 0}
-  _animGroundCrouchRunBackwardLeft: {fileID: 0}
-  _animGroundCrouchRunBackwardRight: {fileID: 0}

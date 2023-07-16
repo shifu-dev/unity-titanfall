@@ -54,5 +54,5 @@ public class PlayerManagerSystem : GameSystem
     }
 
     protected Player _localPlayer;
-    protected IGameLogger _logger;
+    protected IGameLogger _logger = new SilentLogger();
 }

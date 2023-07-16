@@ -18,6 +18,7 @@ public partial class CharacterMovement
             }
 
             _charMovement = charMovement;
+            _character = _charMovement.character;
         }
 
         public virtual void OnUnloaded(CharacterMovement charMovement)
@@ -37,7 +38,7 @@ public partial class CharacterMovement
         {
             if (_charMovement is null)
             {
-                throw new NullReferenceException(@"mCharMovement is null, 
+                throw new NullReferenceException(@"_charMovement is null, 
                     this module is not loaded by CharacterMovementBehaviour");
             }
         }
