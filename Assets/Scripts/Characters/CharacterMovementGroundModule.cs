@@ -1,5 +1,6 @@
-﻿using GameFramework.Extensions;
-using System;
+﻿using System;
+using System.Diagnostics.Contracts;
+using GameFramework.Extensions;
 using UnityEngine;
 using UnityEngine.Playables;
 
@@ -45,58 +46,56 @@ public class CharacterMovementGroundModule : CharacterMovementModule
 
     public CharacterMovementGroundModule(CharacterMovementGroundModuleSource source)
     {
+        Contract.Assume(source is not null);
+
         _prevGroundResult = GroundResult.invalid;
         _groundResult = GroundResult.invalid;
 
-        // cache Data from CharacterDataSource
-        if (source is not null)
-        {
-            _groundCheckDepth = source.checkDepth;
-            _groundLayer = source.groundLayer;
-            _minMoveDistance = source.minMoveDistance;
+        _groundCheckDepth = source.checkDepth;
+        _groundLayer = source.groundLayer;
+        _minMoveDistance = source.minMoveDistance;
 
-            _standDeacceleration = source.standIdleAcceleration;
-            _standWalkSpeed = source.standWalkSpeed;
-            _standWalkAcceleration = source.standWalkAcceleration;
-            _standRunSpeed = source.standRunSpeed;
-            _standRunAcceleration = source.standRunAcceleration;
-            _standSprintSpeed = source.standSprintSpeed;
-            _standSprintAcceleration = source.standSprintAcceleration;
-            _standSprintLeftAngleMax = source.standSprintLeftAngleMax;
-            _standSprintRightAngleMax = source.standSprintRightAngleMax;
-            _standJumpForce = source.standJumpForce;
-            _standStepUpPercent = source.standStepUpPercent;
-            _standStepUpHeight = _capsule.height * _standStepUpPercent / 100f;
-            _standStepDownPercent = source.standStepDownPercent;
-            _standStepDownHeight = _capsule.height * _standStepDownPercent / 100f;
-            _standSlopeUpAngle = source.standSlopeUpAngle;
-            _standSlopeDownAngle = source.standSlopeDownAngle;
-            _standMaintainVelocityOnSurface = source.standMaintainVelocityOnSurface;
-            _standMaintainVelocityAlongSurface = source.standMaintainVelocityAlongSurface;
-            _standCapsuleCenter = source.standCapsuleCenter;
-            _standCapsuleHeight = source.standCapsuleHeight;
-            _standCapsuleRadius = source.standCapsuleRadius;
-            _standToCrouchTransitionSpeed = source.standToCrouchTransitionSpeed;
+        _standDeacceleration = source.standIdleAcceleration;
+        _standWalkSpeed = source.standWalkSpeed;
+        _standWalkAcceleration = source.standWalkAcceleration;
+        _standRunSpeed = source.standRunSpeed;
+        _standRunAcceleration = source.standRunAcceleration;
+        _standSprintSpeed = source.standSprintSpeed;
+        _standSprintAcceleration = source.standSprintAcceleration;
+        _standSprintLeftAngleMax = source.standSprintLeftAngleMax;
+        _standSprintRightAngleMax = source.standSprintRightAngleMax;
+        _standJumpForce = source.standJumpForce;
+        _standStepUpPercent = source.standStepUpPercent;
+        _standStepUpHeight = _capsule.height * _standStepUpPercent / 100f;
+        _standStepDownPercent = source.standStepDownPercent;
+        _standStepDownHeight = _capsule.height * _standStepDownPercent / 100f;
+        _standSlopeUpAngle = source.standSlopeUpAngle;
+        _standSlopeDownAngle = source.standSlopeDownAngle;
+        _standMaintainVelocityOnSurface = source.standMaintainVelocityOnSurface;
+        _standMaintainVelocityAlongSurface = source.standMaintainVelocityAlongSurface;
+        _standCapsuleCenter = source.standCapsuleCenter;
+        _standCapsuleHeight = source.standCapsuleHeight;
+        _standCapsuleRadius = source.standCapsuleRadius;
+        _standToCrouchTransitionSpeed = source.standToCrouchTransitionSpeed;
 
-            _crouchDeacceleration = source.crouchIdleAcceleration;
-            _crouchWalkSpeed = source.crouchWalkSpeed;
-            _crouchWalkAcceleration = source.crouchWalkAcceleration;
-            _crouchRunSpeed = source.crouchRunSpeed;
-            _crouchRunAcceleration = source.crouchRunAcceleration;
-            _crouchJumpForce = source.crouchJumpForce;
-            _crouchStepUpPercent = source.crouchStepUpPercent;
-            _crouchStepUpHeight = _capsule.height * _crouchStepUpPercent / 100f;
-            _crouchStepDownPercent = source.crouchStepDownPercent;
-            _crouchStepUpHeight = _capsule.height * _crouchStepUpPercent / 100f;
-            _crouchSlopeUpAngle = source.crouchSlopeUpAngle;
-            _crouchSlopeDownAngle = source.crouchSlopeDownAngle;
-            _crouchMaintainVelocityOnSurface = source.crouchMaintainVelocityOnSurface;
-            _crouchMaintainVelocityAlongSurface = source.crouchMaintainVelocityAlongSurface;
-            _crouchCapsuleCenter = source.crouchCapsuleCenter;
-            _crouchCapsuleHeight = source.crouchCapsuleHeight;
-            _crouchCapsuleRadius = source.crouchCapsuleRadius;
-            _crouchToStandTransitionSpeed = source.crouchToStandTransitionSpeed;
-        }
+        _crouchDeacceleration = source.crouchIdleAcceleration;
+        _crouchWalkSpeed = source.crouchWalkSpeed;
+        _crouchWalkAcceleration = source.crouchWalkAcceleration;
+        _crouchRunSpeed = source.crouchRunSpeed;
+        _crouchRunAcceleration = source.crouchRunAcceleration;
+        _crouchJumpForce = source.crouchJumpForce;
+        _crouchStepUpPercent = source.crouchStepUpPercent;
+        _crouchStepUpHeight = _capsule.height * _crouchStepUpPercent / 100f;
+        _crouchStepDownPercent = source.crouchStepDownPercent;
+        _crouchStepUpHeight = _capsule.height * _crouchStepUpPercent / 100f;
+        _crouchSlopeUpAngle = source.crouchSlopeUpAngle;
+        _crouchSlopeDownAngle = source.crouchSlopeDownAngle;
+        _crouchMaintainVelocityOnSurface = source.crouchMaintainVelocityOnSurface;
+        _crouchMaintainVelocityAlongSurface = source.crouchMaintainVelocityAlongSurface;
+        _crouchCapsuleCenter = source.crouchCapsuleCenter;
+        _crouchCapsuleHeight = source.crouchCapsuleHeight;
+        _crouchCapsuleRadius = source.crouchCapsuleRadius;
+        _crouchToStandTransitionSpeed = source.crouchToStandTransitionSpeed;
     }
 
     //// -------------------------------------------------------------------------------------------
@@ -603,7 +602,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
     //// Animations
     //// -------------------------------------------------------------------------------------------
 
-    protected void _CreateAnimationGraph()
+    protected void _CreateAnimGraph()
     {
         if (_animGraph.IsValid())
         {
@@ -724,7 +723,7 @@ public class CharacterMovementGroundModule : CharacterMovementModule
         _animBaseTree.UpdateGraph(true);
     }
 
-    protected void _UpdateAnimationGraph()
+    protected void _UpdateAnimGraph()
     {
         float walkSpeed = _standWalkSpeed;
         float runSpeed = _standRunSpeed;
@@ -851,6 +850,4 @@ public class CharacterMovementGroundModule : CharacterMovementModule
     protected readonly bool _crouchMaintainVelocityOnSurface;
     protected readonly bool _crouchMaintainVelocityAlongSurface;
     protected readonly Vector3 _crouchCapsuleCenter;
-
-    //// -------------------------------------------------------------------------------------------
 }
