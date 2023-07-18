@@ -10,20 +10,21 @@ public class TrainingLevel : BasicLevelAsset
 {
     public override LevelAsyncOperation PerformLoad()
     {
-        LevelAsyncOperation op = base.PerformLoad();
-        _PerformLoad();
-        return op;
+        LevelAsyncOperation levelOp = base.PerformLoad();
+        var op = new AsyncOperationSource();
+        levelOp.AddOperation(op);
+
+        _PerformLoad(op);
+        return levelOp;
     }
 
-    public async void _PerformLoad()
+    private async void _PerformLoad(AsyncOperationSource op)
     {
         IGameLogger logger = GameLog.System.CreateLogger("TrainingLevel");
 
         var sceneObject = SceneManager.System.FindSceneObjectFor(_scenes[0]) as SceneObject;
-        Transform spawnPoint = sceneObject.playerSpawnPoints.First
-        (
-            (Transform transform) => transform is not null
-        );
+        Transform spawnPoint = sceneObject.playerSpawnPoints.
+            FirstOrDefault(trans => trans is not null);
 
         if (spawnPoint is not null)
         {
@@ -55,5 +56,7 @@ public class TrainingLevel : BasicLevelAsset
                 logger.Error("Could not create Local Player");
             }
         }
+
+        op.SetCompleted();
     }
 }

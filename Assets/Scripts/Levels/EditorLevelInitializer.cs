@@ -26,7 +26,7 @@ public class EditorLevelInitializer : MonoBehaviour
         Debug.Log("Loaded level asset.");
 
         Debug.Log($"Loading level{level.name}...");
-        (level as TrainingLevel)._PerformLoad();
+        level.PerformLoad();
         Debug.Log($"Loaded level.");
     }
 
