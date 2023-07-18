@@ -993,7 +993,7 @@ GameObject:
   - component: {fileID: 1410568981}
   - component: {fileID: 1410568982}
   m_Layer: 0
-  m_Name: LevelInitializer
+  m_Name: Editor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1012,7 +1012,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1410568982
 MonoBehaviour:
@@ -1026,7 +1026,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c5e99368cdd00252ba953f128b9cb4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _levelAsset:
+  _level:
     m_AssetGUID: 74e44d2eebce64744bddf4c567059e1e
     m_SubObjectName: 
     m_SubObjectType: 
@@ -1230,7 +1230,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1955049360
 PrefabInstance:
